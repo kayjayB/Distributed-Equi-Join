@@ -7,7 +7,7 @@
 #include <fstream>
 #include <memory>
 
-#include <hashFunction.h>
+#include "hashFunction.h"
 
 using namespace std;
 

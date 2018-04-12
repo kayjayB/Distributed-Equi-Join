@@ -36,7 +36,7 @@ void joinManager::join(string key, string lineFromR1, vector<string> linesFromR2
 void joinManager::writeToFile(string lineToWrite)
 {
 	ofstream myFile;
-	myFile.open("/Users/KJ/Documents/BigDataProject/joinedFile.txt", std::ios::app);
+	myFile.open("joinedFile.txt", std::ios::app);
 	myFile << lineToWrite << "\n";
 	myFile.close();
 	

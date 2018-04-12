@@ -120,7 +120,6 @@ void hashFunction::PrintItemsInBucket(int index)
 vector<string> hashFunction::FindValue(string key)
 {
 	int index = Hash(key);
-	bool found = false;
 	string value;
 	
 	vector <string> values;
@@ -131,7 +130,6 @@ vector<string> hashFunction::FindValue(string key)
 	{
 		if (Ptr->key == key)
 		{
-			found = true;
 			value = Ptr-> value;
 			//string temp = key + "|" + value;
 			string temp = value;

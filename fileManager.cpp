@@ -22,6 +22,7 @@ vector<string> fileManager::readFile()
 
 	while (file && getline(file, linebuffer)){
 		if (linebuffer.length() == 0) continue;
+		cout << "line buffer: " << linebuffer << endl;
 		vector<string> line = split(linebuffer, _delimeter);
 		key = line.at(_column);
 		data.push_back(key);
@@ -39,6 +40,7 @@ vector<string> fileManager::split(string line, char delimiter)
 	
 	while (getline(ss, item, delimiter))
 	{
+		cout << "item is: " << item << endl;
 		list.push_back(item);
 	}
 	

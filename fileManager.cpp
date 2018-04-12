@@ -4,9 +4,7 @@ fileManager::fileManager(string fileName, int column, char delimeter)
 {
     _file_name = fileName;
 	_column = column;
-    if (delimeter != '|'){
-        _delimeter = delimeter;
-    }
+    _delimeter = delimeter;
 }
 
 fileManager::~fileManager()

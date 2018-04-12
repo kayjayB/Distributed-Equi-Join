@@ -1,44 +1,46 @@
 #include "fileManager.h"
 
-fileManager::fileManager(string fileName, string key, string delimeter=",")
+fileManager::fileManager(string fileName, int column, char delimeter)
 {
     _file_name = fileName;
-    if (delimeter != ","){
+	_column = column;
+    if (delimeter != '|'){
         _delimeter = delimeter;
     }
 }
 
 fileManager::~fileManager()
 {
-
 }
 
-string fileManager::readFile()
+vector<string> fileManager::readFile()
 {
 	ifstream file(_file_name); // pass file name as argment
 	string linebuffer;
+	string key;
+	vector<string> data;
 
 	while (file && getline(file, linebuffer)){
-		if (linebuffer.length() == 0)continue;
-		
+		if (linebuffer.length() == 0) continue;
+		vector<string> line = split(linebuffer, _delimeter);
+		key = line.at(_column);
+		data.push_back(key);
+		data.push_back(linebuffer);
 	}
+	
+	return data;
 }
 
-vector<string> fileManager::split(char *phrase, string delimiter)
+vector<string> fileManager::split(string line, char delimiter)
 {
+	stringstream ss(line);
+	string item;
+	vector<string> list;
 	
-    vector<string> list;
-    string s = string(phrase);
-    size_t pos = 0;
-    string token;
-
-    while ((pos = s.find(delimiter)) != string::npos) 
+	while (getline(ss, item, delimiter))
 	{
-        token = s.substr(0, pos);
-        list.push_back(token);
-        s.erase(0, pos + delimiter.length());
-    }
-
-    return list;
-
+		list.push_back(item);
+	}
+	
+	return list;
 }

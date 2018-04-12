@@ -14,7 +14,7 @@ using std::make_shared;
 
 int main()
 {
-	
+	fileManager fileHandler("inputFile.txt",2);
 	joinManager test;
 
 	test.hasher->AddItem("KJ", "23");

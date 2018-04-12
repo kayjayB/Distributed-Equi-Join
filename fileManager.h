@@ -6,23 +6,23 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
 class fileManager
 {
 public:
-	fileManager(string fileName, string key, string delimeter);
+	fileManager(string fileName, int column, char delimeter = '|');
 	~fileManager();
 
-	string readFile();
-	vector<string> split(char *phrase, string delimiter);
+	vector<string> readFile();
+	vector<string> split(string line, char delimiter);
 
 private:
 	string _file_name;
-	string _delimeter;
-	string _key;
-	vector<string> _data;
+	int _column;
+	char _delimeter;
 };
 
 #endif // FILEMANAGER_H

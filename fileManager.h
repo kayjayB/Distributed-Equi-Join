@@ -7,22 +7,22 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <memory>
 
 using namespace std;
 
 class fileManager
 {
 public:
-	fileManager(string fileName, int column, char delimeter = '|');
+	fileManager();
 	~fileManager();
 
-	vector<string> readFile();
+	vector<string> readFile(string fileName, int column, char delimeter = '|');
 	vector<string> split(string line, char delimiter);
+	void deleteFile(const char * fileName);
 
 private:
-	string _file_name;
-	int _column;
-	char _delimeter;
+
 };
 
 #endif // FILEMANAGER_H

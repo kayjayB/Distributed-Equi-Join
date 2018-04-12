@@ -24,7 +24,6 @@ int hashFunction::Hash(string key)
 	
 	int index;
 	index = hashVal % _tableSize;
-	cout << index<< endl;
 	return index;
 }
 
@@ -134,7 +133,8 @@ vector<string> hashFunction::FindValue(string key)
 		{
 			found = true;
 			value = Ptr-> value;
-			string temp = key + "," + value;
+			//string temp = key + "|" + value;
+			string temp = value;
 			values.push_back(temp);
 		}
 		Ptr = Ptr->next;

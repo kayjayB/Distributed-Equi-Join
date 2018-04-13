@@ -9,6 +9,7 @@
 #include "joinManager.h"
 #include "fileManager.h"
 
+#include "mpi.h"
 #include "omp.h"
 
 using namespace std;
@@ -16,8 +17,16 @@ using namespace std;
 using std::shared_ptr;
 using std::make_shared;
 
-int main()
+int main(int argc, char *argv[])
 {
+	int numprocs, rank, namelen;
+	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	int iam = 0, np = 1;
+
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Get_processor_name(processor_name, &namelen);
 
 	fileManager fileHandler;
 	joinManager test;
@@ -30,8 +39,13 @@ int main()
 	vector<string> linesOfFile1 = fileHandler.readFile("smallInput1.txt",1);
 	vector<string> linesOfFile2 = fileHandler.readFile("smallInput2.txt",1);
 
-	#pragma omp parallel
+	#pragma omp parallel default(shared) private(iam, np)
 	{
+		np = omp_get_num_threads();
+    	iam = omp_get_thread_num();
+		printf("Working on thread %d out of %d from process %d out of %d on %s\n",
+           iam, np, rank, numprocs, processor_name);
+
 		#pragma omp for
 		for (int i=0; i< linesOfFile1.size(); i = i+2)
 		{
@@ -56,5 +70,7 @@ int main()
     printf ("%f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
 
     printf("\n");
+
+	MPI_Finalize();
 	
 }

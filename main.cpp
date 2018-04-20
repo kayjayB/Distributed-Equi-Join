@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
            iam, np, rank, numprocs, processor_name);
 
 		#pragma omp for
-		for (int i=0; i< linesOfFile1.size(); i = i+2)
+		for (unsigned int i=0; i< linesOfFile1.size(); i = i+2)
 		{
 			//int tid = omp_get_thread_num();  
 			//printf("Hello World from thread = %d\n", tid);  
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 			test.hasher -> AddItem(key,value);
 		}
 		#pragma omp for
-		for (int i=0; i<linesOfFile2.size();i = i+2)
+		for (unsigned int i=0; i<linesOfFile2.size();i = i+2)
 		{
 		//	int tid = omp_get_thread_num();  
 		//	printf("Hello World from thread = %d\n", tid);  

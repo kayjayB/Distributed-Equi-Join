@@ -93,71 +93,104 @@ public:
         uint64_t start_key_A = 0;
         uint64_t start_Value_A = 0;
         int column_counter = 0;
-        bool first_column;
+        bool first_column = false;
         wc_word word;
 
 
         while(i_Value_A < s.lenA)
         { 
-            while(i_Value_A < s.lenA && (s.data_A[i_Value_A] != '\r' || s.data_A[i_Value_A] != '\n'))
+            column_counter = 0;
+
+            while(i_Value_A < s.lenA && (s.data_A[i_A] == '\r' || s.data_A[i_A] == '\n' || s.data_A[i_A] == '\t'))
             {
-                printf("start main while loop \n");
+                //printf("start main while loop \n");
                 //printf("counter: %u \n", i_A);
-                printf("len: %u \n", lenA);
-                printf("val: %c \n", s.data_A_key[i_A]);
+                //printf("len: %u \n", lenA);
+                //printf("val: %c \n", s.data_A_key[i_A]);
 
                 i_Value_A++;
-                while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
-                {
-                    printf("counter: %i \n", i_A);
-                    if (key_column == 0) {
+            }
+            printf("%u\n\n", i_Value_A);
+
+            while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
+            {
+                printf("i_A: %i \n", i_A);
+                //printf("val: %c \n", s.data_A[i_A]);
+                if (key_column == 0) {
+
                     first_column = true;
                     start_key_A = i_A;
-                    }
-                    else {
-
-                        i_A++;
-                    }
+                    break;
                 }
-                column_counter++;
+                else {
 
-                if (key_column == column_counter && !first_column)
-                {
-                    start_key_A = i_A+1;
-                    while(i_A < s.lenA && (s.data_A[i_A] != '|'))
-                        i_A++;
-
-                    if(i_A > start_key_A)
-                    {
-                        s.data_A_key[i_A] = 0;
-                        word = { s.data_A_key + start_key_A };
-                    }
+                    i_A++;
                 }
-                if (first_column)
-                {
-                    while(i_A < s.lenA && (s.data_A[i_A] != '|'))
-                        i_A++;
-
-                    if(i_A > start_key_A)
-                    {
-                        s.data_A_key[i_A] = 0;
-                        word = { s.data_A_key + start_key_A };
-                    }
-                }
-                
             }
 
+            column_counter++;
+            printf("column counter: %i \n", column_counter);
+
+            if ((key_column == column_counter))
+            {
+                
+                start_key_A = i_A+1;
+                i_A++;
+
+                while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
+
+                    printf("i_A in loop: %i \n", i_A);
+                    i_A++;
+                    
+                }
+
+                if(i_A > start_key_A)
+                {
+                    printf("in the loop\n");
+                    s.data_A_key[i_A] = 0;
+
+                    printf("key: %c \n",  s.data_A_key + start_key_A);
+                    printf("key: %c \n",  s.data_A_key[i_A-1]);
+
+                    word = { s.data_A_key + start_key_A };
+                }
+            }
+
+            if (first_column == true)
+            {
+                while(i_A < s.lenA && (s.data_A[i_A] != '|'))
+                    i_A++;
+
+                if(i_A > start_key_A)
+                {
+                    s.data_A_key[i_A] = 0;
+                    word = { s.data_A_key + start_key_A };
+                }
+            }
+                
+            column_counter = 0;
+
             start_Value_A = i_Value_A;
-            while(i_Value_A < s.lenA && (s.data_A[i_Value_A] != '\r' || s.data_A[i_Value_A] != '\n'))
-                    i_Value_A++;
+
+            while(i_Value_A < s.lenA && (s.data_A[i_Value_A] != '\r' && s.data_A[i_Value_A] != '\n' && s.data_A[i_Value_A] != '\0')) 
+            {
+                printf("data_A @ ivalA: %c \n", s.data_A[i_Value_A-1]);
+                i_Value_A++;
+            }
+
             if(i_Value_A > start_Value_A)
                 {
                     s.data_A[i_Value_A] = 0; // end of the value
                     int identifierA = 0;
                     valueStruct outputA(s.data_A + start_Value_A, identifierA);
+
+                    printf("val: %c \n",  s.data_A + start_Value_A);
+                    printf("val: %c \n",  s.data_A[i_Value_A]);
+
                     emit_intermediate(out, word, outputA);
                 }
-            
+            printf("Ival: %u \n", i_Value_A);
+
         }
 
         printf("started mapping B \n");
@@ -167,6 +200,7 @@ public:
         uint64_t i_Value_B = 0;
         uint64_t start_key_B = 0;
         uint64_t start_Value_B = 0;
+        first_column = false;
         column_counter = 0;
 
         while(i_Value_B < s.lenB)
@@ -218,6 +252,10 @@ public:
                     s.data_B[i_Value_B] = 0; // end of the value
                     int identifierB = 0;
                     valueStruct outputB(s.data_B + start_Value_B, identifierB);
+                    printf("%c \n", word.data[0]);
+                    printf("%c \n", word.data[1]);
+                    printf("OUTPUT:\n");
+                    printf("%c \n", outputB.value_data[0]);
                     emit_intermediate(out, word, outputB);
                 }
             
@@ -337,7 +375,7 @@ int main(int argc, char *argv[]) {
     fname_A = argv[1];
     fname_B = argv[2];
 
-    printf("String Match: Running...\n");
+    printf("Eqiu Join: Running...\n");
 
     // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
@@ -369,15 +407,37 @@ int main(int argc, char *argv[]) {
     fdata_A_key = (char *)malloc (finfo_A.st_size);
     CHECK_ERROR (fdata_A_key == NULL);
 
+    uint64_t r = 0;
 
-    ret = read (fd_A, fdata_A, finfo_A.st_size);
-    CHECK_ERROR (ret != finfo_A.st_size);
+    while (r < (uint64_t)finfo_A.st_size ) {
+        r += pread (fd_A, fdata_A + r , finfo_A.st_size, r);
+    }
+    CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
+
+    // ret = read (fd_A, fdata_A, finfo_A.st_size);
+    // CHECK_ERROR (ret != finfo_A.st_size);
+    // printf("before \n");
+    // printf("%s", fdata_A[0]);
+    printf("after \n");
+
 
     close(fd_A);
+
+    // for (size_t i = 0; i < 20; i++)
+    // {
+    //     printf("%50s\n", fdata_A[finfo_A.st_size-1-i]);
+    // }
+
     CHECK_ERROR((fd_A = open(fname_A,O_RDONLY)) < 0);
 
-    rety = read (fd_A, fdata_A_key, finfo_A.st_size);
-    CHECK_ERROR (rety != finfo_A.st_size);
+    r = 0;
+
+    while (r < (uint64_t)finfo_A.st_size ) {
+        r += pread (fd_A, fdata_A_key + r , finfo_A.st_size, r);
+    }
+    CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
+    // rety = read (fd_A, fdata_A_key, finfo_A.st_size);
+    // CHECK_ERROR (rety != finfo_A.st_size);
     
 #endif
 
@@ -409,14 +469,28 @@ int main(int argc, char *argv[]) {
     fdata_B_key = (char *)malloc (finfo_B.st_size);
     CHECK_ERROR (fdata_B_key == NULL);
 
-    ret = read (fd_B, fdata_B, finfo_B.st_size);
-    CHECK_ERROR (ret != finfo_B.st_size);
+    r = 0;
+
+    while (r < (uint64_t)finfo_B.st_size ) {
+        r += pread (fd_B, fdata_B + r , finfo_B.st_size, r);
+    }
+    CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
+
+    // ret = read (fd_B, fdata_B, finfo_B.st_size);
+    // CHECK_ERROR (ret != finfo_B.st_size);
 
     close(fd_B);
     CHECK_ERROR((fd_B = open(fname_B,O_RDONLY)) < 0);
 
-    ret = read (fd_B, fdata_B_key, finfo_B.st_size);
-    CHECK_ERROR (ret != finfo_B.st_size);
+    r = 0;
+
+    while (r < (uint64_t)finfo_B.st_size ) {
+        r += pread (fd_B, fdata_B_key + r , finfo_B.st_size, r);
+    }
+    CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
+
+    // ret = read (fd_B, fdata_B_key, finfo_B.st_size);
+    // CHECK_ERROR (ret != finfo_B.st_size);
 
     // fdata_B = (char *)malloc (finfo_B.st_size);
     // CHECK_ERROR (fdata_B == NULL);
@@ -437,6 +511,11 @@ int main(int argc, char *argv[]) {
 
     printf("Equi Join: Calling Equi Join\n");
 
+    // for (int i = 0; i < 50; i++)
+    // {
+    //     printf("%s \n", fdata_A[i]);
+    // }
+
     get_time (begin);
 
     JoinMR mapReduce(fdata_A, fdata_B, fdata_A_key, fdata_B_key, finfo_A.st_size, finfo_B.st_size, 64*1024);
@@ -445,6 +524,12 @@ int main(int argc, char *argv[]) {
     CHECK_ERROR (mapReduce.run(out) < 0);
     get_time (end);
 
+    // for (size_t i = 0; i < 20; i++)
+    // {
+    //     printf("%15s - %50s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
+    // }
+
+    printf("%i \n", out.size());
     printf("Equi Join: MapReduce Completed\n");
 
     print_time("library", begin, end);

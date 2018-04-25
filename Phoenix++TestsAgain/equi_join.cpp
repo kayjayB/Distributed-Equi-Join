@@ -10,6 +10,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <sys/time.h>
+#include <time.h>
+
 using namespace std;
 
 #include "map_reduce.h"
@@ -384,8 +387,9 @@ public:
         return 1;
     }
 
-    // void reduce(key_type const& key, reduce_iterator const& values, 
-    //     std::vector<keyval>& out) const {
+    // void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
+    // {
+
     //     value_type val;
     //     while (values.next(val))
     //     {
@@ -405,9 +409,7 @@ public:
             // printf("val before push: ");
             // for (uint64_t l = 0; l < strlen(val.value_data); l++)
             // {
-                
             //     printf("%c", val.value_data[l]);
-                
             // }
             // printf("\n\n");
 
@@ -437,17 +439,24 @@ public:
                 //     printf("%c", array1[i].value_data[l]);
                     
                 // }
-                printf("\n");
 
                 uint64_t length = strlen(array1[i].value_data) + strlen(array2[j].value_data);
-                char result[length+1];
-                strcat(result, array2[j].value_data);
+
+                //printf("%u %u %u \n", strlen(array1[i].value_data), strlen(array2[j].value_data) , length );
+
+                char* result;
+                result = (char *)malloc(length+1);
+
+                strcpy(result, array2[j].value_data);
                 strcat(result, array1[i].value_data);
+
                 result[length+1] = 0;
 
                 value_type myvalue(-1, result);
                 keyval kv = {key, myvalue};
                 out.push_back(kv);
+
+
 
                 // printf("key data: %c ", key.data[0]);
                 // printf("key data: %c ", key.data[1]);
@@ -470,6 +479,13 @@ public:
 
 
 int main(int argc, char *argv[]) {
+
+    // Remove output file if it exists
+    if (remove("mapReduceOutput.txt") != 0) {
+        printf("Error removing existing output file\n\n");
+    } else {
+        printf("Removed existing output file");
+    }
     
     int fd_A, fd_B;                 // file open flag
     char *fname_A, *fname_B;        // filename
@@ -485,7 +501,7 @@ int main(int argc, char *argv[]) {
 
     if (argv[1] == NULL)
     {
-        printf("USAGE: %s <keys filename>\n", argv[0]);
+        printf("USAGE: %s <filename1 filename2>\n", argv[0]);
         exit(1);
     }
 
@@ -645,20 +661,31 @@ int main(int argc, char *argv[]) {
     // }
 
     get_time (begin);
-
+    struct timeval tv1, tv2;
+    gettimeofday(&tv1, NULL);
     JoinMR mapReduce(fdata_A, fdata_B, fdata_A_key, fdata_B_key, finfo_A.st_size, finfo_B.st_size, 64*1024);
     std::vector<JoinMR::keyval> out;
 
     CHECK_ERROR (mapReduce.run(out) < 0);
     get_time (end);
 
-    for (size_t i = 0; i < 20; i++)
-    {
-        printf("%15s - %100s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
-    }
+    ofstream outputFile;
+    outputFile.open("mapReduceOutput.txt", std::ios::app);
 
+    for (size_t i = 0; i < out.size(); i++)
+    {
+        //printf("%15s - %100s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
+        outputFile << out[out.size()-1-i].key.data << ": \t" << out[out.size()-1-i].val.value_data<< "\n";
+    }
+    outputFile.close();
     printf("%i \n", out.size());
     printf("Equi Join: MapReduce Completed\n");
+    gettimeofday(&tv2, NULL);
+
+    printf("%f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
+
+
+    
 
     print_time("library", begin, end);
 

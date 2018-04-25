@@ -114,7 +114,7 @@ public:
 
             while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
             {
-                printf("i_A: %i \n", i_A);
+                //printf("i_A: %i \n", i_A);
                 //printf("val: %c \n", s.data_A[i_A]);
                 if (key_column == 0) {
 
@@ -129,7 +129,7 @@ public:
             }
 
             column_counter++;
-            printf("column counter: %i \n", column_counter);
+            
 
             if ((key_column == column_counter))
             {
@@ -139,17 +139,19 @@ public:
 
                 while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
 
-                    printf("i_A in loop: %i \n", i_A);
+                    //printf("i_A in loop: %i \n", i_A);
                     i_A++;
                     
                 }
+                column_counter++;
+                printf("column counter: %i \n", column_counter);
 
                 if(i_A > start_key_A)
                 {
-                    printf("in the loop\n");
+                    //printf("in the loop\n");
                     s.data_A_key[i_A] = 0;
 
-                    printf("key: %c \n",  s.data_A_key + start_key_A);
+                    printf("key: %c \n",  s.data_A_key[start_key_A]);
                     printf("key: %c \n",  s.data_A_key[i_A-1]);
 
                     word = { s.data_A_key + start_key_A };
@@ -178,6 +180,8 @@ public:
                 i_Value_A++;
             }
 
+            i_A = i_Value_A;
+
             if(i_Value_A > start_Value_A)
                 {
                     s.data_A[i_Value_A] = 0; // end of the value
@@ -190,7 +194,7 @@ public:
                     emit_intermediate(out, word, outputA);
                 }
             printf("Ival: %u \n", i_Value_A);
-
+            i_Value_A++;
         }
 
         printf("started mapping B \n");

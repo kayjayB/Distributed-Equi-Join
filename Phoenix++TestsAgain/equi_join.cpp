@@ -18,6 +18,7 @@ using namespace std;
 #define SALT_SIZE 2
 #define MAX_REC_LEN 1024
 #define OFFSET 5
+
 #define NO_MMAP
 
 struct wc_string {
@@ -64,6 +65,7 @@ struct wc_word_hash
 
 
 class JoinMR : public MapReduce<JoinMR, wc_string, wc_word, valueStruct, hash_container<wc_word, valueStruct, buffer_combiner, wc_word_hash> >
+//class JoinMR : public MapReduce<JoinMR, wc_string, wc_word, valueStruct, array_container<wc_word, valueStruct, buffer_combiner,6 > >
 {
     char *data_A, *data_B, *data_A_key, *data_B_key;
     uint64_t lenA, lenB;
@@ -110,7 +112,7 @@ public:
 
                 i_Value_A++;
             }
-            printf("%u\n\n", i_Value_A);
+            //printf("%u\n\n", i_Value_A);
 
             while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
             {
@@ -144,15 +146,15 @@ public:
                     
                 }
                 column_counter++;
-                printf("column counter: %i \n", column_counter);
+                //printf("column counter: %i \n", column_counter);
 
                 if(i_A > start_key_A)
                 {
                     //printf("in the loop\n");
                     s.data_A_key[i_A] = 0;
 
-                    printf("key: %c \n",  s.data_A_key[start_key_A]);
-                    printf("key: %c \n",  s.data_A_key[i_A-1]);
+                    printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                    printf("keyA: %c \n",  s.data_A_key[i_A-1]);
 
                     word = { s.data_A_key + start_key_A };
                 }
@@ -176,7 +178,7 @@ public:
 
             while(i_Value_A < s.lenA && (s.data_A[i_Value_A] != '\r' && s.data_A[i_Value_A] != '\n' && s.data_A[i_Value_A] != '\0')) 
             {
-                printf("data_A @ ivalA: %c \n", s.data_A[i_Value_A-1]);
+                //printf("data_A @ ivalA: %c \n", s.data_A[i_Value_A-1]);
                 i_Value_A++;
             }
 
@@ -188,12 +190,12 @@ public:
                     int identifierA = 0;
                     valueStruct outputA(s.data_A + start_Value_A, identifierA);
 
-                    printf("val: %c \n",  s.data_A + start_Value_A);
-                    printf("val: %c \n",  s.data_A[i_Value_A]);
+                    printf("valA: %c \n",  s.data_A[start_Value_A]);
+                    printf("valA: %c \n\n",  s.data_A[i_Value_A]);
 
                     emit_intermediate(out, word, outputA);
                 }
-            printf("Ival: %u \n", i_Value_A);
+            //printf("Ival: %u \n", i_Value_A);
             i_Value_A++;
         }
 
@@ -209,60 +211,95 @@ public:
 
         while(i_Value_B < s.lenB)
         { 
-            while(i_Value_B < s.lenB && (s.data_B[i_Value_B] != '\r' || s.data_B[i_Value_B] != '\n'))
+            column_counter = 0;
+
+            while(i_Value_B < s.lenB && (s.data_B[i_B] == '\r' || s.data_B[i_B] == '\n' || s.data_B[i_B] == '\t'))
             {
                 i_Value_B++;
-                while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
+            }
+
+            while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
+            {
+                if (key_column == 0) 
                 {
-                    if (key_column == 0) {
                     first_column = true;
                     start_key_B = i_B;
-                    }
-                    else
-                        i_B++;
+                    break;
                 }
-                column_counter++;
-
-                if (key_column == column_counter && !first_column)
+                else
                 {
-                    start_key_B = i_B+1;
-                    while(i_B < s.lenB && (s.data_B[i_B] != '|'))
-                        i_B++;
-
-                    if(i_B > start_key_B)
-                    {
-                        s.data_B_key[i_B] = 0;
-                        word = { s.data_B_key + start_key_B };
-                    }
-                }
-                if (first_column)
-                {
-                    while(i_B < s.lenB && (s.data_B[i_B] != '|'))
-                        i_B++;
-
-                    if(i_B > start_key_B)
-                    {
-                        s.data_B_key[i_B] = 0;
-                        word = { s.data_B_key + start_key_B };
-                    }
+                    i_B++;
                 }
             }
 
-            start_Value_B = i_Value_B;
-            while(i_Value_B < s.lenB && (s.data_B[i_Value_B] != '\r' || s.data_B[i_Value_B] != '\n'))
-                    i_Value_B++;
-            if(i_Value_B > start_Value_B)
+            column_counter++;
+
+            if (key_column == column_counter)
+            {
+                start_key_B = i_B + 1;
+                i_B++;
+
+                while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
-                    s.data_B[i_Value_B] = 0; // end of the value
-                    int identifierB = 0;
-                    valueStruct outputB(s.data_B + start_Value_B, identifierB);
-                    printf("%c \n", word.data[0]);
-                    printf("%c \n", word.data[1]);
-                    printf("OUTPUT:\n");
-                    printf("%c \n", outputB.value_data[0]);
-                    emit_intermediate(out, word, outputB);
+                    i_B++;
                 }
+
+                column_counter++;
+
+                if(i_B > start_key_B)
+                {
+                    s.data_B_key[i_B] = 0;
+                    word = { s.data_B_key + start_key_B };
+
+                    printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                    printf("keyB: %c \n",  s.data_B_key[i_B-1]);
+                }
+            }
+            if (first_column)
+            {
+                while(i_B < s.lenB && (s.data_B[i_B] != '|'))
+                {
+                    i_B++;
+                }
+
+                if(i_B > start_key_B)
+                {
+                    s.data_B_key[i_B] = 0;
+                    word = { s.data_B_key + start_key_B };
+                }
+            }
+
+            column_counter = 0;
             
+
+            start_Value_B = i_Value_B;
+
+            while(i_Value_B < s.lenB && (s.data_B[i_Value_B] != '\r' && s.data_B[i_Value_B] != '\n' && s.data_B[i_Value_B] != '\0'))
+            {
+                i_Value_B++;
+            }
+
+            i_B = i_Value_B;
+
+            while(s.data_B[i_B+1] == '\r' || s.data_B[i_B+1] == '\n')
+            {
+                printf("ANOTHER END OF LINE FOUND");
+            }
+
+            if(i_Value_B > start_Value_B)
+            {
+                s.data_B[i_Value_B] = 0; // end of the value
+                int identifierB = 1;
+
+                valueStruct outputB(s.data_B + start_Value_B, identifierB);
+
+                printf("valB: %c \n",  s.data_B[start_Value_B]);
+                printf("valB: %c \n\n",  s.data_B[i_Value_B]);
+                
+                emit_intermediate(out, word, outputB);
+            }
+
+            i_Value_B++;
         }
     }
 
@@ -328,30 +365,81 @@ public:
         return 1;
     }
 
-    void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const {
+    // void reduce(key_type const& key, reduce_iterator const& values, 
+    //     std::vector<keyval>& out) const {
+    //     value_type val;
+    //     while (values.next(val))
+    //     {
+    //         keyval kv = {key, val};
+    //         out.push_back(kv);
+    //     }
+    // }
+
+    void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
+    {
         value_type val;
         std::vector<value_type> array1;
         std::vector<value_type> array2;
+
+        //printf("ENTERING REDUCER\n\n");
+
         while (values.next(val))
         {
+            //printf("brfore push");
             if (val.identifier == 0)
             {
+                //printf("brfore push");
                 array1.push_back(val);
+                // printf("identifierA: %i\n", array1[0].identifier);
+                // printf("value_data_A: %c\n", array1[0].value_data[0]);
             }
             else if (val.identifier == 1)
+            {
                 array2.push_back(val);
+                // printf("identifierB: %i\n", array2[0].identifier);
+                // printf("value_data_B: %c\n", array2[0].value_data[0]);
+            }
         }
 
-        for (int i=0; i < array1.size(); i++) {
-            for (int j=0; j < array2.size(); j++) {
-                char* joinedValue = strcpy(array2[j].value_data, array1[j].value_data);
-                value_type myvalue(joinedValue, -1);
+        for (int i=0; i < array1.size(); i++) 
+        {
+            for (int j=0; j < array2.size(); j++) 
+            {
+                printf("array1 data: ");
+                for (uint64_t l = 0; l < strlen(array1[i].value_data); l++)
+                {
+                    
+                    printf("%c", array1[i].value_data[l]);
+                    
+                }
+                printf("\n");
+
+                uint64_t length = strlen(array1[i].value_data) + strlen(array2[j].value_data);
+                char result[length+1];
+                strcat(result, array2[j].value_data);
+                strcat(result, array1[i].value_data);
+                result[length+1] = '\0';
+
+                value_type myvalue(result, -1);
                 keyval kv = {key, myvalue};
                 out.push_back(kv);
+
+                // printf("key data: %c ", key.data[0]);
+                // printf("key data: %c ", key.data[1]);
+                // printf("key data: %c \n", key.data[2]);
+
+                // printf("value data: %c ", myvalue.value_data[0]);
+                // printf("value data: %c ", myvalue.value_data[1]);
+                // printf("value data: %c ", myvalue.value_data[2]);
+                // printf("value data: %c ", myvalue.value_data[3]);
+                // printf("value data: %c \n\n", myvalue.value_data[4]);
             }
         }
     }
-};
+
+
+
+ };
 
 
 
@@ -416,6 +504,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_A.st_size ) {
         r += pread (fd_A, fdata_A + r , finfo_A.st_size, r);
     }
+    fdata_A[finfo_A.st_size] = '\0';
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
 
     // ret = read (fd_A, fdata_A, finfo_A.st_size);
@@ -439,9 +528,17 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_A.st_size ) {
         r += pread (fd_A, fdata_A_key + r , finfo_A.st_size, r);
     }
+    fdata_A_key[finfo_A.st_size] = '\0';
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
     // rety = read (fd_A, fdata_A_key, finfo_A.st_size);
     // CHECK_ERROR (rety != finfo_A.st_size);
+
+    // printf("input data: ");
+    // for (uint64_t l = 0; l < strlen(fdata_A_key); l++)
+    // {
+    //     printf("%c", fdata_A_key[l]);
+    // }
+    // printf("\n");
     
 #endif
 
@@ -478,6 +575,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_B.st_size ) {
         r += pread (fd_B, fdata_B + r , finfo_B.st_size, r);
     }
+    fdata_B[finfo_B.st_size] = '\0';
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
 
     // ret = read (fd_B, fdata_B, finfo_B.st_size);
@@ -491,6 +589,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_B.st_size ) {
         r += pread (fd_B, fdata_B_key + r , finfo_B.st_size, r);
     }
+    fdata_B_key[finfo_B.st_size] = '\0';
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
 
     // ret = read (fd_B, fdata_B_key, finfo_B.st_size);
@@ -528,10 +627,10 @@ int main(int argc, char *argv[]) {
     CHECK_ERROR (mapReduce.run(out) < 0);
     get_time (end);
 
-    // for (size_t i = 0; i < 20; i++)
-    // {
-    //     printf("%15s - %50s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
-    // }
+    for (size_t i = 0; i < 20; i++)
+    {
+        printf("%15s - %100s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
+    }
 
     printf("%i \n", out.size());
     printf("Equi Join: MapReduce Completed\n");

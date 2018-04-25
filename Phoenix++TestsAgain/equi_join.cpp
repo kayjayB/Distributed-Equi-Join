@@ -20,6 +20,7 @@ using namespace std;
 #define OFFSET 5
 
 #define NO_MMAP
+#define MUST_REDUCE
 
 struct wc_string {
     char *data_A, *data_B, *data_A_key, *data_B_key;
@@ -41,11 +42,11 @@ struct wc_word {
 
 struct valueStruct {
 
-    char* value_data;
     int identifier;
+    char* value_data;
 
-    valueStruct() { value_data = NULL; identifier = -1;}
-    valueStruct(char* value_data, int identifier) { this->value_data = value_data; this->identifier = identifier; }
+    valueStruct() { identifier = -1; value_data = NULL;}
+    valueStruct(int identifier, char* value_data) {  this->identifier = identifier; this->value_data = value_data; }
 };
 
 
@@ -188,10 +189,20 @@ public:
                 {
                     s.data_A[i_Value_A] = 0; // end of the value
                     int identifierA = 0;
-                    valueStruct outputA(s.data_A + start_Value_A, identifierA);
+                    valueStruct outputA(identifierA, s.data_A + start_Value_A);
 
                     printf("valA: %c \n",  s.data_A[start_Value_A]);
-                    printf("valA: %c \n\n",  s.data_A[i_Value_A]);
+                    printf("valA: %i \n",  (int)s.data_A[i_Value_A]);
+                    printf("valA2: %c \n",  s.data_A[i_Value_A+1]);
+
+                    printf("value mapped data: ");
+                    for (uint64_t l = start_Value_A; l < i_Value_A; l++)
+                    {
+                        
+                        printf("%c", s.data_A[l]);
+                        
+                    }
+                    printf("\n\n");
 
                     emit_intermediate(out, word, outputA);
                 }
@@ -281,21 +292,29 @@ public:
 
             i_B = i_Value_B;
 
-            while(s.data_B[i_B+1] == '\r' || s.data_B[i_B+1] == '\n')
-            {
-                printf("ANOTHER END OF LINE FOUND");
-            }
+            // while(s.data_B[i_B+1] == '\r' || s.data_B[i_B+1] == '\n')
+            // {
+            //     printf("ANOTHER END OF LINE FOUND");
+            // }
 
             if(i_Value_B > start_Value_B)
             {
                 s.data_B[i_Value_B] = 0; // end of the value
                 int identifierB = 1;
 
-                valueStruct outputB(s.data_B + start_Value_B, identifierB);
+                valueStruct outputB( identifierB, s.data_B + start_Value_B );
 
                 printf("valB: %c \n",  s.data_B[start_Value_B]);
-                printf("valB: %c \n\n",  s.data_B[i_Value_B]);
-                
+                printf("valB: %c \n",  s.data_B[i_Value_B]);
+
+                printf("value mapped data: ");
+                for (uint64_t l = start_Value_B; l < i_Value_B; l++)
+                {
+                    
+                    printf("%c", s.data_B[l]);
+                    
+                }
+                printf("\n\n");
                 emit_intermediate(out, word, outputB);
             }
 
@@ -381,11 +400,17 @@ public:
         std::vector<value_type> array1;
         std::vector<value_type> array2;
 
-        //printf("ENTERING REDUCER\n\n");
-
         while (values.next(val))
         {
-            //printf("brfore push");
+            // printf("val before push: ");
+            // for (uint64_t l = 0; l < strlen(val.value_data); l++)
+            // {
+                
+            //     printf("%c", val.value_data[l]);
+                
+            // }
+            // printf("\n\n");
+
             if (val.identifier == 0)
             {
                 //printf("brfore push");
@@ -393,7 +418,7 @@ public:
                 // printf("identifierA: %i\n", array1[0].identifier);
                 // printf("value_data_A: %c\n", array1[0].value_data[0]);
             }
-            else if (val.identifier == 1)
+            if (val.identifier == 1)
             {
                 array2.push_back(val);
                 // printf("identifierB: %i\n", array2[0].identifier);
@@ -405,22 +430,22 @@ public:
         {
             for (int j=0; j < array2.size(); j++) 
             {
-                printf("array1 data: ");
-                for (uint64_t l = 0; l < strlen(array1[i].value_data); l++)
-                {
+                // printf("array1 data: ");
+                // for (uint64_t l = 0; l < strlen(array1[i].value_data); l++)
+                // {
                     
-                    printf("%c", array1[i].value_data[l]);
+                //     printf("%c", array1[i].value_data[l]);
                     
-                }
+                // }
                 printf("\n");
 
                 uint64_t length = strlen(array1[i].value_data) + strlen(array2[j].value_data);
                 char result[length+1];
                 strcat(result, array2[j].value_data);
                 strcat(result, array1[i].value_data);
-                result[length+1] = '\0';
+                result[length+1] = 0;
 
-                value_type myvalue(result, -1);
+                value_type myvalue(-1, result);
                 keyval kv = {key, myvalue};
                 out.push_back(kv);
 
@@ -504,7 +529,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_A.st_size ) {
         r += pread (fd_A, fdata_A + r , finfo_A.st_size, r);
     }
-    fdata_A[finfo_A.st_size] = '\0';
+    fdata_A[finfo_A.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
 
     // ret = read (fd_A, fdata_A, finfo_A.st_size);
@@ -528,7 +553,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_A.st_size ) {
         r += pread (fd_A, fdata_A_key + r , finfo_A.st_size, r);
     }
-    fdata_A_key[finfo_A.st_size] = '\0';
+    fdata_A_key[finfo_A.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
     // rety = read (fd_A, fdata_A_key, finfo_A.st_size);
     // CHECK_ERROR (rety != finfo_A.st_size);
@@ -575,7 +600,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_B.st_size ) {
         r += pread (fd_B, fdata_B + r , finfo_B.st_size, r);
     }
-    fdata_B[finfo_B.st_size] = '\0';
+    fdata_B[finfo_B.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
 
     // ret = read (fd_B, fdata_B, finfo_B.st_size);
@@ -589,7 +614,7 @@ int main(int argc, char *argv[]) {
     while (r < (uint64_t)finfo_B.st_size ) {
         r += pread (fd_B, fdata_B_key + r , finfo_B.st_size, r);
     }
-    fdata_B_key[finfo_B.st_size] = '\0';
+    fdata_B_key[finfo_B.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
 
     // ret = read (fd_B, fdata_B_key, finfo_B.st_size);

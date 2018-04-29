@@ -8,7 +8,7 @@
             "type": "shell",
             "command": "mpic++",
             "args": [
-                "--std=gnu++14","-fopenmp", "-lgomp", "-lm", "-Wall", "-g",
+                "--std=gnu++14", "-lm", "-Wall", "-g",
                 "main.cpp", "fileManager.cpp", "hashFunction.cpp", "joinManager.cpp","-o", "Project",
             ],
             "group": {

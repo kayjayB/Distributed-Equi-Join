@@ -67,17 +67,27 @@ int main(int argc, char *argv[])
 				MPI_Send(line_ptr, line_length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
 			}
 
-			// for (auto i=0; i < length_file_1; i++){
-			// 	int line_length;
-			// 	char char_array[1024];
-			// 	memset(char_array, 0, sizeof(char_array));
-			// 	MPI_Recv(&line_length, 1, MPI_INT, i, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-			// 	MPI_Recv(&char_array[0], line_length, MPI_CHAR, i, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-			// 	string line(char_array);
-			// 	results.push_back(line);
-			// 	cout << "Result " << i << ": " << line;
-			// }
+			int results_length;
+
+			MPI_Recv(&results_length, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+
+			for (auto i=0; i < results_length; i++){
+				int line_length;
+				char char_array[1024];
+				memset(char_array, 0, sizeof(char_array));
+				MPI_Recv(&line_length, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+				MPI_Recv(&char_array[0], line_length, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+				string line(char_array);
+				results.push_back(line);
+			}
 		}
+
+		ofstream myFile;
+		myFile.open("joinedFile.txt", std::ios::app);
+		for (auto i=results.begin(); i != results.end(); i++){
+			myFile << *i << "\n";
+		}
+		myFile.close();
 	}
 	else {
 		int length_file_1, length_file_2;
@@ -109,28 +119,36 @@ int main(int argc, char *argv[])
 			linesOfFile2.push_back(line);
 		}
 
-		#pragma omp parallel default(shared) private(iam, np)
-		{
-			np = omp_get_num_threads();
-			iam = omp_get_thread_num();
-			printf("Working on thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, numprocs, processor_name);
+		np = omp_get_num_threads();
+		iam = omp_get_thread_num();
+		printf("Working on thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, numprocs, processor_name);
 
-			#pragma omp for
-			for (unsigned int i=0; i< linesOfFile1.size(); i = i+2)
-			{
-				//int tid = omp_get_thread_num();  
-				//printf("Hello World from thread = %d\n", tid);  
-				string key = linesOfFile1[i];
-				string value = linesOfFile1[i+1];
-				test.hasher -> AddItem(key,value);
-			}
-			#pragma omp for
-			for (unsigned int i=0; i<linesOfFile2.size();i = i+2)
-			{
-			//	int tid = omp_get_thread_num();  
-			//	printf("Hello World from thread = %d\n", tid); 
-				test.query(linesOfFile2[i], linesOfFile2[i+1]);
-			}
+		for (unsigned int i=0; i< linesOfFile1.size(); i = i+2)
+		{
+			//int tid = omp_get_thread_num();  
+			//printf("Hello World from thread = %d\n", tid);  
+			string key = linesOfFile1[i];
+			string value = linesOfFile1[i+1];
+			test.hasher -> AddItem(key,value);
+		}
+
+		for (unsigned int i=0; i<linesOfFile2.size();i = i+2)
+		{
+		//	int tid = omp_get_thread_num();  
+		//	printf("Hello World from thread = %d\n", tid); 
+			results.clear();
+			results = test.query(linesOfFile2[i], linesOfFile2[i+1]);
+		}
+
+		int length_file_results = results.size();
+		MPI_Send(&length_file_results, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+
+		for (auto x=0; x < length_file_results; x++){
+			const char* line_ptr = results[x].c_str();
+			string line = results[x].c_str();
+			int line_length = line.length();
+			MPI_Send(&line_length, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+			MPI_Send(line_ptr, line_length, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
 		}
 	}
 

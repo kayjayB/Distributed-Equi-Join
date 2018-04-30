@@ -23,11 +23,10 @@ public:
 	shared_ptr<hashFunction> hasher;
 	
 	void join(string key, string lineFromR1, vector<string> linesFromR2);
-	void query(string key, string lineFromR1);
+	vector<string> query(string key, string lineFromR1);
 
 private:	
-	void writeToFile(string lineToWrite);
-
+	vector<string> results;
 };
 
 #endif // JOINMANAGER_H

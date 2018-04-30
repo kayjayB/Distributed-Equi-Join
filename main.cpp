@@ -10,6 +10,7 @@
 #include "fileManager.h"
 
 #include "mpi.h"
+#include "omp.h"
 
 using namespace std;
 
@@ -30,14 +31,11 @@ int main(int argc, char *argv[])
 	struct timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
 
-	printf("Working on process %d out of %d on %s\n", rank, numprocs, processor_name);
-
-	
 	if (rank == 0) {
 		fileManager fileHandler;
 		fileHandler.deleteFile("joinedFile.txt");
 
-		vector<string> linesOfFile1, linesOfFile2;
+		vector<string> linesOfFile1, linesOfFile2, results;
 
 		linesOfFile1 = fileHandler.readFile("smallInput1.txt",1);
 		linesOfFile2 = fileHandler.readFile("smallInput2.txt",1);
@@ -46,7 +44,10 @@ int main(int argc, char *argv[])
 		int length_file_2 = linesOfFile2.size();
 
 		for (auto i = 1; i < numprocs; i++){
-			int process_length_file_2 = length_file_2 / (numprocs - 1.0);
+			int process_length_file_2 = (length_file_2 / (numprocs - 1.0));
+			if (i * process_length_file_2 > length_file_2){
+				process_length_file_2 = length_file_2 - (i - 1) * process_length_file_2;
+			}
 			MPI_Send(&length_file_1, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 			MPI_Send(&process_length_file_2, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 
@@ -65,11 +66,22 @@ int main(int argc, char *argv[])
 				MPI_Send(&line_length, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 				MPI_Send(line_ptr, line_length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
 			}
+
+			// for (auto i=0; i < length_file_1; i++){
+			// 	int line_length;
+			// 	char char_array[1024];
+			// 	memset(char_array, 0, sizeof(char_array));
+			// 	MPI_Recv(&line_length, 1, MPI_INT, i, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+			// 	MPI_Recv(&char_array[0], line_length, MPI_CHAR, i, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+			// 	string line(char_array);
+			// 	results.push_back(line);
+			// 	cout << "Result " << i << ": " << line;
+			// }
 		}
 	}
 	else {
 		int length_file_1, length_file_2;
-		vector<string> linesOfFile1, linesOfFile2;
+		vector<string> linesOfFile1, linesOfFile2, results;
 		joinManager test;
 
 		MPI_Recv(&length_file_1, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
@@ -97,20 +109,28 @@ int main(int argc, char *argv[])
 			linesOfFile2.push_back(line);
 		}
 
-		for (unsigned int i=0; i< linesOfFile1.size(); i = i+2)
+		#pragma omp parallel default(shared) private(iam, np)
 		{
-			//int tid = omp_get_thread_num();  
-			//printf("Hello World from thread = %d\n", tid);  
-			string key = linesOfFile1[i];
-			string value = linesOfFile1[i+1];
-			test.hasher -> AddItem(key,value);
-		}
+			np = omp_get_num_threads();
+			iam = omp_get_thread_num();
+			printf("Working on thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, numprocs, processor_name);
 
-		for (unsigned int i=0; i<linesOfFile2.size();i = i+2)
-		{
-		//	int tid = omp_get_thread_num();  
-		//	printf("Hello World from thread = %d\n", tid);  
-			test.query(linesOfFile2[i], linesOfFile2[i+1]);
+			#pragma omp for
+			for (unsigned int i=0; i< linesOfFile1.size(); i = i+2)
+			{
+				//int tid = omp_get_thread_num();  
+				//printf("Hello World from thread = %d\n", tid);  
+				string key = linesOfFile1[i];
+				string value = linesOfFile1[i+1];
+				test.hasher -> AddItem(key,value);
+			}
+			#pragma omp for
+			for (unsigned int i=0; i<linesOfFile2.size();i = i+2)
+			{
+			//	int tid = omp_get_thread_num();  
+			//	printf("Hello World from thread = %d\n", tid); 
+				test.query(linesOfFile2[i], linesOfFile2[i+1]);
+			}
 		}
 	}
 

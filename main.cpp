@@ -42,13 +42,26 @@ int main(int argc, char *argv[])
 
 		int length_file_1 = linesOfFile1.size();
 		int length_file_2 = linesOfFile2.size();
+		int prev_length = 0;
+		int length_track = 0;
 
 		#pragma omp critical
 		for (auto i = 1; i < numprocs; i++){
 			int process_length_file_2 = (length_file_2 / (numprocs - 1.0));
-			if (i * process_length_file_2 > length_file_2){
-				process_length_file_2 = length_file_2 - (i - 1) * process_length_file_2;
+			if (process_length_file_2 % 2 != 0) process_length_file_2 += 1;
+			length_track += process_length_file_2;
+
+			if (i == numprocs-1){
+				if (length_track < length_file_2){
+					process_length_file_2 = process_length_file_2 + length_file_2 - length_track;
+					length_track += length_file_2 - length_track;
+				}
+				else if (length_track > length_file_2){
+					process_length_file_2 = process_length_file_2 - (length_track - length_file_2);
+					length_track = length_file_2;
+				}
 			}
+
 			MPI_Send(&length_file_1, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 			MPI_Send(&process_length_file_2, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 
@@ -60,13 +73,14 @@ int main(int argc, char *argv[])
 				MPI_Send(line_ptr, line_length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
 			}
 
-			for (auto y= (i-1) * process_length_file_2; y < i * process_length_file_2; y++){
+			for (auto y = prev_length; y < length_track; y++){
 				const char* line_ptr = linesOfFile2[y].c_str();
 				string line = linesOfFile2[y].c_str();
 				int line_length = line.length();
 				MPI_Send(&line_length, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
 				MPI_Send(line_ptr, line_length, MPI_CHAR, i, 0, MPI_COMM_WORLD);
 			}
+			prev_length = length_track;
 
 			int results_length;
 
@@ -100,8 +114,6 @@ int main(int argc, char *argv[])
 
 		MPI_Recv(&length_file_1, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 		MPI_Recv(&length_file_2, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-
-		cout << "File 2 length: " << length_file_2 << endl;
 
 		#pragma omp single
 		for (auto i=0; i < length_file_1; i++){

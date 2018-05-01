@@ -23,7 +23,8 @@ public:
 	shared_ptr<hashFunction> hasher;
 	
 	void join(string key, string lineFromR1, vector<string> linesFromR2);
-	vector<string> query(string key, string lineFromR1);
+	void query(string key, string lineFromR1);
+	vector<string> getResults();
 
 private:	
 	vector<string> results;

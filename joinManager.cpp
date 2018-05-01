@@ -30,7 +30,7 @@ void joinManager::join(string key, string lineFromR1, vector<string> linesFromR2
 	
 }
 
-vector<string> joinManager::query(string key, string lineFromR1)
+void joinManager::query(string key, string lineFromR1)
 {
 	vector<string> queryResults = hasher->FindValue(key); 
 	
@@ -38,5 +38,8 @@ vector<string> joinManager::query(string key, string lineFromR1)
 	{
 		join(key,lineFromR1 ,queryResults);
 	}
+}
+
+vector<string> joinManager::getResults(){
 	return results;
 }

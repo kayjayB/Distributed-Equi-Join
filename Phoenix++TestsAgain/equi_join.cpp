@@ -12,6 +12,7 @@
 #include <vector>
 #include <sys/time.h>
 #include <time.h>
+#include <iostream>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ using namespace std;
 #define MAX_REC_LEN 1024
 #define OFFSET 5
 
-#define NO_MMAP
+
 #define MUST_REDUCE
 
 struct wc_string {
@@ -67,9 +68,7 @@ struct wc_word_hash
 };
 
 
-
 class JoinMR : public MapReduce<JoinMR, wc_string, wc_word, valueStruct, hash_container<wc_word, valueStruct, buffer_combiner, wc_word_hash> >
-//class JoinMR : public MapReduce<JoinMR, wc_string, wc_word, valueStruct, array_container<wc_word, valueStruct, buffer_combiner,6 > >
 {
     char *data_A, *data_B, *data_A_key, *data_B_key;
     uint64_t lenA, lenB;
@@ -77,7 +76,7 @@ class JoinMR : public MapReduce<JoinMR, wc_string, wc_word, valueStruct, hash_co
     int key_column;    
 
 public:
-    explicit JoinMR(char* Data_A, char* Data_B, char* Data_A_key, char* Data_B_key, uint64_t LenA, uint64_t LenB, int Chunk_size) : data_A(Data_A), data_B(Data_B),data_A_key(Data_A_key), data_B_key(Data_B_key), lenA(LenA), lenB(LenB), splitter_pos_A(0),splitter_pos_B(0), chunk_size(Chunk_size), key_column(1) {}
+    explicit JoinMR(char* Data_A, char* Data_B, char* Data_A_key, char* Data_B_key, uint64_t LenA, uint64_t LenB, int Chunk_size, int Key_Column) : data_A(Data_A), data_B(Data_B),data_A_key(Data_A_key), data_B_key(Data_B_key), lenA(LenA), lenB(LenB), splitter_pos_A(0),splitter_pos_B(0), chunk_size(Chunk_size), key_column(Key_Column) {}
 
     // void *locate (data_type *data, uint64_t len) const
     // {
@@ -98,9 +97,11 @@ public:
         uint64_t i_Value_A = 0;
         uint64_t start_key_A = 0;
         uint64_t start_Value_A = 0;
+        //uint64_t key_start, key_end;
         int column_counter = 0;
         bool first_column = false;
         wc_word word;
+        char *key = NULL, *value = NULL;
 
 
         while(i_Value_A < s.lenA)
@@ -109,19 +110,11 @@ public:
 
             while(i_Value_A < s.lenA && (s.data_A[i_A] == '\r' || s.data_A[i_A] == '\n' || s.data_A[i_A] == '\t'))
             {
-                //printf("start main while loop \n");
-                //printf("counter: %u \n", i_A);
-                //printf("len: %u \n", lenA);
-                //printf("val: %c \n", s.data_A_key[i_A]);
-
                 i_Value_A++;
             }
-            //printf("%u\n\n", i_Value_A);
 
             while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
             {
-                //printf("i_A: %i \n", i_A);
-                //printf("val: %c \n", s.data_A[i_A]);
                 if (key_column == 0) {
 
                     first_column = true;
@@ -135,12 +128,11 @@ public:
             }
 
             column_counter++;
-            
 
-            if ((key_column == column_counter))
+            if ((key_column == column_counter) && !first_column)
             {
                 
-                start_key_A = i_A+1;
+                start_key_A = i_A + 1;
                 i_A++;
 
                 while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
@@ -155,24 +147,64 @@ public:
                 if(i_A > start_key_A)
                 {
                     //printf("in the loop\n");
-                    s.data_A_key[i_A] = 0;
+                    //(void*)s.data_A_key[i_A] = 0;
+                    
 
-                    printf("keyA: %c \n",  s.data_A_key[start_key_A]);
-                    printf("keyA: %c \n",  s.data_A_key[i_A-1]);
+                    //s.data_A_key[i_A] = 0
 
-                    word = { s.data_A_key + start_key_A };
+                    // printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                    // printf("keyA: %c \n",  s.data_A_key[i_A]);
+                    // printf("\n\n");
+
+                    // word = { s.data_A_key + start_key_A };
+
+                    //char* key;
+                    key = (char *)malloc(i_A-start_key_A + 1);
+
+                    for (uint64_t i = 0; i < (i_A - start_key_A); i++)
+                    {
+                        key[i] = s.data_A_key[start_key_A+i];
+                    }
+                    key[i_A - start_key_A] = 0;
+
+                    printf("keyA: %c \n",  key[0]);
+                    printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
+                    printf("\n\n");
+
+                    word = {key};
+                    
                 }
             }
 
             if (first_column == true)
             {
+                i_A++;
+
                 while(i_A < s.lenA && (s.data_A[i_A] != '|'))
                     i_A++;
 
                 if(i_A > start_key_A)
                 {
-                    s.data_A_key[i_A] = 0;
-                    word = { s.data_A_key + start_key_A };
+                    // void* vp = (void*)s.data_A_key[i_A];
+                    // vp = 0;
+                    // //s.data_A_key[i_A] = 0;
+                    // word = { s.data_A_key + start_key_A };
+                    //printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                    //printf("keyA: %c \n",  s.data_A_key[i_A-1]);
+
+                    key = (char *)malloc(i_A-start_key_A + 1);
+
+                    for (uint64_t i = 0; i < (i_A - start_key_A); i++)
+                    {
+                        key[i] = s.data_A_key[start_key_A+i];
+                    }
+                    key[i_A - start_key_A] = 0;
+
+                    printf("keyA: %c \n",  key[0]);
+                    printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
+                    printf("\n\n");
+
+                    word = {key};
                 }
             }
                 
@@ -190,27 +222,51 @@ public:
 
             if(i_Value_A > start_Value_A)
                 {
-                    s.data_A[i_Value_A] = 0; // end of the value
-                    int identifierA = 0;
-                    valueStruct outputA(identifierA, s.data_A + start_Value_A);
+                    //char* value;
+                    value = (char *)malloc(i_Value_A - start_Value_A + 1);
 
-                    printf("valA: %c \n",  s.data_A[start_Value_A]);
-                    printf("valA: %i \n",  (int)s.data_A[i_Value_A]);
-                    printf("valA2: %c \n",  s.data_A[i_Value_A+1]);
-
-                    printf("value mapped data: ");
-                    for (uint64_t l = start_Value_A; l < i_Value_A; l++)
+                    for (uint64_t i = 0; i < (i_Value_A - start_Value_A); i++)
                     {
-                        
-                        printf("%c", s.data_A[l]);
-                        
+                        value[i] = s.data_A[start_Value_A + i];
                     }
+                    value[i_Value_A - start_Value_A] = 0;
+
+                    printf("valA: %c \n",  value[0]);
+                    printf("valA: %c \n",  value[i_Value_A - start_Value_A - 1]);
                     printf("\n\n");
 
+                    int identifierA = 0;
+                    valueStruct outputA(identifierA, value);
+
+                    // void* vp = (void*)s.data_A[i_Value_A];
+                    // vp = 0;
+                    //s.data_A[i_Value_A] = 0; // end of the value
+
+                    // int identifierA = 0;
+                    // valueStruct outputA(identifierA, s.data_A + start_Value_A);
+
+                    // printf("valA: %c \n",  s.data_A[start_Value_A]);
+                    // printf("valA: %i \n",  (int)s.data_A[i_Value_A]);
+                    // printf("valA2: %c \n",  s.data_A[i_Value_A+1]);
+
+                    // printf("value mapped data: ");
+                    // for (uint64_t l = start_Value_A; l < i_Value_A; l++)
+                    // {
+                        
+                    //     printf("%c", s.data_A[l]);
+                        
+                    // }
+                    // printf("\n\n");
+
                     emit_intermediate(out, word, outputA);
+
+                    key = NULL;
+                    value = NULL;
+
                 }
             //printf("Ival: %u \n", i_Value_A);
             i_Value_A++;
+            i_A++;
         }
 
         printf("started mapping B \n");
@@ -222,6 +278,8 @@ public:
         uint64_t start_Value_B = 0;
         first_column = false;
         column_counter = 0;
+        key = NULL;
+        value = NULL;
 
         while(i_Value_B < s.lenB)
         { 
@@ -248,7 +306,7 @@ public:
 
             column_counter++;
 
-            if (key_column == column_counter)
+            if ((key_column == column_counter) && !first_column)
             {
                 start_key_B = i_B + 1;
                 i_B++;
@@ -262,24 +320,60 @@ public:
 
                 if(i_B > start_key_B)
                 {
-                    s.data_B_key[i_B] = 0;
-                    word = { s.data_B_key + start_key_B };
+                    // void* vp = (void*)s.data_B_key[i_B];
+                    // vp = 0;
+                    // //s.data_B_key[i_B] = 0;
+                    // word = { s.data_B_key + start_key_B };
 
-                    printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                    printf("keyB: %c \n",  s.data_B_key[i_B-1]);
+                    // //printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                    // //printf("keyB: %c \n",  s.data_B_key[i_B-1]);
+
+                    char* key;
+                    key = (char *)malloc(i_B-start_key_B + 1);
+                    
+                    for (uint64_t i = 0; i < (i_B - start_key_B); i++)
+                    {
+                        key[i] = s.data_B_key[start_key_B+i];
+                    }
+                    key[i_B - start_key_B] = 0;
+
+                    printf("keyB: %c \n",  key[0]);
+                    printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
+                    printf("\n\n");
+
+                    word = {key};
                 }
             }
             if (first_column)
             {
+                i_B++;
+
                 while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
                     i_B++;
                 }
+                column_counter++;
 
                 if(i_B > start_key_B)
                 {
-                    s.data_B_key[i_B] = 0;
-                    word = { s.data_B_key + start_key_B };
+                    // void* vp = (void*)s.data_B_key[i_B];
+                    // vp = 0;
+                    // //s.data_B_key[i_B] = 0;
+                    // word = { s.data_B_key + start_key_B };
+
+                    key = (char *)malloc(i_B-start_key_B + 1);
+                    
+                    for (uint64_t i = 0; i < (i_B - start_key_B); i++)
+                    {
+                        key[i] = s.data_B_key[start_key_B+i];
+                    }
+                    key[i_B - start_key_B] = 0;
+
+                    printf("keyB: %c \n",  key[0]);
+                    printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
+                    printf("\n\n");
+
+                    word = {key};
                 }
             }
 
@@ -302,25 +396,49 @@ public:
 
             if(i_Value_B > start_Value_B)
             {
-                s.data_B[i_Value_B] = 0; // end of the value
-                int identifierB = 1;
+                // void* vp = (void*)s.data_B[i_Value_B];
+                // vp = 0;
+                // //s.data_B[i_Value_B] = 0; // end of the value
+                // int identifierB = 1;
 
-                valueStruct outputB( identifierB, s.data_B + start_Value_B );
+                value = (char *)malloc(i_Value_B - start_Value_B + 1);
 
-                printf("valB: %c \n",  s.data_B[start_Value_B]);
-                printf("valB: %c \n",  s.data_B[i_Value_B]);
-
-                printf("value mapped data: ");
-                for (uint64_t l = start_Value_B; l < i_Value_B; l++)
+                for (uint64_t i = 0; i < (i_Value_B - start_Value_B); i++)
                 {
-                    
-                    printf("%c", s.data_B[l]);
-                    
+                    value[i] = s.data_B[start_Value_B + i];
                 }
-                printf("\n\n");
-                emit_intermediate(out, word, outputB);
-            }
+                value[i_Value_B - start_Value_B] = 0;
 
+                printf("valB: %c \n",  value[0]);
+                printf("valB: %c \n",  value[i_Value_B - start_Value_B - 1]);
+                printf("\n");
+
+                int identifierB = 1;
+                valueStruct outputB(identifierB, value);
+
+
+
+                //valueStruct outputB( identifierB, s.data_B + start_Value_B );
+
+                //printf("valB: %c \n",  s.data_B[start_Value_B]);
+                //printf("valB: %c \n",  s.data_B[i_Value_B]);
+
+                //printf("value mapped data: ");
+                // for (uint64_t l = start_Value_B; l < i_Value_B; l++)
+                // {
+                    
+                //     printf("%c", s.data_B[l]);
+                    
+                // }
+                // printf("\n\n");
+
+
+                emit_intermediate(out, word, outputB);
+
+                key = NULL;
+                value = NULL;
+            }
+            i_B++;
             i_Value_B++;
         }
     }
@@ -400,19 +518,15 @@ public:
 
     void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
     {
+        printf("entering reducer \n");
         value_type val;
         std::vector<value_type> array1;
         std::vector<value_type> array2;
 
+        //printf("in Reduce");
+
         while (values.next(val))
         {
-            // printf("val before push: ");
-            // for (uint64_t l = 0; l < strlen(val.value_data); l++)
-            // {
-            //     printf("%c", val.value_data[l]);
-            // }
-            // printf("\n\n");
-
             if (val.identifier == 0)
             {
                 //printf("brfore push");
@@ -427,6 +541,38 @@ public:
                 // printf("value_data_B: %c\n", array2[0].value_data[0]);
             }
         }
+
+        // if (array1.size() == 0 && array2.size() == 0)
+        // {
+        //     key_type newKey;
+        //     char* space;
+        //     space = (char *)malloc(2);
+        //     space[0] = ' ';
+        //     space[1] = 0;
+        //     newKey.data = space;
+
+        //     //value_type newValue;
+        //     char* value;
+        //     value = (char *)malloc(11);
+        //     space[0] = 'n';
+        //     space[1] = 'n';
+        //     space[2] = 'n';
+        //     space[3] = 'n';
+        //     space[4] = 'n';
+        //     space[5] = 'n';
+        //     space[6] = 'n';
+        //     space[7] = 'n';
+        //     space[8] = 'n';
+        //     space[9] = 'n';
+        //     space[10] = 0;
+        //     //newValue.value_data = value;
+
+        //     value_type myvalue(-1, value);
+        //     keyval kv = {key, myvalue};
+        //     out.push_back(kv);
+
+        //     return;
+        // }
 
         for (int i=0; i < array1.size(); i++) 
         {
@@ -445,7 +591,7 @@ public:
                 //printf("%u %u %u \n", strlen(array1[i].value_data), strlen(array2[j].value_data) , length );
 
                 char* result;
-                result = (char *)malloc(length+1);
+                result = (char *)malloc(length+2);
 
                 strcpy(result, array2[j].value_data);
                 strcat(result, array1[i].value_data);
@@ -455,8 +601,6 @@ public:
                 value_type myvalue(-1, result);
                 keyval kv = {key, myvalue};
                 out.push_back(kv);
-
-
 
                 // printf("key data: %c ", key.data[0]);
                 // printf("key data: %c ", key.data[1]);
@@ -475,8 +619,8 @@ public:
 
  };
 
-
-
+//#define NO_MMAP
+//#define MMAP_POPULATE
 
 int main(int argc, char *argv[]) {
 
@@ -487,26 +631,27 @@ int main(int argc, char *argv[]) {
         printf("Removed existing output file");
     }
     
-    int fd_A, fd_B;                 // file open flag
-    char *fname_A, *fname_B;        // filename
-
+    int fd_A, fd_B, fd_Aa, fd_Bb;                           // file open flag
+    char *fname_A, *fname_B, *fname_Aa, *fname_Bb;          // filename
     char *fdata_A, *fdata_B, *fdata_A_key, *fdata_B_key ;        // file data
+    struct stat finfo_A, finfo_B, finfo_Aa, finfo_Bb;   // file info (file length)
+    int key_column;
 
-    struct stat finfo_A, finfo_B;   // file info (file length)
-    //char *fname_keys;
+    //struct timespec begin, end;
 
-    struct timespec begin, end;
-
-    get_time (begin);
+    //get_time (begin);
 
     if (argv[1] == NULL)
     {
-        printf("USAGE: %s <filename1 filename2>\n", argv[0]);
+        printf("USAGE: %s <filename1 filename2 key_column>\n", argv[0]);
         exit(1);
     }
 
     fname_A = argv[1];
     fname_B = argv[2];
+    fname_Aa = argv[4];
+    fname_Bb = argv[5];
+    key_column = atoi(argv[3]);
 
     printf("Eqiu Join: Running...\n");
 
@@ -521,18 +666,23 @@ int main(int argc, char *argv[]) {
 #ifndef NO_MMAP
 #ifdef MMAP_POPULATE
     // Memory map the file
-    //CHECK_ERROR((fdata_A = (int*)mmap(0, finfo_A.st_size + 1, 
-    //    PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd_A, 0)) == NULL);
+    CHECK_ERROR((fdata_A = (char*)mmap(NULL, finfo_A.st_size + 1, 
+        PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd_A, 0)) == NULL);
 #else
     // Memory map the file
-    CHECK_ERROR((fdata_A = (char*)mmap(0, finfo_A.st_size + 1, 
-        PROT_READ, MAP_PRIVATE, fd_A, 0)) == NULL);
+    CHECK_ERROR((fdata_A = (char*)mmap(NULL, finfo_A.st_size + 1, 
+        PROT_READ, MAP_SHARED , fd_A, 0)) == NULL);
 
-    CHECK_ERROR((fdata_A_key = (char*)mmap(0, finfo_A.st_size + 1, 
-        PROT_READ, MAP_PRIVATE, fd_A, 0)) == NULL);
+    close(fd_A);
+
+    CHECK_ERROR((fd_Aa = open(fname_Aa,O_RDONLY)) < 0);
+    CHECK_ERROR(fstat(fd_Aa, &finfo_Aa) < 0);
+
+    CHECK_ERROR((fdata_A_key = (char*)mmap(NULL, finfo_Aa.st_size + 1, 
+        PROT_READ , MAP_SHARED, fd_Aa, 0)) == NULL);
 #endif
 #else
-    int ret, rety;
+    //int ret, rety;
 
     fdata_A = (char *)malloc (finfo_A.st_size);
     CHECK_ERROR (fdata_A == NULL);
@@ -552,7 +702,7 @@ int main(int argc, char *argv[]) {
     // CHECK_ERROR (ret != finfo_A.st_size);
     // printf("before \n");
     // printf("%s", fdata_A[0]);
-    printf("after \n");
+    //printf("after \n");
 
 
     close(fd_A);
@@ -593,15 +743,22 @@ int main(int argc, char *argv[]) {
 #ifndef NO_MMAP
 #ifdef MMAP_POPULATE
     // Memory map the file
-    // CHECK_ERROR((fdata_B = (int*)mmap(0, finfo_B.st_size + 1, 
-    //     PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd_B, 0)) == NULL);
+    CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
+        PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd_B, 0)) == NULL);
 #else
     // Memory map the file
-    CHECK_ERROR((fdata_B = (char*)mmap(0, finfo_B.st_size + 1, 
-        PROT_READ, MAP_PRIVATE, fd_B, 0)) == NULL);
+    //void* vp = (void*)fdata_A;
+    CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
+    //CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
+        PROT_READ, MAP_PRIVATE , fd_B, 0)) == NULL);
 
-    CHECK_ERROR((fdata_B_key = (char*)mmap(0, finfo_B.st_size + 1, 
-        PROT_READ, MAP_PRIVATE, fd_B, 0)) == NULL);
+    close(fd_B);
+
+    CHECK_ERROR((fd_Bb = open(fname_Bb,O_RDONLY)) < 0);
+    CHECK_ERROR(fstat(fd_Bb, &finfo_Bb) < 0);
+
+    CHECK_ERROR((fdata_B_key = (char*)mmap(NULL, finfo_Bb.st_size + 1, 
+        PROT_READ, MAP_PRIVATE, fd_Bb, 0)) == NULL);
 #endif
 #else
 
@@ -648,10 +805,22 @@ int main(int argc, char *argv[]) {
     // CHECK_ERROR (fdata_A == NULL);
     // CHECK_ERROR (fdata_B == NULL);
 #endif
-    
-    get_time (end);
 
-    print_time("initialize", begin, end);
+    // for (int i = 0; i < 50; i++)
+    // {
+    //     printf("%c", fdata_B[i]);
+    //     // cout << fdata_B[i] << endl;
+    // }
+
+    // cout << endl;
+
+    // for (int i = 0; i < 50; i++)
+    // {
+    //     printf("%c", fdata_B_key[i]);
+    //     // cout << fdata_B[i] << endl;
+    // }
+
+    cout << endl;
 
     printf("Equi Join: Calling Equi Join\n");
 
@@ -660,36 +829,38 @@ int main(int argc, char *argv[]) {
     //     printf("%s \n", fdata_A[i]);
     // }
 
-    get_time (begin);
     struct timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
-    JoinMR mapReduce(fdata_A, fdata_B, fdata_A_key, fdata_B_key, finfo_A.st_size, finfo_B.st_size, 64*1024);
+    JoinMR mapReduce(fdata_A, fdata_B, fdata_A_key, fdata_B_key, finfo_A.st_size, finfo_B.st_size, 64*1024, key_column);
     std::vector<JoinMR::keyval> out;
 
     CHECK_ERROR (mapReduce.run(out) < 0);
-    get_time (end);
 
-    ofstream outputFile;
-    outputFile.open("mapReduceOutput.txt", std::ios::app);
+    if(out.size() != 0) {
 
-    for (size_t i = 0; i < out.size(); i++)
-    {
-        //printf("%15s - %100s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
-        outputFile << out[out.size()-1-i].key.data << ": \t" << out[out.size()-1-i].val.value_data<< "\n";
+        ofstream outputFile;
+        outputFile.open("mapReduceOutput.txt", std::ios::app);
+
+        for (size_t i = 0; i < out.size(); i++)
+        {
+            //printf("%15s - %100s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
+            outputFile << out[out.size()-1-i].key.data << ": \t" << out[out.size()-1-i].val.value_data<< "\n";
+        }
+        outputFile.close();
     }
-    outputFile.close();
+
     printf("%i \n", out.size());
     printf("Equi Join: MapReduce Completed\n");
     gettimeofday(&tv2, NULL);
 
     printf("%f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
 
-
+    // printf("%i:  arg 3\n", key_column);
     
 
-    print_time("library", begin, end);
+    //print_time("library", begin, end);
 
-    get_time (begin);
+    //get_time (begin);
 
 // free the mapped memory
 #ifndef NO_MMAP
@@ -707,9 +878,9 @@ int main(int argc, char *argv[]) {
     CHECK_ERROR(close(fd_A) < 0);
     CHECK_ERROR(close(fd_B) < 0);
 
-    get_time (end);
+    //get_time (end);
 
-    print_time("finalize", begin, end);
+    //print_time("finalize", begin, end);
 
     return 0;
 }

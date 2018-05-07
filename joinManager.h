@@ -24,10 +24,10 @@ public:
 	
 	void join(string key, string lineFromR1, vector<string> linesFromR2);
 	void query(string key, string lineFromR1);
+	vector<string> getResults();
 
 private:	
-	void writeToFile(string lineToWrite);
-
+	vector<string> results;
 };
 
 #endif // JOINMANAGER_H

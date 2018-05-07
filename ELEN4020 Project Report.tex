@@ -119,7 +119,7 @@
 				Matthew van Rooyen \\ 706692
 			\end{flushright}
 		\end{minipage}\\[1cm]
-		{\large Date Handed In: \nth{7} May, 2018}\\[1cm] 
+		{\large Date Handed In: \nth{14} May, 2018}\\[1cm] 
 \vfill	
 \justify
 \textbf{Abstract: } An equi-join of two large tables using a hash join implemented in parallel using MPI and OpenMP and using MapReduce have been compared and benchmarked against one another. The benchmarks evaluated the running time and memory usage for each approach in the two different algorithms. These algorithms were: . Comparison between results of both algorithms. Note the strengths and weaknesses for each approach.
@@ -219,48 +219,52 @@ While cluster-based MapReduce performance is limited primarily by disk and netwo
 
 The Phoenix project [9, 12], in particular, demonstrated that the MapReduce model could be used on shared-memory machines, with scalability comparable, in some cases, to hand-coded PThreads solutions.
 
-\section{Design}
+\subsection{Existing Solutions}
 
-\subsection{File System Design}
+\section{System Design and Implementation}
 
-\subsection{Code Framework}
+\subsection{Serial Equi-Join}
 
-The algorithm was constructed using C++ and Message Passing Interface library (MPI). MPI libraries consist of message-passing functionality which was used for distributed and parallel algorithms. Message passing function is simply a func- tion that explicitly transmits data from one process to another. By using MPI library each process that is running on an individual workstation is assigned a unique number called process rank. The root process will coordinate most of the operation for the parallel data joining implementation. The equi-join employed the data parallelism paradigm. Data is partitioned to different process for local processing. The main MPI library functions used in our implementation are Send, Receive, Broadcast, Gather, and All-to-All communication
+\subsection{Hybrid Equi-Join}
 
-\subsection{Join Algorithm}
-
-Parallel collection equi-join can be divided into two main phases. The first phase is data partitioning based on disjoint partition, and the second phase is per- forming the join algorithm(i.e. sort-merge or hash join). The hash join algorithm was chosen for this.
-
-\subsection{Multi-threading Environment}
-
-OpenMP. Each node has 4 cores, 8 threads. 
+\subsection{MapReduce Equi-Join}
 
 
-Compared to using pthreads and working with mutex and
-condition variables, OpenMP is much easier to use because
-the compiler takes care of transforming the sequential code
-into parallel code according to the directives [12]. Hence
-the programmers can write multithreaded programs without
-serious understanding of multithreading mechanism. Its
-runtime maintains the thread pool and provides a set of
-libraries [7].
-It uses a block-structured approach to switch between
-sequential and parallel sections, which follows the fork/join
-model. At the entry of a parallel block, a single thread of
-control is split into some number of threads, and a new
-sequential thread is started when all the split threads have
-finished. Its directives allow the fine-grained control over
-the threads. It is supported on various platforms like UNIX,
-LINUX, and Windows and various languages like C, C++,
-and Fortran [12].
-
-\subsection{Existing Solution}
-
-
-
-\section{Implementation}
-
-In OODB, collection equi-join is based on ’total’ equality. That is, for list/array each collection type element (OID) must be equal in the same order. Whereas for set/bag two objects are equal if all collection type element object of class A exist in object of class B in any order. Before the joining can take place, the local objects for class A and B needs to be sorted. We used quick sort with algorithm in Figure 3 as the comparison function. The algorithm performs element-by-element comparison between two collec- tion attributes until one of the OIDs is not equal or it reaches the end of one of the collection attributes. For this comparison to perform correctly, collection attributes of type set or bag must be pre-sorted
+%\subsection{File System Design}
+%
+%\subsection{Code Framework}
+%
+%The algorithm was constructed using C++ and Message Passing Interface library (MPI). MPI libraries consist of message-passing functionality which was used for distributed and parallel algorithms. Message passing function is simply a func- tion that explicitly transmits data from one process to another. By using MPI library each process that is running on an individual workstation is assigned a unique number called process rank. The root process will coordinate most of the operation for the parallel data joining implementation. The equi-join employed the data parallelism paradigm. Data is partitioned to different process for local processing. The main MPI library functions used in our implementation are Send, Receive, Broadcast, Gather, and All-to-All communication
+%
+%\subsection{Join Algorithm}
+%
+%Parallel collection equi-join can be divided into two main phases. The first phase is data partitioning based on disjoint partition, and the second phase is per- forming the join algorithm(i.e. sort-merge or hash join). The hash join algorithm was chosen for this.
+%
+%\subsection{Multi-threading Environment}
+%
+%OpenMP. Each node has 4 cores, 8 threads. 
+%
+%
+%Compared to using pthreads and working with mutex and
+%condition variables, OpenMP is much easier to use because
+%the compiler takes care of transforming the sequential code
+%into parallel code according to the directives [12]. Hence
+%the programmers can write multithreaded programs without
+%serious understanding of multithreading mechanism. Its
+%runtime maintains the thread pool and provides a set of
+%libraries [7].
+%It uses a block-structured approach to switch between
+%sequential and parallel sections, which follows the fork/join
+%model. At the entry of a parallel block, a single thread of
+%control is split into some number of threads, and a new
+%sequential thread is started when all the split threads have
+%finished. Its directives allow the fine-grained control over
+%the threads. It is supported on various platforms like UNIX,
+%LINUX, and Windows and various languages like C, C++,
+%and Fortran [12].
+%
+%
+%In OODB, collection equi-join is based on ’total’ equality. That is, for list/array each collection type element (OID) must be equal in the same order. Whereas for set/bag two objects are equal if all collection type element object of class A exist in object of class B in any order. Before the joining can take place, the local objects for class A and B needs to be sorted. We used quick sort with algorithm in Figure 3 as the comparison function. The algorithm performs element-by-element comparison between two collec- tion attributes until one of the OIDs is not equal or it reaches the end of one of the collection attributes. For this comparison to perform correctly, collection attributes of type set or bag must be pre-sorted
 
 \section{Results}
 
@@ -268,7 +272,11 @@ Comparison between MapReduce and given algorithm.
 
 \section{Critical Analysis}
 
-\section{Further Improvements}
+\subsection{Limitations}
+
+\subsection{Tradeoffs}
+
+\section{Future Recommendations}
 
 \section{Conclusion}
 

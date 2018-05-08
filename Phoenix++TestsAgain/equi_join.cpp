@@ -97,11 +97,9 @@ public:
         uint64_t i_Value_A = 0;
         uint64_t start_key_A = 0;
         uint64_t start_Value_A = 0;
-        //uint64_t key_start, key_end;
         int column_counter = 0;
         bool first_column = false;
         wc_word word;
-        char *key = NULL, *value = NULL;
 
 
         while(i_Value_A < s.lenA)
@@ -147,65 +145,60 @@ public:
 
             } else if (key_column == 1){
 
-                    while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
-                    {
-                        i_A++;
-                        // printf("i_A in do while loop: %i \n", i_A);
-                    }
-                    column_counter++;
-                    i_A++;
+                // while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
+                // {
+                //     i_A++;
+                //     printf("i_A in do while loop: %i \n", i_A);
+                // }
+                //column_counter++;
+                //i_A++;
                 // printf("column counter in do while loop: %i \n", column_counter);
+                int i = 0;
             }
             else {
 
-            while (column_counter < key_column +1) {
-                while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
-                    {
-                        i_A++;
-                        // printf("i_A in do while loop: %i \n", i_A);
-                    }
-                    column_counter++;
-                    i_A++;
-                // printf("column counter in do while loop: %i \n", column_counter);
-                }
-                
-                
-                if ((key_column == column_counter) && !first_column)
+                do  
                 {
-                    
-                    start_key_A = i_A ;
-                    //i_A++;
-
-                    while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
-
-                    // printf("i_A in loop: %i \n", i_A);
+                    while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
+                        {
+                            i_A++;
+                            // printf("i_A in do while loop: %i \n", i_A);
+                        }
+                        column_counter++;
                         i_A++;
-                        
-                    }
-                    column_counter++;
-                    //i_A++;
-                    //printf("column counter: %i \n", column_counter);
+                    // printf("column counter in do while loop: %i \n", column_counter);
+                } while (column_counter != key_column);
+            }
+                
+                
+            if ((key_column == column_counter) && !first_column)
+            {
+                
+                start_key_A = i_A ;
+                //i_A++;
 
-                    if(i_A > start_key_A)
-                    {
-                        //printf("in the loop\n");
-                        //(void*)s.data_A_key[i_A] = 0;
-                        
+                while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
 
-                        s.data_A_key[i_A] = 0;
+                // printf("i_A in loop: %i \n", i_A);
+                    i_A++;
+                    
+                }
+                column_counter++;
+                //i_A++;
+                //printf("column counter: %i \n", column_counter);
 
-                        printf("keyA: %c \n",  s.data_A_key[start_key_A]);
-                        printf("keyA: %c \n",  s.data_A_key[i_A-1]);
-                        printf("\n");
+                if(i_A > start_key_A)
+                {
+                    s.data_A_key[i_A] = 0;
 
-                        word = { s.data_A_key + start_key_A };
+                    printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                    printf("keyA: %c \n",  s.data_A_key[i_A-1]);
+                    printf("\n");
 
-                        
-                    }
+                    word = { s.data_A_key + start_key_A };
+
                 }
             }
-
-            
                 
             column_counter = 0;
 
@@ -241,8 +234,7 @@ public:
 
                     emit_intermediate(out, word, outputA);
 
-                    key = NULL;
-                    value = NULL;
+
 
                 }
             //printf("Ival: %u \n", i_Value_A);
@@ -259,8 +251,7 @@ public:
         uint64_t start_Value_B = 0;
         first_column = false;
         column_counter = 0;
-        key = NULL;
-        value = NULL;
+
 
         while(i_Value_B < s.lenB)
         { 
@@ -288,7 +279,7 @@ public:
             column_counter++;
             i_B++;
 
-            if (first_column)
+            if (first_column == true)
             {
                 while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
@@ -305,48 +296,58 @@ public:
                     // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
                 }
-            } else {
-                i_B++;
+            } else if (key_column == 1)
+            {
 
+                    // while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
+                    // {
+                    //     i_B++;
+                    //     // printf("i_B in do while loop: %i \n", i_B);
+                    // }
+                    //column_counter++;
+                    //i_B++;
+                // printf("column counter in do while loop: %i \n", column_counter);
+                int i = 1;
+            } else 
+            {
                 do {
                     while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
-                    {
+                        {
+                            i_B++;
+                            // printf("i_B in do while loop: %i \n", i_B);
+                        }
+                        column_counter++;
                         i_B++;
-                    }
-                    column_counter++;
-                    i_B++;
-                }
-                while (column_counter < key_column);
+                    // printf("column counter in do while loop: %i \n", column_counter);
+                } while (column_counter != key_column);
+            }  
 
                 
-                if ((key_column == column_counter) && !first_column)
+            if ((key_column == column_counter) && !first_column)
+            {
+                start_key_B = i_B ;
+                //i_B++;
+
+                while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
-                    start_key_B = i_B ;
-                    //i_B++;
+                    i_B++;
+                }
 
-                    while(i_B < s.lenB && (s.data_B[i_B] != '|'))
-                    {
-                        i_B++;
-                    }
+                column_counter++;
+            // i_B++;
 
-                    column_counter++;
-                // i_B++;
+                if(i_B > start_key_B)
+                {
+                    s.data_B_key[i_B] = 0;
+                    word = { s.data_B_key + start_key_B };
 
-                    if(i_B > start_key_B)
-                    {
-                        s.data_B_key[i_B] = 0;
-                        word = { s.data_B_key + start_key_B };
+                    // printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                    // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
-                        // printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                        // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
-
-                    }
                 }
             }
             
-
             column_counter = 0;
-            
 
             start_Value_B = i_Value_B;
 
@@ -387,9 +388,6 @@ public:
 
 
                 emit_intermediate(out, word, outputB);
-
-                key = NULL;
-                value = NULL;
             }
             i_B++;
             i_Value_B++;

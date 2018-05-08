@@ -145,10 +145,8 @@ public:
                     printf("keyA: %c \n",  s.data_A_key[i_A-1]);
                 }
 
-            } else {
-                i_A++;
+            } else if (key_column == 1){
 
-                do {
                     while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
                     {
                         i_A++;
@@ -157,8 +155,20 @@ public:
                     column_counter++;
                     i_A++;
                 // printf("column counter in do while loop: %i \n", column_counter);
+            }
+            else {
+
+            while (column_counter < key_column +1) {
+                while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
+                    {
+                        i_A++;
+                        // printf("i_A in do while loop: %i \n", i_A);
+                    }
+                    column_counter++;
+                    i_A++;
+                // printf("column counter in do while loop: %i \n", column_counter);
                 }
-                while (column_counter < key_column);
+                
                 
                 if ((key_column == column_counter) && !first_column)
                 {

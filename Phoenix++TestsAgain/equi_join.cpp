@@ -129,55 +129,9 @@ public:
 
             column_counter++;
             i_A++;
-            do {
-                while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
-                {
-                    i_A++;
-                    // printf("i_A in do while loop: %i \n", i_A);
-                }
-                column_counter++;
-                i_A++;
-               // printf("column counter in do while loop: %i \n", column_counter);
-            }
-            while (column_counter != key_column);
-             
-            if ((key_column == column_counter) && !first_column)
-            {
-                
-                start_key_A = i_A ;
-                //i_A++;
-
-                while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
-
-                   // printf("i_A in loop: %i \n", i_A);
-                    i_A++;
-                    
-                }
-                column_counter++;
-                //i_A++;
-                //printf("column counter: %i \n", column_counter);
-
-                if(i_A > start_key_A)
-                {
-                    //printf("in the loop\n");
-                    //(void*)s.data_A_key[i_A] = 0;
-                    
-
-                    s.data_A_key[i_A] = 0;
-
-                    printf("keyA: %c \n",  s.data_A_key[start_key_A]);
-                    printf("keyA: %c \n",  s.data_A_key[i_A-1]);
-                    printf("\n\n");
-
-                    word = { s.data_A_key + start_key_A };
-
-                    
-                }
-            }
 
             if (first_column == true)
             {
-                i_A++;
 
                 while(i_A < s.lenA && (s.data_A[i_A] != '|'))
                     i_A++;
@@ -190,7 +144,58 @@ public:
                     printf("keyA: %c \n",  s.data_A_key[start_key_A]);
                     printf("keyA: %c \n",  s.data_A_key[i_A-1]);
                 }
+
+            } else {
+                i_A++;
+
+                do {
+                    while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
+                    {
+                        i_A++;
+                        // printf("i_A in do while loop: %i \n", i_A);
+                    }
+                    column_counter++;
+                    i_A++;
+                // printf("column counter in do while loop: %i \n", column_counter);
+                }
+                while (column_counter < key_column);
+                
+                if ((key_column == column_counter) && !first_column)
+                {
+                    
+                    start_key_A = i_A ;
+                    //i_A++;
+
+                    while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
+
+                    // printf("i_A in loop: %i \n", i_A);
+                        i_A++;
+                        
+                    }
+                    column_counter++;
+                    //i_A++;
+                    //printf("column counter: %i \n", column_counter);
+
+                    if(i_A > start_key_A)
+                    {
+                        //printf("in the loop\n");
+                        //(void*)s.data_A_key[i_A] = 0;
+                        
+
+                        s.data_A_key[i_A] = 0;
+
+                        printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                        printf("keyA: %c \n",  s.data_A_key[i_A-1]);
+                        printf("\n");
+
+                        word = { s.data_A_key + start_key_A };
+
+                        
+                    }
+                }
             }
+
+            
                 
             column_counter = 0;
 
@@ -212,9 +217,8 @@ public:
                     int identifierA = 0;
                     valueStruct outputA(identifierA, s.data_A + start_Value_A);
 
-                    printf("valA: %c \n",  s.data_A[start_Value_A]);
-                    // printf("valA: %i \n",  (int)s.data_A[i_Value_A]);
-                    printf("valA2: %c \n",  s.data_A[i_Value_A]);
+                    // printf("valA: %c \n",  s.data_A[start_Value_A]);
+                    // printf("valA2: %c \n",  s.data_A[i_Value_A]);
 
                     // printf("value mapped data: ");
                     // for (uint64_t l = start_Value_A; l < i_Value_A; l++)
@@ -274,44 +278,8 @@ public:
             column_counter++;
             i_B++;
 
-            do {
-                while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
-                {
-                    i_B++;
-                }
-                column_counter++;
-                i_B++;
-            }
-            while (column_counter != key_column);
-
-            
-            if ((key_column == column_counter) && !first_column)
-            {
-                start_key_B = i_B ;
-                //i_B++;
-
-                while(i_B < s.lenB && (s.data_B[i_B] != '|'))
-                {
-                    i_B++;
-                }
-
-                column_counter++;
-               // i_B++;
-
-                if(i_B > start_key_B)
-                {
-                    s.data_B_key[i_B] = 0;
-                    word = { s.data_B_key + start_key_B };
-
-                    printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                    printf("keyB: %c \n",  s.data_B_key[i_B-1]);
-
-                }
-            }
             if (first_column)
             {
-                i_B++;
-
                 while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
                     i_B++;
@@ -323,11 +291,49 @@ public:
 
                     s.data_B_key[i_B] = 0;
                     word = { s.data_B_key + start_key_B };
-                    printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                    printf("keyB: %c \n",  s.data_B_key[i_B-1]);
+                    // printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                    // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
                 }
+            } else {
+                i_B++;
+
+                do {
+                    while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
+                    {
+                        i_B++;
+                    }
+                    column_counter++;
+                    i_B++;
+                }
+                while (column_counter < key_column);
+
+                
+                if ((key_column == column_counter) && !first_column)
+                {
+                    start_key_B = i_B ;
+                    //i_B++;
+
+                    while(i_B < s.lenB && (s.data_B[i_B] != '|'))
+                    {
+                        i_B++;
+                    }
+
+                    column_counter++;
+                // i_B++;
+
+                    if(i_B > start_key_B)
+                    {
+                        s.data_B_key[i_B] = 0;
+                        word = { s.data_B_key + start_key_B };
+
+                        // printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                        // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
+
+                    }
+                }
             }
+            
 
             column_counter = 0;
             
@@ -357,8 +363,8 @@ public:
 
                 valueStruct outputB( identifierB, s.data_B + start_Value_B );
 
-                printf("valB: %c \n",  s.data_B[start_Value_B]);
-                printf("valB: %c \n",  s.data_B[i_Value_B]);
+                // printf("valB: %c \n",  s.data_B[start_Value_B]);
+                // printf("valB: %c \n",  s.data_B[i_Value_B]);
 
                 //printf("value mapped data: ");
                 // for (uint64_t l = start_Value_B; l < i_Value_B; l++)
@@ -436,7 +442,7 @@ public:
             
         splitter_pos_B = endB;
 
-        printf("finished splitting \n");
+        //printf("finished splitting \n");
 
         /* Return true since the out data is valid. */
         return 1;
@@ -455,7 +461,7 @@ public:
 
     void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
     {
-        printf("entering reducer \n");
+        //printf("entering reducer \n");
         value_type val;
         std::vector<value_type> array1;
         std::vector<value_type> array2;

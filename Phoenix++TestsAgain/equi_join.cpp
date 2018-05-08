@@ -128,20 +128,33 @@ public:
             }
 
             column_counter++;
-
+            i_A++;
+            do {
+                while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
+                {
+                    i_A++;
+                    // printf("i_A in do while loop: %i \n", i_A);
+                }
+                column_counter++;
+                i_A++;
+                printf("column counter in do while loop: %i \n", column_counter);
+            }
+            while (column_counter != key_column);
+             
             if ((key_column == column_counter) && !first_column)
             {
                 
-                start_key_A = i_A + 1;
-                i_A++;
+                start_key_A = i_A ;
+                //i_A++;
 
                 while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
 
-                    //printf("i_A in loop: %i \n", i_A);
+                   // printf("i_A in loop: %i \n", i_A);
                     i_A++;
                     
                 }
                 column_counter++;
+                //i_A++;
                 //printf("column counter: %i \n", column_counter);
 
                 if(i_A > start_key_A)
@@ -150,28 +163,28 @@ public:
                     //(void*)s.data_A_key[i_A] = 0;
                     
 
-                    //s.data_A_key[i_A] = 0
+                    s.data_A_key[i_A] = 0;
 
-                    // printf("keyA: %c \n",  s.data_A_key[start_key_A]);
-                    // printf("keyA: %c \n",  s.data_A_key[i_A]);
-                    // printf("\n\n");
-
-                    // word = { s.data_A_key + start_key_A };
-
-                    //char* key;
-                    key = (char *)malloc(i_A-start_key_A + 1);
-
-                    for (uint64_t i = 0; i < (i_A - start_key_A); i++)
-                    {
-                        key[i] = s.data_A_key[start_key_A+i];
-                    }
-                    key[i_A - start_key_A] = 0;
-
-                    printf("keyA: %c \n",  key[0]);
-                    printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
+                    printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                    printf("keyA: %c \n",  s.data_A_key[i_A-1]);
                     printf("\n\n");
 
-                    word = {key};
+                    word = { s.data_A_key + start_key_A };
+
+                    //char* key;
+                    // key = (char *)malloc(i_A-start_key_A + 1);
+
+                    // for (uint64_t i = 0; i < (i_A - start_key_A); i++)
+                    // {
+                    //     key[i] = s.data_A_key[start_key_A+i];
+                    // }
+                    // key[i_A - start_key_A] = 0;
+
+                    // printf("keyA: %c \n",  key[0]);
+                    // printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
+                    // printf("\n\n");
+
+                    // word = {key};
                     
                 }
             }
@@ -187,24 +200,24 @@ public:
                 {
                     // void* vp = (void*)s.data_A_key[i_A];
                     // vp = 0;
-                    // //s.data_A_key[i_A] = 0;
-                    // word = { s.data_A_key + start_key_A };
-                    //printf("keyA: %c \n",  s.data_A_key[start_key_A]);
-                    //printf("keyA: %c \n",  s.data_A_key[i_A-1]);
+                    s.data_A_key[i_A] = 0;
+                    word = { s.data_A_key + start_key_A };
+                    printf("keyA: %c \n",  s.data_A_key[start_key_A]);
+                    printf("keyA: %c \n",  s.data_A_key[i_A-1]);
 
-                    key = (char *)malloc(i_A-start_key_A + 1);
+                    // key = (char *)malloc(i_A-start_key_A + 1);
 
-                    for (uint64_t i = 0; i < (i_A - start_key_A); i++)
-                    {
-                        key[i] = s.data_A_key[start_key_A+i];
-                    }
-                    key[i_A - start_key_A] = 0;
+                    // for (uint64_t i = 0; i < (i_A - start_key_A); i++)
+                    // {
+                    //     key[i] = s.data_A_key[start_key_A+i];
+                    // }
+                    // key[i_A - start_key_A] = 0;
 
-                    printf("keyA: %c \n",  key[0]);
-                    printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
-                    printf("\n\n");
+                    // printf("keyA: %c \n",  key[0]);
+                    // printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
+                    // printf("\n\n");
 
-                    word = {key};
+                    // word = {key};
                 }
             }
                 
@@ -223,31 +236,31 @@ public:
             if(i_Value_A > start_Value_A)
                 {
                     //char* value;
-                    value = (char *)malloc(i_Value_A - start_Value_A + 1);
+                    // value = (char *)malloc(i_Value_A - start_Value_A + 1);
 
-                    for (uint64_t i = 0; i < (i_Value_A - start_Value_A); i++)
-                    {
-                        value[i] = s.data_A[start_Value_A + i];
-                    }
-                    value[i_Value_A - start_Value_A] = 0;
+                    // for (uint64_t i = 0; i < (i_Value_A - start_Value_A); i++)
+                    // {
+                    //     value[i] = s.data_A[start_Value_A + i];
+                    // }
+                    // value[i_Value_A - start_Value_A] = 0;
 
-                    printf("valA: %c \n",  value[0]);
-                    printf("valA: %c \n",  value[i_Value_A - start_Value_A - 1]);
-                    printf("\n\n");
+                    // printf("valA: %c \n",  value[0]);
+                    // printf("valA: %c \n",  value[i_Value_A - start_Value_A - 1]);
+                    // printf("\n\n");
 
-                    int identifierA = 0;
-                    valueStruct outputA(identifierA, value);
+                    // int identifierA = 0;
+                    // valueStruct outputA(identifierA, value);
 
                     // void* vp = (void*)s.data_A[i_Value_A];
                     // vp = 0;
-                    //s.data_A[i_Value_A] = 0; // end of the value
+                    s.data_A[i_Value_A] = 0; // end of the value
 
-                    // int identifierA = 0;
-                    // valueStruct outputA(identifierA, s.data_A + start_Value_A);
+                    int identifierA = 0;
+                    valueStruct outputA(identifierA, s.data_A + start_Value_A);
 
-                    // printf("valA: %c \n",  s.data_A[start_Value_A]);
+                    printf("valA: %c \n",  s.data_A[start_Value_A]);
                     // printf("valA: %i \n",  (int)s.data_A[i_Value_A]);
-                    // printf("valA2: %c \n",  s.data_A[i_Value_A+1]);
+                    printf("valA2: %c \n",  s.data_A[i_Value_A]);
 
                     // printf("value mapped data: ");
                     // for (uint64_t l = start_Value_A; l < i_Value_A; l++)
@@ -305,11 +318,23 @@ public:
             }
 
             column_counter++;
+            i_B++;
 
+            do {
+                while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
+                {
+                    i_B++;
+                }
+                column_counter++;
+                i_B++;
+            }
+            while (column_counter != key_column);
+
+            
             if ((key_column == column_counter) && !first_column)
             {
-                start_key_B = i_B + 1;
-                i_B++;
+                start_key_B = i_B ;
+                //i_B++;
 
                 while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
@@ -317,31 +342,32 @@ public:
                 }
 
                 column_counter++;
+               // i_B++;
 
                 if(i_B > start_key_B)
                 {
                     // void* vp = (void*)s.data_B_key[i_B];
                     // vp = 0;
-                    // //s.data_B_key[i_B] = 0;
-                    // word = { s.data_B_key + start_key_B };
+                    s.data_B_key[i_B] = 0;
+                    word = { s.data_B_key + start_key_B };
 
-                    // //printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                    // //printf("keyB: %c \n",  s.data_B_key[i_B-1]);
+                    printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                    printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
-                    char* key;
-                    key = (char *)malloc(i_B-start_key_B + 1);
+                    // char* key;
+                    // key = (char *)malloc(i_B-start_key_B + 1);
                     
-                    for (uint64_t i = 0; i < (i_B - start_key_B); i++)
-                    {
-                        key[i] = s.data_B_key[start_key_B+i];
-                    }
-                    key[i_B - start_key_B] = 0;
+                    // for (uint64_t i = 0; i < (i_B - start_key_B); i++)
+                    // {
+                    //     key[i] = s.data_B_key[start_key_B+i];
+                    // }
+                    // key[i_B - start_key_B] = 0;
 
-                    printf("keyB: %c \n",  key[0]);
-                    printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
-                    printf("\n\n");
+                    // printf("keyB: %c \n",  key[0]);
+                    // printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
+                    // printf("\n\n");
 
-                    word = {key};
+                    // word = {key};
                 }
             }
             if (first_column)
@@ -358,22 +384,24 @@ public:
                 {
                     // void* vp = (void*)s.data_B_key[i_B];
                     // vp = 0;
-                    // //s.data_B_key[i_B] = 0;
-                    // word = { s.data_B_key + start_key_B };
+                    s.data_B_key[i_B] = 0;
+                    word = { s.data_B_key + start_key_B };
+                    printf("keyB: %c \n",  s.data_B_key[start_key_B]);
+                    printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
-                    key = (char *)malloc(i_B-start_key_B + 1);
+                    // key = (char *)malloc(i_B-start_key_B + 1);
                     
-                    for (uint64_t i = 0; i < (i_B - start_key_B); i++)
-                    {
-                        key[i] = s.data_B_key[start_key_B+i];
-                    }
-                    key[i_B - start_key_B] = 0;
+                    // for (uint64_t i = 0; i < (i_B - start_key_B); i++)
+                    // {
+                    //     key[i] = s.data_B_key[start_key_B+i];
+                    // }
+                    // key[i_B - start_key_B] = 0;
 
-                    printf("keyB: %c \n",  key[0]);
-                    printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
-                    printf("\n\n");
+                    // printf("keyB: %c \n",  key[0]);
+                    // printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
+                    // printf("\n\n");
 
-                    word = {key};
+                    // word = {key};
                 }
             }
 
@@ -398,30 +426,30 @@ public:
             {
                 // void* vp = (void*)s.data_B[i_Value_B];
                 // vp = 0;
-                // //s.data_B[i_Value_B] = 0; // end of the value
-                // int identifierB = 1;
-
-                value = (char *)malloc(i_Value_B - start_Value_B + 1);
-
-                for (uint64_t i = 0; i < (i_Value_B - start_Value_B); i++)
-                {
-                    value[i] = s.data_B[start_Value_B + i];
-                }
-                value[i_Value_B - start_Value_B] = 0;
-
-                printf("valB: %c \n",  value[0]);
-                printf("valB: %c \n",  value[i_Value_B - start_Value_B - 1]);
-                printf("\n");
-
+                s.data_B[i_Value_B] = 0; // end of the value
                 int identifierB = 1;
-                valueStruct outputB(identifierB, value);
+
+                // value = (char *)malloc(i_Value_B - start_Value_B + 1);
+
+                // for (uint64_t i = 0; i < (i_Value_B - start_Value_B); i++)
+                // {
+                //     value[i] = s.data_B[start_Value_B + i];
+                // }
+                // value[i_Value_B - start_Value_B] = 0;
+
+                // printf("valB: %c \n",  value[0]);
+                // printf("valB: %c \n",  value[i_Value_B - start_Value_B - 1]);
+                // printf("\n");
+
+                // int identifierB = 1;
+                // valueStruct outputB(identifierB, value);
 
 
 
-                //valueStruct outputB( identifierB, s.data_B + start_Value_B );
+                valueStruct outputB( identifierB, s.data_B + start_Value_B );
 
-                //printf("valB: %c \n",  s.data_B[start_Value_B]);
-                //printf("valB: %c \n",  s.data_B[i_Value_B]);
+                printf("valB: %c \n",  s.data_B[start_Value_B]);
+                printf("valB: %c \n",  s.data_B[i_Value_B]);
 
                 //printf("value mapped data: ");
                 // for (uint64_t l = start_Value_B; l < i_Value_B; l++)
@@ -658,7 +686,7 @@ int main(int argc, char *argv[]) {
     // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
     // Read in the file
-    CHECK_ERROR((fd_A = open(fname_A,O_RDONLY)) < 0);
+    CHECK_ERROR((fd_A = open(fname_A,O_RDWR)) < 0);
 
     // Get the file info (for file length)
     CHECK_ERROR(fstat(fd_A, &finfo_A) < 0);
@@ -671,24 +699,24 @@ int main(int argc, char *argv[]) {
 #else
     // Memory map the file
     CHECK_ERROR((fdata_A = (char*)mmap(NULL, finfo_A.st_size + 1, 
-        PROT_READ, MAP_SHARED , fd_A, 0)) == NULL);
+        PROT_READ | PROT_WRITE, MAP_SHARED , fd_A, 0)) == NULL);
 
     close(fd_A);
 
-    CHECK_ERROR((fd_Aa = open(fname_Aa,O_RDONLY)) < 0);
+    CHECK_ERROR((fd_Aa = open(fname_Aa,O_RDWR)) < 0);
     CHECK_ERROR(fstat(fd_Aa, &finfo_Aa) < 0);
 
     CHECK_ERROR((fdata_A_key = (char*)mmap(NULL, finfo_Aa.st_size + 1, 
-        PROT_READ , MAP_SHARED, fd_Aa, 0)) == NULL);
+        PROT_READ | PROT_WRITE  , MAP_SHARED, fd_Aa, 0)) == NULL);
 #endif
 #else
-    //int ret, rety;
 
     fdata_A = (char *)malloc (finfo_A.st_size);
     CHECK_ERROR (fdata_A == NULL);
 
     fdata_A_key = (char *)malloc (finfo_A.st_size);
     CHECK_ERROR (fdata_A_key == NULL);
+
 
     uint64_t r = 0;
 
@@ -698,19 +726,8 @@ int main(int argc, char *argv[]) {
     fdata_A[finfo_A.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
 
-    // ret = read (fd_A, fdata_A, finfo_A.st_size);
-    // CHECK_ERROR (ret != finfo_A.st_size);
-    // printf("before \n");
-    // printf("%s", fdata_A[0]);
-    //printf("after \n");
-
-
     close(fd_A);
 
-    // for (size_t i = 0; i < 20; i++)
-    // {
-    //     printf("%50s\n", fdata_A[finfo_A.st_size-1-i]);
-    // }
 
     CHECK_ERROR((fd_A = open(fname_A,O_RDONLY)) < 0);
 
@@ -721,22 +738,13 @@ int main(int argc, char *argv[]) {
     }
     fdata_A_key[finfo_A.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
-    // rety = read (fd_A, fdata_A_key, finfo_A.st_size);
-    // CHECK_ERROR (rety != finfo_A.st_size);
-
-    // printf("input data: ");
-    // for (uint64_t l = 0; l < strlen(fdata_A_key); l++)
-    // {
-    //     printf("%c", fdata_A_key[l]);
-    // }
-    // printf("\n");
     
 #endif
 
     // BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 
     // Read in the file
-    CHECK_ERROR((fd_B = open(fname_B,O_RDONLY)) < 0);
+    CHECK_ERROR((fd_B = open(fname_B,O_RDWR)) < 0);
     // Get the file info (for file length)
     CHECK_ERROR(fstat(fd_B, &finfo_B) < 0);
 
@@ -750,15 +758,15 @@ int main(int argc, char *argv[]) {
     //void* vp = (void*)fdata_A;
     CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
     //CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
-        PROT_READ, MAP_PRIVATE , fd_B, 0)) == NULL);
+        PROT_READ | PROT_WRITE, MAP_PRIVATE , fd_B, 0)) == NULL);
 
     close(fd_B);
 
-    CHECK_ERROR((fd_Bb = open(fname_Bb,O_RDONLY)) < 0);
+    CHECK_ERROR((fd_Bb = open(fname_Bb,O_RDWR)) < 0);
     CHECK_ERROR(fstat(fd_Bb, &finfo_Bb) < 0);
 
     CHECK_ERROR((fdata_B_key = (char*)mmap(NULL, finfo_Bb.st_size + 1, 
-        PROT_READ, MAP_PRIVATE, fd_Bb, 0)) == NULL);
+        PROT_READ | PROT_WRITE, MAP_PRIVATE, fd_Bb, 0)) == NULL);
 #endif
 #else
 
@@ -768,6 +776,7 @@ int main(int argc, char *argv[]) {
     fdata_B_key = (char *)malloc (finfo_B.st_size);
     CHECK_ERROR (fdata_B_key == NULL);
 
+
     r = 0;
 
     while (r < (uint64_t)finfo_B.st_size ) {
@@ -776,10 +785,9 @@ int main(int argc, char *argv[]) {
     fdata_B[finfo_B.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
 
-    // ret = read (fd_B, fdata_B, finfo_B.st_size);
-    // CHECK_ERROR (ret != finfo_B.st_size);
-
     close(fd_B);
+
+
     CHECK_ERROR((fd_B = open(fname_B,O_RDONLY)) < 0);
 
     r = 0;
@@ -790,20 +798,6 @@ int main(int argc, char *argv[]) {
     fdata_B_key[finfo_B.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
 
-    // ret = read (fd_B, fdata_B_key, finfo_B.st_size);
-    // CHECK_ERROR (ret != finfo_B.st_size);
-
-    // fdata_B = (char *)malloc (finfo_B.st_size);
-    // CHECK_ERROR (fdata_B == NULL);
-
-    // ret = read (fd_B, fdata_B, finfo_B.st_size);
-    // CHECK_ERROR (ret != finfo_B.st_size);
-
-    // fdata_A = (char*)malloc(finfo_A.st_size);
-    // fdata_B = (char*)malloc(finfo_B.st_size);
-
-    // CHECK_ERROR (fdata_A == NULL);
-    // CHECK_ERROR (fdata_B == NULL);
 #endif
 
     // for (int i = 0; i < 50; i++)

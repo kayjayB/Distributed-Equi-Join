@@ -222,8 +222,14 @@ The Phoenix project [9, 12], in particular, demonstrated that the MapReduce mode
 \subsection{Existing Solutions}
 
 \section{System Design and Implementation}
+The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.
 
 \subsection{Serial Equi-Join}
+An object-oriented solution was implemented for the serial equi-join. Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
+
+Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table of one of the input text files. 
+
+\cite{evaluating4JoinAlgorithms}
 
 \subsection{Hybrid Equi-Join}
 
@@ -277,7 +283,10 @@ Comparison between MapReduce and given algorithm.
 \subsection{Tradeoffs}
 
 \section{Future Recommendations}
+For future recommendations, a hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability \cite{evaluating4JoinAlgorithms}.
 
 \section{Conclusion}
 
+\bibliographystyle{witseie}
+\bibliography{bigData}
 \end{document}

@@ -137,7 +137,7 @@ public:
                 }
                 column_counter++;
                 i_A++;
-                printf("column counter in do while loop: %i \n", column_counter);
+               // printf("column counter in do while loop: %i \n", column_counter);
             }
             while (column_counter != key_column);
              
@@ -171,20 +171,6 @@ public:
 
                     word = { s.data_A_key + start_key_A };
 
-                    //char* key;
-                    // key = (char *)malloc(i_A-start_key_A + 1);
-
-                    // for (uint64_t i = 0; i < (i_A - start_key_A); i++)
-                    // {
-                    //     key[i] = s.data_A_key[start_key_A+i];
-                    // }
-                    // key[i_A - start_key_A] = 0;
-
-                    // printf("keyA: %c \n",  key[0]);
-                    // printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
-                    // printf("\n\n");
-
-                    // word = {key};
                     
                 }
             }
@@ -198,26 +184,11 @@ public:
 
                 if(i_A > start_key_A)
                 {
-                    // void* vp = (void*)s.data_A_key[i_A];
-                    // vp = 0;
+
                     s.data_A_key[i_A] = 0;
                     word = { s.data_A_key + start_key_A };
                     printf("keyA: %c \n",  s.data_A_key[start_key_A]);
                     printf("keyA: %c \n",  s.data_A_key[i_A-1]);
-
-                    // key = (char *)malloc(i_A-start_key_A + 1);
-
-                    // for (uint64_t i = 0; i < (i_A - start_key_A); i++)
-                    // {
-                    //     key[i] = s.data_A_key[start_key_A+i];
-                    // }
-                    // key[i_A - start_key_A] = 0;
-
-                    // printf("keyA: %c \n",  key[0]);
-                    // printf("keyA: %c \n",  key[i_A - start_key_A - 1]);
-                    // printf("\n\n");
-
-                    // word = {key};
                 }
             }
                 
@@ -235,24 +206,7 @@ public:
 
             if(i_Value_A > start_Value_A)
                 {
-                    //char* value;
-                    // value = (char *)malloc(i_Value_A - start_Value_A + 1);
 
-                    // for (uint64_t i = 0; i < (i_Value_A - start_Value_A); i++)
-                    // {
-                    //     value[i] = s.data_A[start_Value_A + i];
-                    // }
-                    // value[i_Value_A - start_Value_A] = 0;
-
-                    // printf("valA: %c \n",  value[0]);
-                    // printf("valA: %c \n",  value[i_Value_A - start_Value_A - 1]);
-                    // printf("\n\n");
-
-                    // int identifierA = 0;
-                    // valueStruct outputA(identifierA, value);
-
-                    // void* vp = (void*)s.data_A[i_Value_A];
-                    // vp = 0;
                     s.data_A[i_Value_A] = 0; // end of the value
 
                     int identifierA = 0;
@@ -346,28 +300,12 @@ public:
 
                 if(i_B > start_key_B)
                 {
-                    // void* vp = (void*)s.data_B_key[i_B];
-                    // vp = 0;
                     s.data_B_key[i_B] = 0;
                     word = { s.data_B_key + start_key_B };
 
                     printf("keyB: %c \n",  s.data_B_key[start_key_B]);
                     printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
-                    // char* key;
-                    // key = (char *)malloc(i_B-start_key_B + 1);
-                    
-                    // for (uint64_t i = 0; i < (i_B - start_key_B); i++)
-                    // {
-                    //     key[i] = s.data_B_key[start_key_B+i];
-                    // }
-                    // key[i_B - start_key_B] = 0;
-
-                    // printf("keyB: %c \n",  key[0]);
-                    // printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
-                    // printf("\n\n");
-
-                    // word = {key};
                 }
             }
             if (first_column)
@@ -382,26 +320,12 @@ public:
 
                 if(i_B > start_key_B)
                 {
-                    // void* vp = (void*)s.data_B_key[i_B];
-                    // vp = 0;
+
                     s.data_B_key[i_B] = 0;
                     word = { s.data_B_key + start_key_B };
                     printf("keyB: %c \n",  s.data_B_key[start_key_B]);
                     printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
-                    // key = (char *)malloc(i_B-start_key_B + 1);
-                    
-                    // for (uint64_t i = 0; i < (i_B - start_key_B); i++)
-                    // {
-                    //     key[i] = s.data_B_key[start_key_B+i];
-                    // }
-                    // key[i_B - start_key_B] = 0;
-
-                    // printf("keyB: %c \n",  key[0]);
-                    // printf("keyB: %c \n",  key[i_B - start_key_B - 1]);
-                    // printf("\n\n");
-
-                    // word = {key};
                 }
             }
 
@@ -424,25 +348,10 @@ public:
 
             if(i_Value_B > start_Value_B)
             {
-                // void* vp = (void*)s.data_B[i_Value_B];
-                // vp = 0;
+                
                 s.data_B[i_Value_B] = 0; // end of the value
                 int identifierB = 1;
 
-                // value = (char *)malloc(i_Value_B - start_Value_B + 1);
-
-                // for (uint64_t i = 0; i < (i_Value_B - start_Value_B); i++)
-                // {
-                //     value[i] = s.data_B[start_Value_B + i];
-                // }
-                // value[i_Value_B - start_Value_B] = 0;
-
-                // printf("valB: %c \n",  value[0]);
-                // printf("valB: %c \n",  value[i_Value_B - start_Value_B - 1]);
-                // printf("\n");
-
-                // int identifierB = 1;
-                // valueStruct outputB(identifierB, value);
 
 
 

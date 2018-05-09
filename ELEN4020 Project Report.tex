@@ -249,12 +249,15 @@ After mapping the data to memory, the data is divided into chunks to be sent to 
 
 Within the mapper, the key value pairs from the text file need to be isolated and emitted. In order to isolate the values, the file is iterated through until an end of line character is encountered. This end of line character is set to be the integer \texttt{0}, which is the integer value of the null terminator, and indicates where a string ends \cite{phoenix}. This string represents the value.
 
-To isolate the keys, the column that contains the keys must be known. This information is obtained from the program's run-time arguments. When iterating through the text files, a check is done to determine whether each character is a delimiter or a normal text character. If the character is a delimiter, a counter of delimiters is incremented. When the delimiter counter is equal to the number of the column containing the keys, the start of the key is recorded as the following character. The string is then searched for the next delimiter which marks the end of the key. This character is then set to \texttt{0}. The key and the value are then emitted to the reducer. In order to identify which (key, value) pair originated from which input file, the pair is also emitted with an identifier (\texttt{0} for file 1 and \texttt{1} for file 2).
+To isolate the keys, the column that contains the keys must be known. This information is obtained from the program's run-time arguments. When iterating through the text files, a check is done to determine whether each character is a delimiter or a normal text character. If the character is a delimiter, a counter of delimiters is incremented. When the delimiter counter is equal to the number of the column containing the keys, the start of the key is recorded as the following character. The string is then iterated through to find the next delimiter which marks the end of the key. This character is then set to \texttt{0}. The key and the value are then emitted to the reducer. In order to identify which (key, value) pair originated from which input file, the pair is also emitted with an identifier (\texttt{0} for file 1 and \texttt{1} for file 2).
+
+Once the mapping process is completed, the keys are hashed and the data is sorted. These processes were however not overwritten to implement the join and as such, the in-built Phoenix++ functionality was used.
 
 Each key, and all of its corresponding values, is then sent to the reducer. Within the reducer, the values are split into two vectors based on their identifiers. Thereafter, for each combination of the two vectors, a string is created which contains the two values appended together. The process of appending the two values is the joining of the row of the two tables. Together with the key, the joined value is emitted from the reducer, and written to a text file.
 
 Finally, to complete the program, the files are unmapped from memory and the four copies input files are deleted.
 
+Phoenix++ inherently makes use of PThreads and as such, the equi-join is performed in parallel.
 
 %\subsection{File System Design}
 %

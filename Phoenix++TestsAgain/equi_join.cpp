@@ -91,8 +91,6 @@ public:
     void map(data_type& s, map_container& out) const
     {   
 
-        printf("started mapping A \n");
-
         uint64_t i_A = 0;
         uint64_t i_Value_A = 0;
         uint64_t start_key_A = 0;
@@ -126,7 +124,10 @@ public:
             }
 
             column_counter++;
-            i_A++;
+
+            if (s.data_A_key[i_A+1] != '|') {
+                i_A++;
+            }
 
             if (first_column == true)
             {
@@ -139,20 +140,10 @@ public:
 
                     s.data_A_key[i_A] = 0;
                     word = { s.data_A_key + start_key_A };
-                    // printf("keyA1: %c \n",  s.data_A_key[start_key_A]);
-                    // printf("keyA2: %c \n",  s.data_A_key[i_A-1]);
                 }
 
-            } else if (key_column == 1){
+            } else if (key_column == 1) {
 
-                // while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
-                // {
-                //     i_A++;
-                //     printf("i_A in do while loop: %i \n", i_A);
-                // }
-                //column_counter++;
-                //i_A++;
-                // printf("column counter in do while loop: %i \n", column_counter);
                 int i = 0;
             }
             else {
@@ -162,41 +153,27 @@ public:
                     while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
                         {
                             i_A++;
-                            // printf("i_A in do while loop: %i \n", i_A);
                         }
                         column_counter++;
                         i_A++;
-                    // printf("column counter in do while loop: %i \n", column_counter);
                 } while (column_counter != key_column);
             }
-                
                 
             if ((key_column == column_counter) && !first_column)
             {
                 
-                start_key_A = i_A ;
-                //i_A++;
+                start_key_A = i_A;
 
-                while(i_A < s.lenA && (s.data_A[i_A] != '|')) {
-
-                // printf("i_A in loop: %i \n", i_A);
+                while(i_A < s.lenA && (s.data_A[i_A] != '|')) 
+                {
                     i_A++;
-                    
                 }
                 column_counter++;
-                //i_A++;
-                //printf("column counter: %i \n", column_counter);
 
                 if(i_A > start_key_A)
                 {
                     s.data_A_key[i_A] = 0;
-
-                    // printf("keyA1: %c \n",  s.data_A_key[start_key_A]);
-                    // printf("keyA2: %c \n",  s.data_A_key[i_A-1]);
-                    //printf("\n");
-
                     word = { s.data_A_key + start_key_A };
-
                 }
             }
                 
@@ -206,7 +183,6 @@ public:
 
             while(i_Value_A < s.lenA && (s.data_A[i_Value_A] != '\r' && s.data_A[i_Value_A] != '\n' && s.data_A[i_Value_A] != '\0')) 
             {
-                //printf("data_A @ ivalA: %c \n", s.data_A[i_Value_A-1]);
                 i_Value_A++;
             }
 
@@ -220,38 +196,12 @@ public:
                     int identifierA = 0;
                     valueStruct outputA(identifierA, s.data_A + start_Value_A);
 
-                    // printf("valA: %c \n",  s.data_A[start_Value_A]);
-                    // printf("valA2: %c \n",  s.data_A[i_Value_A]);
-
-                    // printf("value mapped data: ");
-                    // for (uint64_t l = start_Value_A; l < i_Value_A; l++)
-                    // {
-                        
-                    //     printf("%c", s.data_A[l]);
-                        
-                    // }
-                    // printf("\n\n");
-
-                    int i = 0;
-                    printf("keyA: ");
-                    while (word.data[i] != 0)
-                    {
-                        printf("%c",  word.data[i]);
-                        i++;
-                    }
-                    printf("\n");
-
                     emit_intermediate(out, word, outputA);
-
-
-
                 }
-            //printf("Ival: %u \n", i_Value_A);
+                
             i_Value_A++;
             i_A++;
         }
-
-        printf("started mapping B \n");
 
         uint64_t i_B = 0;
         uint64_t i_Value_B = 0;
@@ -259,7 +209,6 @@ public:
         uint64_t start_Value_B = 0;
         first_column = false;
         column_counter = 0;
-
 
         while(i_Value_B < s.lenB)
         { 
@@ -302,41 +251,29 @@ public:
 
                     s.data_B_key[i_B] = 0;
                     word = { s.data_B_key + start_key_B };
-                    // printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                    // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
                 }
-            } else if (key_column == 1)
+            } 
+            else if (key_column == 1)
             {
-
-                    // while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
-                    // {
-                    //     i_B++;
-                    //     // printf("i_B in do while loop: %i \n", i_B);
-                    // }
-                    //column_counter++;
-                    //i_B++;
-                // printf("column counter in do while loop: %i \n", column_counter);
                 int i = 1;
-            } else 
+            } 
+            else 
             {
                 do {
                     while(i_B < s.lenB && (s.data_B_key[i_B] != '|'))
                         {
                             i_B++;
-                            // printf("i_B in do while loop: %i \n", i_B);
                         }
                         column_counter++;
                         i_B++;
-                    // printf("column counter in do while loop: %i \n", column_counter);
+
                 } while (column_counter != key_column);
             }  
 
-                
             if ((key_column == column_counter) && !first_column)
             {
                 start_key_B = i_B ;
-                //i_B++;
 
                 while(i_B < s.lenB && (s.data_B[i_B] != '|'))
                 {
@@ -344,15 +281,11 @@ public:
                 }
 
                 column_counter++;
-            // i_B++;
 
                 if(i_B > start_key_B)
                 {
                     s.data_B_key[i_B] = 0;
                     word = { s.data_B_key + start_key_B };
-
-                    // printf("keyB: %c \n",  s.data_B_key[start_key_B]);
-                    // printf("keyB: %c \n",  s.data_B_key[i_B-1]);
 
                 }
             }
@@ -368,11 +301,6 @@ public:
 
             i_B = i_Value_B;
 
-            // while(s.data_B[i_B+1] == '\r' || s.data_B[i_B+1] == '\n')
-            // {
-            //     printf("ANOTHER END OF LINE FOUND");
-            // }
-
             if(i_Value_B > start_Value_B)
             {
                 
@@ -381,37 +309,15 @@ public:
 
                 valueStruct outputB( identifierB, s.data_B + start_Value_B );
 
-                // printf("valB: %c \n",  s.data_B[start_Value_B]);
-                // printf("valB: %c \n",  s.data_B[i_Value_B]);
-
-                //printf("value mapped data: ");
-                // for (uint64_t l = start_Value_B; l < i_Value_B; l++)
-                // {
-                    
-                //     printf("%c", s.data_B[l]);
-                    
-                // }
-                // printf("\n\n");
-
-
-                // print the key
-                int i = 0;
-                printf("keyB: ");
-                while (word.data[i] != 0)
-                {
-                    printf("%c",  word.data[i]);
-                    i++;
-                }
-                printf("\n");
-
                 emit_intermediate(out, word, outputB);
             }
+
             i_B++;
             i_Value_B++;
         }
     }
 
-    /** string_match_split()
+    /**
      *  Splitter Function to assign portions of the file to each map task
      */
     int split(wc_string& out)
@@ -431,7 +337,7 @@ public:
         uint64_t endA = std::min(splitter_pos_A + chunk_size, lenA);
         uint64_t endB = std::min(splitter_pos_B + chunk_size, lenB);
 
-        //AAAAAAAAAAAAAAA
+        // Split file A /////////////////////////////////////////////////////
 
         /* Move end point to next line break */
         while(endA < lenA && data_A[endA] != '\r' && data_A[endA] != '\n')
@@ -449,7 +355,7 @@ public:
 
         splitter_pos_A = endA;
 
-        //BBBBBBBBBBBBBBBB
+        // Split file B /////////////////////////////////////////////////////
 
         /* Move end point to next line break */
         while(endB < lenB && data_B[endB] != '\r' && data_B[endB] != '\n')
@@ -467,22 +373,9 @@ public:
             
         splitter_pos_B = endB;
 
-        //printf("finished splitting \n");
-
         /* Return true since the out data is valid. */
         return 1;
     }
-
-    // void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
-    // {
-
-    //     value_type val;
-    //     while (values.next(val))
-    //     {
-    //         keyval kv = {key, val};
-    //         out.push_back(kv);
-    //     }
-    // }
 
     void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
     {
@@ -497,16 +390,11 @@ public:
         {
             if (val.identifier == 0)
             {
-                //printf("brfore push");
                 array1.push_back(val);
-                // printf("identifierA: %i\n", array1[0].identifier);
-                // printf("value_data_A: %c\n", array1[0].value_data[0]);
             }
             if (val.identifier == 1)
             {
                 array2.push_back(val);
-                // printf("identifierB: %i\n", array2[0].identifier);
-                // printf("value_data_B: %c\n", array2[0].value_data[0]);
             }
         }
 
@@ -514,16 +402,7 @@ public:
         {
             for (int j=0; j < array2.size(); j++) 
             {
-                // printf("array1 data: ");
-                // for (uint64_t l = 0; l < strlen(array1[i].value_data); l++)
-                // {
-                    
-                //     printf("%c", array1[i].value_data[l]);
-                    
-                // }
-
                 uint64_t length = strlen(array1[i].value_data) + strlen(array2[j].value_data);
-
 
                 char* result;
                 result = (char *)malloc(length+2);
@@ -537,7 +416,6 @@ public:
                 keyval kv = {key, myvalue};
                 out.push_back(kv);
 
-
             }
         }
     }
@@ -546,27 +424,20 @@ public:
 
  };
 
-//#define NO_MMAP
-//#define MMAP_POPULATE
-
 int main(int argc, char *argv[]) {
 
     // Remove output file if it exists
     if (remove("mapReduceOutput.txt") != 0) {
         printf("Error removing existing output file\n\n");
     } else {
-        printf("Removed existing output file");
+        printf("Removed existing output file\n");
     }
     
     int fd_A, fd_B, fd_Aa, fd_Bb;                           // file open flag
     char *fname_A, *fname_B, *fname_Aa, *fname_Bb;          // filename
-    char *fdata_A, *fdata_B, *fdata_A_key, *fdata_B_key ;        // file data
-    struct stat finfo_A, finfo_B, finfo_Aa, finfo_Bb;   // file info (file length)
+    char *fdata_A, *fdata_B, *fdata_A_key, *fdata_B_key ;   // file data
+    struct stat finfo_A, finfo_B, finfo_Aa, finfo_Bb;       // file info (file length)
     int key_column;
-
-    //struct timespec begin, end;
-
-    //get_time (begin);
 
     if (argv[1] == NULL)
     {
@@ -582,11 +453,10 @@ int main(int argc, char *argv[]) {
 
     printf("Eqiu Join: Running...\n");
 
-    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    // Read in files and map memory for A //////////////////////////////////////////
 
     // Read in the file
     CHECK_ERROR((fd_A = open(fname_A,O_RDWR)) < 0);
-
     // Get the file info (for file length)
     CHECK_ERROR(fstat(fd_A, &finfo_A) < 0);
 
@@ -596,10 +466,9 @@ int main(int argc, char *argv[]) {
     CHECK_ERROR((fdata_A = (char*)mmap(NULL, finfo_A.st_size + 1, 
         PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd_A, 0)) == NULL);
 #else
-    // Memory map the file
+    // Memory map the files
     CHECK_ERROR((fdata_A = (char*)mmap(NULL, finfo_A.st_size + 1, 
         PROT_READ | PROT_WRITE, MAP_PRIVATE, fd_A, 0)) == NULL);
-
     close(fd_A);
 
     CHECK_ERROR((fd_Aa = open(fname_Aa,O_RDWR)) < 0);
@@ -612,26 +481,20 @@ int main(int argc, char *argv[]) {
 
     fdata_A = (char *)malloc (finfo_A.st_size);
     CHECK_ERROR (fdata_A == NULL);
-
     fdata_A_key = (char *)malloc (finfo_A.st_size);
     CHECK_ERROR (fdata_A_key == NULL);
 
-
     uint64_t r = 0;
-
     while (r < (uint64_t)finfo_A.st_size ) {
         r += pread (fd_A, fdata_A + r , finfo_A.st_size, r);
     }
     fdata_A[finfo_A.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_A.st_size);
-
     close(fd_A);
-
 
     CHECK_ERROR((fd_A = open(fname_A,O_RDONLY)) < 0);
 
     r = 0;
-
     while (r < (uint64_t)finfo_A.st_size ) {
         r += pread (fd_A, fdata_A_key + r , finfo_A.st_size, r);
     }
@@ -640,7 +503,7 @@ int main(int argc, char *argv[]) {
     
 #endif
 
-    // BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+    // Read in files and map memory for B //////////////////////////////////////////
 
     // Read in the file
     CHECK_ERROR((fd_B = open(fname_B,O_RDWR)) < 0);
@@ -654,11 +517,8 @@ int main(int argc, char *argv[]) {
         PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd_B, 0)) == NULL);
 #else
     // Memory map the file
-    //void* vp = (void*)fdata_A;
     CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
-    //CHECK_ERROR((fdata_B = (char*)mmap(NULL, finfo_B.st_size + 1, 
         PROT_READ | PROT_WRITE, MAP_PRIVATE, fd_B, 0)) == NULL);
-
     close(fd_B);
 
     CHECK_ERROR((fd_Bb = open(fname_Bb,O_RDWR)) < 0);
@@ -675,22 +535,17 @@ int main(int argc, char *argv[]) {
     fdata_B_key = (char *)malloc (finfo_B.st_size);
     CHECK_ERROR (fdata_B_key == NULL);
 
-
     r = 0;
-
     while (r < (uint64_t)finfo_B.st_size ) {
         r += pread (fd_B, fdata_B + r , finfo_B.st_size, r);
     }
     fdata_B[finfo_B.st_size] = 0;
     CHECK_ERROR(r != (uint64_t)finfo_B.st_size);
-
     close(fd_B);
-
 
     CHECK_ERROR((fd_B = open(fname_B,O_RDONLY)) < 0);
 
     r = 0;
-
     while (r < (uint64_t)finfo_B.st_size ) {
         r += pread (fd_B, fdata_B_key + r , finfo_B.st_size, r);
     }
@@ -699,28 +554,7 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-    // for (int i = 0; i < 50; i++)
-    // {
-    //     printf("%c", fdata_B[i]);
-    //     // cout << fdata_B[i] << endl;
-    // }
-
-    // cout << endl;
-
-    // for (int i = 0; i < 50; i++)
-    // {
-    //     printf("%c", fdata_B_key[i]);
-    //     // cout << fdata_B[i] << endl;
-    // }
-
-    cout << endl;
-
-    printf("Equi Join: Calling Equi Join\n");
-
-    // for (int i = 0; i < 50; i++)
-    // {
-    //     printf("%s \n", fdata_A[i]);
-    // }
+    printf("\nEqui Join: Starting Map Reduce\n");
 
     struct timeval tv1, tv2;
     gettimeofday(&tv1, NULL);
@@ -736,7 +570,6 @@ int main(int argc, char *argv[]) {
 
         for (size_t i = 0; i < out.size(); i++)
         {
-            //printf("%15s - %100s\n", out[out.size()-1-i].key.data, out[out.size()-1-i].val.value_data);
             outputFile << out[out.size()-1-i].key.data << ": \t" << out[out.size()-1-i].val.value_data<< "\n";
         }
         outputFile.close();
@@ -747,13 +580,6 @@ int main(int argc, char *argv[]) {
     gettimeofday(&tv2, NULL);
 
     printf("%f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
-
-    // printf("%i:  arg 3\n", key_column);
-    
-
-    //print_time("library", begin, end);
-
-    //get_time (begin);
 
 // free the mapped memory
 #ifndef NO_MMAP
@@ -770,10 +596,6 @@ int main(int argc, char *argv[]) {
     // close the file
     CHECK_ERROR(close(fd_A) < 0);
     CHECK_ERROR(close(fd_B) < 0);
-
-    //get_time (end);
-
-    //print_time("finalize", begin, end);
 
     return 0;
 }

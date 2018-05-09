@@ -230,7 +230,7 @@ An object-oriented solution was implemented for the serial equi-join. Within thi
 Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files \cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using \ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the the key of interest is hashed, and then only the corresponding index in the table is searched for the required key.
 
 \begin{equation}
- \\
+ writeEqnHereOrRatherUseAlgorithm\\
 \label{eqn:hash}
 \end{equation}
 
@@ -241,7 +241,7 @@ Finally, the \texttt{joinManager} class handles the joining of the two tables. I
 \subsection{Hybrid Equi-Join}
 
 \subsection{MapReduce Equi-Join}
-
+The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data \cite{comparingMPIMapReduce}. In order to compensate for input text files that are too large to be held in RAM all at once, the input text files are mapped to memory, where they can be read in when needed, in chunks that can be held in RAM.
 
 %\subsection{File System Design}
 %
@@ -281,7 +281,24 @@ Finally, the \texttt{joinManager} class handles the joining of the two tables. I
 
 \section{Results}
 
-Comparison between MapReduce and given algorithm.
+\begin{table} [h]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join for the two solutions over various file sizes}
+	\label{tab:results}
+
+\begin{tabular}{|c|c|c|c|}
+	\hline 
+	File size & 100 000 & 1 000 000 & 10 000 000 \\ 
+	\hline
+	\hline 
+	Hybid Solution &  &  &  \\ 
+	\hline 
+	MapReduce Solution &  &  &  \\ 
+	\hline 
+\end{tabular} 
+\end{table}
+
+or graphs will probably be better? Maybe we need both
 
 \section{Critical Analysis}
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on an column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.

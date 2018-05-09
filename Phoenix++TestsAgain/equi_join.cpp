@@ -581,7 +581,7 @@ int main(int argc, char *argv[]) {
 
     printf("%f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
 
-// free the mapped memory
+// Free the mapped memory
 #ifndef NO_MMAP
     CHECK_ERROR(munmap(fdata_A, finfo_A.st_size + 1) < 0);
     CHECK_ERROR(munmap(fdata_B, finfo_B.st_size + 1) < 0);
@@ -593,7 +593,7 @@ int main(int argc, char *argv[]) {
     free (fdata_B);
     free (fdata_B_key);
 #endif
-    // close the file
+    // Close the file
     CHECK_ERROR(close(fd_A) < 0);
     CHECK_ERROR(close(fd_B) < 0);
 

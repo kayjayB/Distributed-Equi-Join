@@ -138,7 +138,7 @@
 
 This report describes two different algorithms for performing a Equi-Join on two large tables with comparative data. Each algorithm will be described in terms of its design, implementation, strengths and weaknesses. The performance benchmarks for each of the algorithms will be discussed along with the results if of each benchmark. These results will be comparatively analyzed with future recommendations given.
 
-\section{Literature Review}
+\section{Project Background}
 
 \subsection{Parallel Join Algorithms}
 
@@ -227,9 +227,16 @@ The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and a
 \subsection{Serial Equi-Join}
 An object-oriented solution was implemented for the serial equi-join. Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
 
-Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table of one of the input text files. 
+Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files \cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using \ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the the key of interest is hashed, and then only the corresponding index in the table is searched for the required key.
 
-\cite{evaluating4JoinAlgorithms}
+\begin{equation}
+ \\
+\label{eqn:hash}
+\end{equation}
+
+Once the first file has been hashed, the hash table must be probed by the tuples in the second file. To do this, the key is hashed to find its corresponding index in the hash table. Thereafter, each key in the hash table is checked for equality with the probing key. If they are found to be equal (thus satisfying the conditions of an equi-join), the (key,value) pair in the hash table is added to a vector of results. Once the whole bucket has been probed, the vector contains all of the (key, value) pairs that must be joined to the probing key, and it is returned.
+
+Finally, the \texttt{joinManager} class handles the joining of the two tables. In the \texttt{joinManager} class, the value from each resulting (key, value) is appended onto the probing (key, value) pair in order to join the tables. To reduce repetition of the key in the joined table, the key is extracted from the resulting value prior to appending the strings. The joined strings are then appended to a vector. This process occurs for each (key,value) pair in the second file. Finally, the vector containing the joined table is returned and written to an output text file.
 
 \subsection{Hybrid Equi-Join}
 
@@ -277,6 +284,7 @@ Once the two input files have been read in and mapped to two vectors, an instanc
 Comparison between MapReduce and given algorithm.
 
 \section{Critical Analysis}
+A strength of the designed solutions is that both solutions are able to perform equi-join operations on an column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
 \subsection{Limitations}
 

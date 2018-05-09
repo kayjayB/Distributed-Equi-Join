@@ -219,6 +219,8 @@ While cluster-based MapReduce performance is limited primarily by disk and netwo
 
 The Phoenix project [9, 12], in particular, demonstrated that the MapReduce model could be used on shared-memory machines, with scalability comparable, in some cases, to hand-coded PThreads solutions.
 
+*****WE NEED TO TALK ABOUT THE MAP AND REDUCE STAGES HERE!****
+
 \subsection{Existing Solutions}
 
 \section{System Design and Implementation}
@@ -241,7 +243,13 @@ Finally, the \texttt{joinManager} class handles the joining of the two tables. I
 \subsection{Hybrid Equi-Join}
 
 \subsection{MapReduce Equi-Join}
-The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data \cite{comparingMPIMapReduce}. In order to compensate for input text files that are too large to be held in RAM all at once, the input text files are mapped to memory, where they can be read in when needed, in chunks that can be held in RAM.
+The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data \cite{comparingMPIMapReduce}. In order to compensate for input text files that are too large to be held in RAM all at once, the input text files are mapped to memory. They can thus be read in when needed, in chunks that can be held in RAM. Since the memory map maps the data directly back to the text file, in order to edit the data, the file is also edited. To avoid altering the input text file, two copies of each file are made - one used for isolating the key, and one for the value. Thus, four input files are mapped to memory. This presents a tradeoff in the design, which is discussed in detail in \secref{sec:tradeoffs}.
+
+After mapping the data to memory, the data is divided into chunks to be sent to the map processes. Checks are performed to ensure that each chunk only contains full lines of the text file. This is essential in ensuring that none of the (key, value) pairs are missed.
+
+Within the mapper, the key value pairs from the text file need to be isolated and emitted. In order to isolate the values, the file is iterated through until an end of line character is encountered. This end of line character is set to be the integer \texttt{0}, which is the integer value of the null terminator, and indicates where a string ends \cite{phoenix}.
+
+To isolate the keys, the column that contains the keys must be known. This information is obtained from the run-time arguments of the program.  
 
 %\subsection{File System Design}
 %
@@ -293,7 +301,7 @@ The second method implemented makes use of the Phoenix++ MapReduce framework. Ma
 	\hline 
 	Hybid Solution &  &  &  \\ 
 	\hline 
-	MapReduce Solution &  &  &  \\ 
+	MapReduce Solution &  & 2.421755 s &  \\ 
 	\hline 
 \end{tabular} 
 \end{table}
@@ -301,11 +309,12 @@ The second method implemented makes use of the Phoenix++ MapReduce framework. Ma
 or graphs will probably be better? Maybe we need both
 
 \section{Critical Analysis}
-A strength of the designed solutions is that both solutions are able to perform equi-join operations on an column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
+A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
 \subsection{Limitations}
 
-\subsection{Tradeoffs}
+\subsection{Tradeoffs} \label{sec:tradeoffs}
+The use of memory mapping to store the input text files for the MapReduce solution is a large tradeoff of the system. While this usage means that larger input files can be processed, it also lead to the need to duplicate each input text file twice, and allocate memory for each of the four text files. This creates a large inefficiency within the system.
 
 \section{Future Recommendations}
 For future recommendations, a hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability \cite{evaluating4JoinAlgorithms}.

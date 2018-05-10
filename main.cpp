@@ -100,7 +100,6 @@ int main(int argc, char *argv[])
 		ofstream myFile;
 		myFile.open("joinedFile.txt", std::ios::app);
 
-		#pragma omp single
 		for (auto i=results.begin(); i != results.end(); i++){
 			myFile << *i << "\n";
 		}
@@ -115,7 +114,6 @@ int main(int argc, char *argv[])
 		MPI_Recv(&length_file_1, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 		MPI_Recv(&length_file_2, 1, MPI_INT, 0, 0, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-		#pragma omp single
 		for (auto i=0; i < length_file_1; i++){
 			int line_length;
 			char char_array[1024];
@@ -126,7 +124,6 @@ int main(int argc, char *argv[])
 			linesOfFile1.push_back(line);
 		}
 
-		#pragma omp single
 		for (auto i=0; i < length_file_2; i++){
 			int line_length;
 			char char_array[1024];
@@ -167,7 +164,6 @@ int main(int argc, char *argv[])
 		int length_file_results = results.size();
 		MPI_Send(&length_file_results, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
 
-		#pragma omp single
 		for (auto x=0; x < length_file_results; x++){
 			const char* line_ptr = results[x].c_str();
 			string line = results[x].c_str();

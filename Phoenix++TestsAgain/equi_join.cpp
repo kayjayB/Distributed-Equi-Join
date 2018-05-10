@@ -23,16 +23,16 @@ using namespace std;
 #define MAX_REC_LEN 1024
 #define OFFSET 5
 
-
 #define MUST_REDUCE
 
+// Map Reduce input data
 struct wc_string {
     char *data_A, *data_B, *data_A_key, *data_B_key;
     uint64_t lenA, lenB;
 };
 
+// Map Reduce key struct
 struct wc_word {
-
     char* data;
     
     //necessary functions to use this as a key
@@ -44,6 +44,7 @@ struct wc_word {
     }
 };
 
+// Map Reduce value struct
 struct valueStruct {
 
     int identifier;
@@ -53,7 +54,7 @@ struct valueStruct {
     valueStruct(int identifier, char* value_data) {  this->identifier = identifier; this->value_data = value_data; }
 };
 
-
+// A hash for the key
 struct wc_word_hash
 {
     // FNV-1a hash for 64 bits
@@ -73,24 +74,18 @@ class JoinMR : public MapReduce<JoinMR, wc_string, wc_word, valueStruct, hash_co
     char *data_A, *data_B, *data_A_key, *data_B_key;
     uint64_t lenA, lenB;
     uint64_t splitter_pos_A, splitter_pos_B, chunk_size;
-    int key_column;    
+    int key_column;
+    //ofstream outputFile;  
 
 public:
-    explicit JoinMR(char* Data_A, char* Data_B, char* Data_A_key, char* Data_B_key, uint64_t LenA, uint64_t LenB, int Chunk_size, int Key_Column) : data_A(Data_A), data_B(Data_B),data_A_key(Data_A_key), data_B_key(Data_B_key), lenA(LenA), lenB(LenB), splitter_pos_A(0),splitter_pos_B(0), chunk_size(Chunk_size), key_column(Key_Column) {}
+    explicit JoinMR(char* Data_A, char* Data_B, char* Data_A_key, char* Data_B_key, uint64_t LenA, uint64_t LenB, int Chunk_size, int Key_Column) : data_A(Data_A), data_B(Data_B),data_A_key(Data_A_key), data_B_key(Data_B_key), lenA(LenA), lenB(LenB), splitter_pos_A(0),splitter_pos_B(0), chunk_size(Chunk_size), key_column(Key_Column) 
+    {    }
 
-    // void *locate (data_type *data, uint64_t len) const
-    // {
-    //     return data->keys;
-    // }
-
-    // void* locate(wc_string* d, uint64_t len) const
-    // {
-    //     return d->matrix_A + d->row_num * d->matrix_len;
-    // }
-
+    // Defines the functionality for the map task
     void map(data_type& s, map_container& out) const
     {   
 
+        // Start mapping input data A ////////////////////////////////////////////
         uint64_t i_A = 0;
         uint64_t i_Value_A = 0;
         uint64_t start_key_A = 0;
@@ -99,16 +94,17 @@ public:
         bool first_column = false;
         wc_word word;
 
-
         while(i_Value_A < s.lenA)
         { 
             column_counter = 0;
 
+            // Skip line breaks 
             while(i_Value_A < s.lenA && (s.data_A[i_A] == '\r' || s.data_A[i_A] == '\n' || s.data_A[i_A] == '\t'))
             {
                 i_Value_A++;
             }
 
+            // Look for delimiter
             while(i_A < s.lenA && (s.data_A_key[i_A] != '|'))
             {
                 if (key_column == 0) {
@@ -125,6 +121,7 @@ public:
 
             column_counter++;
 
+            // Check if the key is single valued
             if (s.data_A_key[i_A+1] != '|') {
                 i_A++;
             }
@@ -172,6 +169,7 @@ public:
 
                 if(i_A > start_key_A)
                 {
+                    // Set the beginning and end of the key
                     s.data_A_key[i_A] = 0;
                     word = { s.data_A_key + start_key_A };
                 }
@@ -181,6 +179,7 @@ public:
 
             start_Value_A = i_Value_A;
 
+            // Look for the end of the line
             while(i_Value_A < s.lenA && (s.data_A[i_Value_A] != '\r' && s.data_A[i_Value_A] != '\n' && s.data_A[i_Value_A] != '\0')) 
             {
                 i_Value_A++;
@@ -203,6 +202,7 @@ public:
             i_A++;
         }
 
+        // Start mapping input data B /////////////////////////////////////////////
         uint64_t i_B = 0;
         uint64_t i_Value_B = 0;
         uint64_t start_key_B = 0;
@@ -284,6 +284,7 @@ public:
 
                 if(i_B > start_key_B)
                 {
+                    // Set the beginning and end of the key
                     s.data_B_key[i_B] = 0;
                     word = { s.data_B_key + start_key_B };
 
@@ -317,9 +318,7 @@ public:
         }
     }
 
-    /**
-     *  Splitter Function to assign portions of the file to each map task
-     */
+    // Defines how input data should be chuncked
     int split(wc_string& out)
     {
         /* End of data reached, return FALSE. */
@@ -377,15 +376,14 @@ public:
         return 1;
     }
 
+    // Define the functionality of the reduce task, generate a list of key/value pairs
     void reduce(key_type const& key, reduce_iterator const& values, std::vector<keyval>& out) const 
     {
-        //printf("entering reducer \n");
         value_type val;
         std::vector<value_type> array1;
         std::vector<value_type> array2;
 
-        //printf("in Reduce");
-
+        // Seperate values from inputs A and B respectively
         while (values.next(val))
         {
             if (val.identifier == 0)
@@ -398,6 +396,7 @@ public:
             }
         }
 
+        // Concatenate the values for matching keys
         for (int i=0; i < array1.size(); i++) 
         {
             for (int j=0; j < array2.size(); j++) 
@@ -410,9 +409,7 @@ public:
                 strcpy(result, array2[j].value_data);
                 strcat(result, array1[i].value_data);
 
-                result[length+1] = 0;
-
-                value_type myvalue(-1, result);
+                value_type myvalue(1,result);
                 keyval kv = {key, myvalue};
                 out.push_back(kv);
 
@@ -421,14 +418,14 @@ public:
     }
 
 
-
  };
+
 
 int main(int argc, char *argv[]) {
 
     // Remove output file if it exists
     if (remove("mapReduceOutput.txt") != 0) {
-        printf("Error removing existing output file\n\n");
+        printf("Error removing existing output file, does not exist\n\n");
     } else {
         printf("Removed existing output file\n");
     }
@@ -447,11 +444,11 @@ int main(int argc, char *argv[]) {
 
     fname_A = argv[1];
     fname_B = argv[2];
-    fname_Aa = argv[4];
-    fname_Bb = argv[5];
-    key_column = atoi(argv[3]);
+    fname_Aa = argv[3];
+    fname_Bb = argv[4];
+    key_column = atoi(argv[5]);
 
-    printf("Eqiu Join: Running...\n");
+    printf("Equi Join: Running...\n");
 
     // Read in files and map memory for A //////////////////////////////////////////
 
@@ -556,13 +553,22 @@ int main(int argc, char *argv[]) {
 
     printf("\nEqui Join: Starting Map Reduce\n");
 
-    struct timeval tv1, tv2;
+    struct timeval tv1, tv2, tv3;
     gettimeofday(&tv1, NULL);
+
     JoinMR mapReduce(fdata_A, fdata_B, fdata_A_key, fdata_B_key, finfo_A.st_size, finfo_B.st_size, 1024*1024, key_column);
     std::vector<JoinMR::keyval> out;
 
     CHECK_ERROR (mapReduce.run(out) < 0);
 
+    gettimeofday(&tv2, NULL);
+    
+    printf("Equi Join: MapReduce Completed\n");
+    printf("Number of lines in Joined Table: %i \n\n", out.size());
+    printf("MR EquiJoin: %f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
+
+
+    // Print the output result
     if(out.size() != 0) {
 
         ofstream outputFile;
@@ -575,13 +581,13 @@ int main(int argc, char *argv[]) {
         outputFile.close();
     }
 
-    printf("%i \n", out.size());
-    printf("Equi Join: MapReduce Completed\n");
-    gettimeofday(&tv2, NULL);
+    gettimeofday(&tv3, NULL);
 
-    printf("%f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv2.tv_sec - tv1.tv_sec));
+    // Print the time taken
+    printf("Output write: %f seconds\n", (double) (tv3.tv_usec - tv2.tv_usec) / CLOCKS_PER_SEC + (double) (tv3.tv_sec - tv2.tv_sec));
+    printf("MR EquiJoin and Write: %f seconds\n", (double) (tv3.tv_usec - tv1.tv_usec) / CLOCKS_PER_SEC + (double) (tv3.tv_sec - tv1.tv_sec));
 
-// Free the mapped memory
+    // Free the mapped memory
 #ifndef NO_MMAP
     CHECK_ERROR(munmap(fdata_A, finfo_A.st_size + 1) < 0);
     CHECK_ERROR(munmap(fdata_B, finfo_B.st_size + 1) < 0);

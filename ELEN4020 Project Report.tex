@@ -142,28 +142,30 @@ This report describes two different algorithms for performing a Equi-Join on two
 
 \subsection{Parallel Join Algorithms}
 
-The task of a join algorithm is to find, for each distinct value of a predefined join attribute, the set of tuples in each relational database which have that value. Equi Join Queries contain join predicates in a form of standard comparison using a relational operator (i.e. the = operator). The operands of these queries are collection attribute types.
+A join algorithm performs a comparison between two or more relational databases in order to find sets of tuples for a given join predicate. The algorithm returns a join table containing the tuples as a result. An equi-join query performs a standard comparison. In order to perform the comparison, the join predicate takes the form of an equality operator (= operator) in order to return tuples that have a collection type attribute\cite{joinalg}.
 
-Because the cost of evaluating these relational joins can be very high for large databases, it is natural to improve performance by spreading the load across multiple cooperating processors and disks of a parallel computer. In order to perform a join between two large relational data sets, a parallel algorithm must then be implemented in order to handle the workload each join operation is performing. By making these parallel, distributed join algorithms reduce processing time making the concept much more efficient on a massive scale. These algorithms can be implemented in a number of ways.
+In order to improve th performance and reduce the cost of implementing a relational join on large databases, the load required by the process needs to be shared across multiple processors. This is achieved by implementing a parallel algorithm in order to cater for the workload required to perform the join between data sets. This reduces the amount of processing time and increases the efficiency of the algorithm for computations on a large scale. The algorithm can be implemented using a number of different methods.
+
+The join algorithm can be defined according to two processes, hashing or sorting and merging. Hashing is used to implement Simple, Grace and Hybrid hash methods where the sort-merge algorithm makes use of sorting and merging.Additionally, the Grace and Hybrid join algorithms first partition the two relations being joined into additional fragments when the inner relation is larger than the amount of available main memory.
+
+In the following discussion, R and S refer to the relations being joined. R is always the smaller of the two
+relations and is always the inner joining relation.
 
 \subsubsection{Sort-Merge Join}\label{sortmerge}
 
-The sort-merge join algorithm is based on sorting both input relations. This algorithm can be divided into two main steps. The first is the data- partitioning step which produces disjoint partitions. In this step, the sorting phase occurs by making use of each of the allocated threads to partition the input data into ranges of the same size. These partitions are known as input relations. We use range-partitioning to ensure that matching elements in both relations will be assigned to the same machine for processing. 
+The sort-algorithm join algorithm is based on the principle of sorting both relations according to their join predicates. This is done in order to ensure that, when scanning through both relations, related sets are encountered at the same time. The algorithm consists of two phases, namely the sorting phase and merging phase. The sorting phase occurs by making use of data partitioning.
+
+This step produces disjoint partitions of similar ranges of input data, described as input relations, which are each allocated a thread. Using range-partitioning allows us to ensure that related elements in both relations will be processed by the same machine\cite{dist}.
 
 In the partitioning step, the object instance is partitioned based on their first elements in each list or array, or their minimum value elements associated with each collection attribute. Each partition is run individually with each run involving a sort of the data within the range which is transmitted asynchronously to the target node. The performance of the algorithm is therefore limited by the rate at which each run can be sorted and the network bandwidth available to each process at the given node.
 
-After a process has sorted its input data, it waits until it has received all the sorted runs of its range from the other nodes. Once all the data has been received, the algorithm starts merging the sorted runs combining multiple input runs into one sorted output. The merging in class level involves finding two object instance of class A and B that has the same first element of its collection attribute. On the other hand, the collection level merge involves merging that two matched first element object instances start from the second element of their collection attribute values. Several iterations over the data might be required until both relations are fully sorted.
+After a process has sorted its input data, it waits until it has received all the sorted runs of its range followed by the rest of the nodes. Once all the data has been received, the algorithm starts merging the sorted runs combining multiple input runs into one sorted output. The merging in class level involves finding two object instance of class A and B that has the same first element of its collection attribute. On the other hand, the collection level merge involves merging that two matched first element object instances start from the second element of their collection attribute values. Several iterations over the data might be required until both relations are fully sorted.
 
-To compute the join result, each process merges the sorted partition of the inner relation with the corresponding partition of the outer relation.
-
-The order of the tuples in the output is also sorted. The costs associated with materializing the output of the sort-
-merge join depends on the selectivity of the input and the payload that needs to be accessed over the network.
+To compute the join result, each process merges the sorted partition of the inner relation with the corresponding partition of the outer relation. The order of the tuples in the output is also sorted. The costs associated with materializing the output of the sort-merge join depends on the selectivity of the input and the payload that needs to be accessed over the network.
 
 The time required to range-partition the data depends on the size of the input relations, the number of processes p, and the partitioning rate Ppart.
 
-\begin{comment}
-	, and the second step is joining.  In the joining step, the collection elements for all object instance of class A and B need to be sorted in ascend- ing order (for sets/bags only). These two classes are then sorted based on the first element of the collection type attribute. Subsequently, these two classes are merged in class and collection level. 
-\end{comment}
+The order of the tuples in the output is also sorted. The costs associated with materializing the output of the sort-merge join depends on the selectivity of the input and the payload that needs to be accessed over the network.
 
 
 \subsubsection{Hash Join}
@@ -218,8 +220,6 @@ MapReduce is a functional language-inspired parallel programing model for large-
 While cluster-based MapReduce performance is limited primarily by disk and network I/O, shared-memory Map-Reduce performance, without these bottlenecks, is sensitive to a wide range of workload-influenced details such as intermediate key-value data layout, memory allocation pressure,and framework overhead.
 
 The Phoenix project [9, 12], in particular, demonstrated that the MapReduce model could be used on shared-memory machines, with scalability comparable, in some cases, to hand-coded PThreads solutions.
-
-\subsection{Existing Solutions}
 
 \section{System Design and Implementation}
 
@@ -279,5 +279,8 @@ Comparison between MapReduce and given algorithm.
 \section{Future Recommendations}
 
 \section{Conclusion}
+
+\bibliography{references}{}
+\bibliographystyle{elen4020project}
 
 \end{document}

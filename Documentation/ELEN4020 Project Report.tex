@@ -142,86 +142,65 @@ This paper compares the performance of two programming models, namely an MPI-Ope
 
 \subsection{Parallel Join Algorithms}
 
-The task of a join algorithm is to find, for each distinct value of a predefined join attribute, the set of tuples in each relational database which have that value. Equi Join Queries contain join predicates in a form of standard comparison using a relational operator (i.e. the = operator). The operands of these queries are collection attribute types.
+A join algorithm performs a comparison between two or more relational databases in order to find sets of tuples for a given join predicate. The algorithm returns a join table containing the tuples as a result. An equi-join query performs a standard comparison. In order to perform the comparison, the join predicate takes the form of an equals operand (= operator) in order to return tuples that have a collection type attribute\cite{joinalg}.
 
-Because the cost of evaluating these relational joins can be very high for large databases, it is natural to improve performance by spreading the load across multiple cooperating processors and disks of a parallel computer. In order to perform a join between two large relational data sets, a parallel algorithm must then be implemented in order to handle the workload each join operation is performing. By making these parallel, distributed join algorithms reduce processing time making the concept much more efficient on a massive scale. These algorithms can be implemented in a number of ways.
+In order to improve th performance and reduce the cost of implementing a relational join on large databases, the load required by the process needs to be shared across multiple processors. This is achieved by implementing a parallel algorithm in order to cater for the workload required to perform the join between data sets. This reduces the amount of processing time and increases the efficiency of the algorithm for computations on a large scale.
+
+The join algorithm can be defined according to two processes, hashing or sorting and merging. Hashing is used to implement Simple, Grace and Hybrid hash methods where the sort-merge algorithm makes use of sorting and merging.Additionally, the Grace and Hybrid join algorithms first partition the two relations being joined into additional fragments when the inner relation is larger than the amount of available main memory.
 
 \subsubsection{Sort-Merge Join}\label{sortmerge}
 
-The sort-merge join algorithm is based on sorting both input relations. This algorithm can be divided into two main steps. The first is the data- partitioning step which produces disjoint partitions. In this step, the sorting phase occurs by making use of each of the allocated threads to partition the input data into ranges of the same size. These partitions are known as input relations. We use range-partitioning to ensure that matching elements in both relations will be assigned to the same machine for processing. 
+The sort-merge join algorithm is based on the principle of sorting both relations according to their join predicates. This is done in order to ensure that, when scanning through both relations, related sets are encountered at the same time. The algorithm consists of two phases, namely the sorting phase and merging phase. The sorting phase occurs by making use of data partitioning.
 
-In the partitioning step, the object instance is partitioned based on their first elements in each list or array, or their minimum value elements associated with each collection attribute. Each partition is run individually with each run involving a sort of the data within the range which is transmitted asynchronously to the target node. The performance of the algorithm is therefore limited by the rate at which each run can be sorted and the network bandwidth available to each process at the given node.
+This step produces disjoint partitions of similar ranges of input data, described as input relations, which are each allocated a thread. Using range-partitioning allows us to ensure that related elements in both relations will be processed collectively\cite{dist}.
 
-After a process has sorted its input data, it waits until it has received all the sorted runs of its range from the other nodes. Once all the data has been received, the algorithm starts merging the sorted runs combining multiple input runs into one sorted output. The merging in class level involves finding two object instance of class A and B that has the same first element of its collection attribute. On the other hand, the collection level merge involves merging that two matched first element object instances start from the second element of their collection attribute values. Several iterations over the data might be required until both relations are fully sorted.
+In the partitioning step, the relations are partitioned based on their first elements minimum value elements associated with each collection attribute. Each partition is run individually with each run involving a sort of the data within the range. The sorted data is then transmitted asynchronously to a target node. The performance of the algorithm is therefore limited by two factors, the rate at which each run can be sorted and the network bandwidth available to each process at the given node.
 
-To compute the join result, each process merges the sorted partition of the inner relation with the corresponding partition of the outer relation.
-
-The order of the tuples in the output is also sorted. The costs associated with materializing the output of the sort-
-merge join depends on the selectivity of the input and the payload that needs to be accessed over the network.
-
-The time required to range-partition the data depends on the size of the input relations, the number of processes p, and the partitioning rate Ppart.
-
-\begin{comment}
-	, and the second step is joining.  In the joining step, the collection elements for all object instance of class A and B need to be sorted in ascend- ing order (for sets/bags only). These two classes are then sorted based on the first element of the collection type attribute. Subsequently, these two classes are merged in class and collection level. 
-\end{comment}
-
+After a process has sorted its input data, it waits until it has received all the sorted runs of its range followed by the rest of the nodes. Once all the data has been received, each process merges the sorted partition from each run combining multiple input runs into one sorted output in order to compute the join result. The order of the tuples in the output is also sorted. The costs identified with visualizing the output of the sort-merge join depends on the level of differentiation within the input and the transmitted data that needs to be sent across the network\cite{dist}.
 
 \subsubsection{Hash Join}
 
-Hash join is used in relational database management of a join algorithm. Similar to that of a Sort-Merge join mentioned in \ref{sortmerge}, Hash joins require an equijoin predicate comparing values from one table with values from the other table using the equals operand.
+Hash joins require an equijoin predicate comparing values from one table with values from the other table using the equals operand. These joins differ from a sort-merge join in the fact that they contain no initial sorting. Instead, the algorithm has a build phase and a probe phase\cite{equijoin}. 
 
-The algorithm has a build phase and a probe phase. At the start of the build phase, all the threads allocate memory locally. The union of these memory fragments constitutes a single hash table that is shared by all the threads. The build phase reads in the smaller joining relation, R, from the disk once only in order to construct a hash table in memory  by performing a predefined hash function on the join key. The build phase is completed when all the R tuples have been stored in the hash table. The second relation is then read in afterwhich each tuple probes the hash table in order to search for matching tuples between the two relations.
+At the start of the build phase, the algorithm generates a hash table using the smaller relation as the inner join. The hash table contains the join predicate, upon which the hash function is applied, and it's corresponding tuples containing a row of information. The build phase is completed when all the tuples of the initial relation have been stored in the hash table. 
 
-The algorithm makes use of whatever memory is available to it and writes the rest to the disk.
+Once the table is created, the larger relation is read in with it's relatives tuples probing the hash table for a corresponding match. This instruction fulfills the probe phase. Searching the hash table for the join predicates is much more efficient than simply scanning through the original relation. 
 
-\begin{comment}
-	Thread i then reads a tuple r ∈ R and hashes on the join key of r us-
-	ing a pre-defined hash function h(·). It then acquires a latch on bucket h(r), copies r in this bucket, and releases
-	the latch. The memory writes required for this operation may either target local or remote NUMA memory. 
-	
-	Hybrid and Grace. Existing Solutions.
-	
-	In this algorithm, the sorting step is not necessary. The only item that needs to be sorted is the collection attribute of type set or bag. A single chained hash table is used to store the object instances. Initially, the object is placed into the hash table by hashing the first elements of collection attributes. By doing so, all the object instances with the same first element value will go to the same bucket. These object instances are chained together using a list data structure. To perform the collection equi-join, each object instances of class B is hashed based on the first element of its collection attribute. This will directly find the object of class A that has the same first element of collection attribute. The object instances of class B are then compared to all chained object of class A by using the comparison algorithm in Figure 3
-	
-	Hash join is similar to nested loop join but faster than nested loop join and hash join is used for equi-join.
-\end{comment}
+In order to implement this algorithm in parallel, all threads available are allocated memory at the start of the build phase. The has table is then constructed by creating a join of each thread's piece of memory.The algorithm makes use of whatever memory is available to it and writes the rest to the disk.
+
+The Grace join algorithm differs from that of a simple hash join as it partitions both relations instead of scanning through the second, larger partition. This is achieved by adding a third phase to the algorithm's make up. In the first phase, the algorithm partitions the smaller relation into disk buckets\cite{evaluating4JoinAlgorithms} As is done in the simple hash join, this is achieved by hashing on the join attributes of each tuple within the relation. In phase 2, the larger relation is also partitioned into buckets using the same hash function. In the final phase, the algorithm joins the matching hash table buckets from both relations. This is achieved through using the same hash function on both tables.
+
+The Hybrid has join algorithm exists as an improved method of implementing the Grace join described above. The algorithm is optimized to ensure that it makes use of all available memory on offer from the system. Similar to the Grace algorithm, the Hybrid hash join algorithm also consists of three phases. The hash function used in the first phase to partition the smaller relation ensures that the number of tuples produced for each bucket is small enough to fit within the systems main memory\cite{evaluating4JoinAlgorithms}. The first bucket is then used to create an in-memory hash table while the other buckets produced are temporarily stored in files. The same is done for the larger relation in phase 2, using the same hash function as phase 1. The first bucket of tuples is immediately used to probe the initial in-memory hash table generated in phase 1. It is important to note that the larger relation is divided into the same number of buckets as defined by the small relation. This allows the third phase to the join each bucket in the first relation with it's corresponding bucket in the second. 
+
+The use of main memory in this way means the algorithm requires less I/O operations in comparison to that of a grace join. The joins are also segmented into smaller joins which are implemented for each iteration in the joining phase reducing computation time. When implemented in parallel, the algorithm computation times is decreased as the partitioning of both relations is overlapped with joining of the first buckets from both relations\cite{evaluating4JoinAlgorithms}.
 
 \subsection{OpenMP}
 
-The OpenMP library was developed to provide an API which could run the same code base, equally well,
-across a range of operating systems. The OpenMP library takes the form of a set of compiler directives (pragmas) which are operating system-specific. Through the sensible use of OpenMP pragmas, a single threaded program can be parallelised while maintaining its serial structure.
+The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs\cite{PerformComp}. The library allows the same code base to be run identically across a range of different operating systems. It takes the form of a set of compiler directives (pragmas) which are used for thread creation, synchronization of operations and allow the management of shared memory when implementing pthreads. 
 
-3.1. OpenMP. OpenMP is a shared-memory multiprocessing
-application program inference (API) for easy development
-of shared memory parallel programs [9]. It provides a set of
+The pragmas allow a program to be compiled into a multi-threaded program. It makes use of a block-structured design in order to shift between the parallel and sequential components. At the entry of a parallel block, a single thread of
+control is split into some number of threads, and a new sequential thread is started when all the split threads have finished. The threads embedded within the program share a memory address space allowing for efficient communication between the threads. OpenMP also makes the implementation of mulithreaded programs much simpler as the compiler is entrusted with providing parallelised functionality while maintaining its serial structure(ie: the transformation from serial to parallel code requires little to input from the programmer). 
 
-compiler directives to create threads, synchronize the opera-
-tions, and manage the shared memory on top of pthreads.The
-
-programs using OpenMP are compiled into multithreaded
-programs, in which threads share the same memory address
-space and hence the communications between threads can be
-very efficient.
 
 \subsection{MPI}
 
-Message passing is a form of communication between two separate processes in parallel or object-orientated programming. By using this model, objects can send and receive a number of resources between each other. The passing of the messages or resources can be synchronous or asynchronous. Synchronous systems incur a waiting period while the sender and receiver wait for the message to be transferred where as asynchronous can carry on with other computations while the message is passed.  
+Message passing is a form of communication between two separate processes in parallel or object-orientated programming. By using this model, objects can send and receive a number of resources between each other\cite{IBM}. The passing of the messages or resources can be synchronous or asynchronous. Synchronous systems incur a waiting period while the sender and receiver wait for the message to be transferred where as asynchronous can carry on with other computations while the message is passed.  
 
-The Message-Passing Interface (MPI) is a widely used interface in high-performance computing systems. In the following section, we provide an introduction to MPI, and a detailed description of the one-sided MPI operations, used in our join implementations. MPI is used mainly for parallel computers, clusters or a heterogenous network which is a connection of different computers or devices with a variety of operating systems and protocols.
+The Message-Passing Interface (MPI) is a widely used interface in high-performance computing systems. MPI is used mainly for parallel computers or clusters. 
 
-MPI can be used for a variety of parallel computing models. These models can either perform the parallelization of data where the same instructions are carried out simultaneously on multiple data items (SIMD) or task parallelization where different instructions are performed on separate sections of data (MIMD). Message Passing is used to for MIMD, also known as SPMD (Single Program, Multiple Data), in order to perform parallelism. MPI provides a powerful and efficient means of expressing parallel programs in a portable manner.
+MPI can be used for a variety of parallel computing models. These models can either perform the parallelization of data where the same instructions are carried out simultaneously on multiple data items (SIMD) or task parallelization where different instructions are performed on separate sections of data (MIMD)\cite{PerformComp}. The interface is able to provide a powerful, efficient method of executing parallel programs in a portable manner. This means that the program can be run on a variety of different computers or devices with a variety of operating systems and protocols.
 
 \subsection{MapReduce}
 
-MapReduce is a functional language-inspired parallel programing model for large-scale machines. Its simplicity, coupled with its applicability to practical problems, has led to adoption on a range of computing platforms. 
+MapReduce is a functional language-inspired parallel programing paradigm for large-scale processing frameworks\cite{comparingMPIMapReduce}. The model has been adopted across a number of platforms due to it's simplicity and suitability in solving to practical problems. The algorithm consists of two distinct parts, namely the mapper function and reducer function. 
 
-While cluster-based MapReduce performance is limited primarily by disk and network I/O, shared-memory Map-Reduce performance, without these bottlenecks, is sensitive to a wide range of workload-influenced details such as intermediate key-value data layout, memory allocation pressure,and framework overhead.
+The mapper function takes as an input a key and a value and emits a set of intermediate key-value pairs. A number of map processes can be implemented according to the needs of the programmer in order to partition and process input data. These processes exist independently of one another meaning no collaboration is required when executed in parallel. The resultant process groups together all values associated with a given key in order to generate key-value pairs. These pairs are then passed to the reducer function accordingly.
 
-The Phoenix project [9, 12], in particular, demonstrated that the MapReduce model could be used on shared-memory machines, with scalability comparable, in some cases, to hand-coded PThreads solutions.
+The reducer function then makes use of the output from the mapper function. It takes as inputs a key and a list of values associated with the key. The reduce process is the responsible for aggregating values associated with the same key in order to produce a data set which is inherently smaller than the original. 
 
-*****WE NEED TO TALK ABOUT THE MAP AND REDUCE STAGES HERE!****
+The MapReduce model is well suited for data intensive processing for a number of reasons. Firstly, the model is able to sequentially work through each record one at a time set without needing to have the entire data set loaded into memory. The program is also conveniet to use as the MapReduce model performs the data partitioning as well as process creation and synchronization\cite{PerformComp}. This means that the distributed and parallel processing is all performed behind the scene without needing input from the programmer.
 
-\subsection{Existing Solutions}
+The Phoenix project allows the implementation of the Mapreduce paradigm on a platform with multiple cores.
 
 \section{System Design and Implementation}
 The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.
@@ -344,4 +323,5 @@ Furthermore, the performance of the hybrid equi-join algorithm could be greatly 
 
 \bibliographystyle{witseie}
 \bibliography{bigData}
+
 \end{document}

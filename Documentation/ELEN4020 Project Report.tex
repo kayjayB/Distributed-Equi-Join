@@ -1,0 +1,314 @@
+% witseiepaper-2005.tex
+%
+%                       Ken Nixon (12 October 2005)
+%
+%                       Sample Paper for ELEN417/455 2005
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10pt,twocolumn]{witseiepaper}
+%
+% All KJN's macros and goodies (some shameless borrowing from SPL)
+\usepackage{KJN}
+\usepackage[super]{nth}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{epstopdf}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{alltt}
+%\usepackage{matlab-prettifier}
+\usepackage{graphicx}
+\usepackage{changes}
+\usepackage{makecell}
+\usepackage{verbatim}
+\usepackage{balance}
+\usepackage{pdfpages}
+\usepackage{ragged2e}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{multirow}
+\usepackage{algpseudocode}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%\usepackage{flafter}
+
+%\newlength\myindent
+%\setlength\myindent{2em}
+%\newcommand\bindent{%
+%	\begingroup
+%	\setlength{\itemindent}{\myindent}
+%	\addtolength{\algorithmicident}{\myindent}
+%}
+%\newcolumntype\eindent{\endgroup}
+%
+% PDF Info
+%
+\ifpdf
+\pdfinfo{
+	/Title (INSTRUCTIONS AND STYLE GUIDELINES FOR THE PREPARATION OF FINAL YEAR LABORATORY PROJECT PAPERS : 2005 VERSION)
+	/Author (Ken J Nixon)
+	/CreationDate (D:200309251200)
+	/ModDate (D:200510121530)
+	/Subject (ELEN417/455 Paper Format, 2005)
+	/Keywords (ELEN417, ELEN455, paper, instructions, style guidelines, laboratory project)
+}
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	
+	\begin{titlepage}
+		
+		\newcommand{\HRule}{\rule{\linewidth}{0.3mm}} % Defines a new command for the horizontal lines, change thickness here
+		
+		\center % Center everything on the page
+		
+		%----------------------------------------------------------------------------------------
+		%	HEADING SECTIONS
+		%----------------------------------------------------------------------------------------
+		\includegraphics[width=0.3\textwidth]{EIE.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
+		
+		%----------------------------------------------------------------------------------------
+		\textsc{\LARGE University of the Witwatersrand } \\[0.1cm] % Name of your university/college
+		\textsc{\LARGE School of Electrical and Information Engineering }\\[1cm] % Major heading such as course name
+		\textsc{\Large ELEN4020: Data Intensive Computing}\\[1.5cm] % Minor heading such as course title
+		
+		%----------------------------------------------------------------------------------------
+		%	TITLE SECTION
+		%----------------------------------------------------------------------------------------
+		
+		\HRule \\[0.4cm]
+		{ \huge \bfseries Project Report} \\[0.4cm] % Title of your document
+		\HRule \\[1.5cm]
+		
+		%----------------------------------------------------------------------------------------
+		%	AUTHOR SECTION
+		%----------------------------------------------------------------------------------------
+		\textsc{\Large 	\emph{Authors:} } \\[0.1cm]	 
+		
+		
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushleft} \large
+				%			\emph{Author:} \\
+				Kayla-Jade Butkow \\ 714227 % Your name
+			\end{flushleft}
+		\end{minipage}
+		~
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushright} \large
+				%	\emph{Author:}\\
+				Jared Ping \\ 704447
+			\end{flushright}
+		\end{minipage}\\[1cm]
+		
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushleft} \large
+				%		\emph{Author:}\\
+				Lara Timm \\ 704157
+			\end{flushleft}
+		\end{minipage}
+		~
+		\begin{minipage}{0.4\textwidth}
+			\begin{flushright} \large
+				%		\emph{Author:} \\
+				Matthew van Rooyen \\ 706692
+			\end{flushright}
+		\end{minipage}\\[1cm]
+		{\large Date Handed In: \nth{14} May, 2018}\\[1cm] 
+\vfill	
+\justify
+\textbf{Abstract: } An equi-join of two large tables using a hash join implemented in parallel using MPI and OpenMP and using MapReduce have been compared and benchmarked against one another. The benchmarks evaluated the running time and memory usage for each approach in the two different algorithms. These algorithms were: . Comparison between results of both algorithms. Note the strengths and weaknesses for each approach.
+		
+\textbf{Key words: }
+		
+	\end{titlepage}
+
+
+\pagestyle{plain}
+\setcounter{page}{1}
+\twocolumn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\section{Introduction}
+
+This report describes two different algorithms for performing a Equi-Join on two large tables with comparative data. Each algorithm will be described in terms of its design, implementation, strengths and weaknesses. The performance benchmarks for each of the algorithms will be discussed along with the results if of each benchmark. These results will be comparatively analyzed with future recommendations given.
+
+\section{Project Background}
+
+\subsection{Parallel Join Algorithms}
+
+A join algorithm performs a comparison between two or more relational databases in order to find sets of tuples for a given join predicate. The algorithm returns a join table containing the tuples as a result. An equi-join query performs a standard comparison. In order to perform the comparison, the join predicate takes the form of an equals operand (= operator) in order to return tuples that have a collection type attribute\cite{joinalg}.
+
+In order to improve th performance and reduce the cost of implementing a relational join on large databases, the load required by the process needs to be shared across multiple processors. This is achieved by implementing a parallel algorithm in order to cater for the workload required to perform the join between data sets. This reduces the amount of processing time and increases the efficiency of the algorithm for computations on a large scale.
+
+The join algorithm can be defined according to two processes, hashing or sorting and merging. Hashing is used to implement Simple, Grace and Hybrid hash methods where the sort-merge algorithm makes use of sorting and merging.Additionally, the Grace and Hybrid join algorithms first partition the two relations being joined into additional fragments when the inner relation is larger than the amount of available main memory.
+
+\subsubsection{Sort-Merge Join}\label{sortmerge}
+
+The sort-merge join algorithm is based on the principle of sorting both relations according to their join predicates. This is done in order to ensure that, when scanning through both relations, related sets are encountered at the same time. The algorithm consists of two phases, namely the sorting phase and merging phase. The sorting phase occurs by making use of data partitioning.
+
+This step produces disjoint partitions of similar ranges of input data, described as input relations, which are each allocated a thread. Using range-partitioning allows us to ensure that related elements in both relations will be processed collectively\cite{dist}.
+
+In the partitioning step, the relations are partitioned based on their first elements minimum value elements associated with each collection attribute. Each partition is run individually with each run involving a sort of the data within the range. The sorted data is then transmitted asynchronously to a target node. The performance of the algorithm is therefore limited by two factors, the rate at which each run can be sorted and the network bandwidth available to each process at the given node.
+
+After a process has sorted its input data, it waits until it has received all the sorted runs of its range followed by the rest of the nodes. Once all the data has been received, each process merges the sorted partition from each run combining multiple input runs into one sorted output in order to compute the join result. The order of the tuples in the output is also sorted. The costs identified with visualizing the output of the sort-merge join depends on the level of differentiation within the input and the transmitted data that needs to be sent across the network\cite{dist}.
+
+\subsubsection{Hash Join}
+
+Hash joins require an equijoin predicate comparing values from one table with values from the other table using the equals operand. These joins differ from a sort-merge join in the fact that they contain no initial sorting. Instead, the algorithm has a build phase and a probe phase\cite{equijoin}. 
+
+At the start of the build phase, the algorithm generates a hash table using the smaller relation as the inner join. The hash table contains the join predicate, upon which the hash function is applied, and it's corresponding tuples containing a row of information. The build phase is completed when all the tuples of the initial relation have been stored in the hash table. 
+
+Once the table is created, the larger relation is read in with it's relatives tuples probing the hash table for a corresponding match. This instruction fulfills the probe phase. Searching the hash table for the join predicates is much more efficient than simply scanning through the original relation. 
+
+In order to implement this algorithm in parallel, all threads available are allocated memory at the start of the build phase. The has table is then constructed by creating a join of each thread's piece of memory.The algorithm makes use of whatever memory is available to it and writes the rest to the disk.
+
+The Grace join algorithm differs from that of a simple hash join as it partitions both relations instead of scanning through the second, larger partition. This is achieved by adding a third phase to the algorithm's make up. In the first phase, the algorithm partitions the smaller relation into disk buckets\cite{evaluating4JoinAlgorithms} As is done in the simple hash join, this is achieved by hashing on the join attributes of each tuple within the relation. In phase 2, the larger relation is also partitioned into buckets using the same hash function. In the final phase, the algorithm joins the matching hash table buckets from both relations. This is achieved through using the same hash function on both tables.
+
+The Hybrid has join algorithm exists as an improved method of implementing the Grace join described above. The algorithm is optimized to ensure that it makes use of all available memory on offer from the system. Similar to the Grace algorithm, the Hybrid hash join algorithm also consists of three phases. The hash function used in the first phase to partition the smaller relation ensures that the number of tuples produced for each bucket is small enough to fit within the systems main memory\cite{evaluating4JoinAlgorithms}. The first bucket is then used to create an in-memory hash table while the other buckets produced are temporarily stored in files. The same is done for the larger relation in phase 2, using the same hash function as phase 1. The first bucket of tuples is immediately used to probe the initial in-memory hash table generated in phase 1. It is important to note that the larger relation is divided into the same number of buckets as defined by the small relation. This allows the third phase to the join each bucket in the first relation with it's corresponding bucket in the second. 
+
+The use of main memory in this way means the algorithm requires less I/O operations in comparison to that of a grace join. The joins are also segmented into smaller joins which are implemented for each iteration in the joining phase reducing computation time. When implemented in parallel, the algorithm computation times is decreased as the partitioning of both relations is overlapped with joining of the first buckets from both relations\cite{evaluating4JoinAlgorithms}.
+
+\subsection{OpenMP}
+
+The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs\cite{PerformComp}. The library allows the same code base to be run identically across a range of different operating systems. It takes the form of a set of compiler directives (pragmas) which are used for thread creation, synchronization of operations and allow the management of shared memory when implementing pthreads. 
+
+The pragmas allow a program to be compiled into a multi-threaded program. It makes use of a block-structured design in order to shift between the parallel and sequential components. At the entry of a parallel block, a single thread of
+control is split into some number of threads, and a new sequential thread is started when all the split threads have finished. The threads embedded within the program share a memory address space allowing for efficient communication between the threads. OpenMP also makes the implementation of mulithreaded programs much simpler as the compiler is entrusted with providing parallelised functionality while maintaining its serial structure(ie: the transformation from serial to parallel code requires little to input from the programmer). 
+
+
+\subsection{MPI}
+
+Message passing is a form of communication between two separate processes in parallel or object-orientated programming. By using this model, objects can send and receive a number of resources between each other\cite{IBM}. The passing of the messages or resources can be synchronous or asynchronous. Synchronous systems incur a waiting period while the sender and receiver wait for the message to be transferred where as asynchronous can carry on with other computations while the message is passed.  
+
+The Message-Passing Interface (MPI) is a widely used interface in high-performance computing systems. MPI is used mainly for parallel computers or clusters. 
+
+MPI can be used for a variety of parallel computing models. These models can either perform the parallelization of data where the same instructions are carried out simultaneously on multiple data items (SIMD) or task parallelization where different instructions are performed on separate sections of data (MIMD)\cite{PerformComp}. The interface is able to provide a powerful, efficient method of executing parallel programs in a portable manner. This means that the program can be run on a variety of different computers or devices with a variety of operating systems and protocols.
+
+\subsection{MapReduce}
+
+MapReduce is a functional language-inspired parallel programing paradigm for large-scale processing frameworks\cite{comparingMPIMapReduce}. The model has been adopted across a number of platforms due to it's simplicity and suitability in solving to practical problems. The algorithm consists of two distinct parts, namely the mapper function and reducer function. 
+
+The mapper function takes as an input a key and a value and emits a set of intermediate key-value pairs. A number of map processes can be implemented according to the needs of the programmer in order to partition and process input data. These processes exist independently of one another meaning no collaboration is required when executed in parallel. The resultant process groups together all values associated with a given key in order to generate key-value pairs. These pairs are then passed to the reducer function accordingly.
+
+The reducer function then makes use of the output from the mapper function. It takes as inputs a key and a list of values associated with the key. The reduce process is the responsible for aggregating values associated with the same key in order to produce a data set which is inherently smaller than the original. 
+
+The MapReduce model is well suited for data intensive processing for a number of reasons. Firstly, the model is able to sequentially work through each record one at a time set without needing to have the entire data set loaded into memory. The program is also conveniet to use as the MapReduce model performs the data partitioning as well as process creation and synchronization\cite{PerformComp}. This means that the distributed and parallel processing is all performed behind the scene without needing input from the programmer.
+
+The Phoenix project allows the implementation of the Mapreduce paradigm on a platform with multiple cores.
+
+\section{System Design and Implementation}
+The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.
+
+\subsection{Serial Equi-Join}
+An object-oriented solution was implemented for the serial equi-join. Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
+
+Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files \cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using \ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the the key of interest is hashed, and then only the corresponding index in the table is searched for the required key.
+
+\begin{equation}
+ writeEqnHereOrRatherUseAlgorithm\\
+\label{eqn:hash}
+\end{equation}
+
+Once the first file has been hashed, the hash table must be probed by the tuples in the second file. To do this, the key is hashed to find its corresponding index in the hash table. Thereafter, each key in the hash table is checked for equality with the probing key. If they are found to be equal (thus satisfying the conditions of an equi-join), the (key,value) pair in the hash table is added to a vector of results. Once the whole bucket has been probed, the vector contains all of the (key, value) pairs that must be joined to the probing key, and it is returned.
+
+Finally, the \texttt{joinManager} class handles the joining of the two tables. In the \texttt{joinManager} class, the value from each resulting (key, value) is appended onto the probing (key, value) pair in order to join the tables. To reduce repetition of the key in the joined table, the key is extracted from the resulting value prior to appending the strings. The joined strings are then appended to a vector. This process occurs for each (key,value) pair in the second file. Finally, the vector containing the joined table is returned and written to an output text file.
+
+\subsection{Hybrid Equi-Join}
+
+\subsection{MapReduce Equi-Join}
+The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data \cite{comparingMPIMapReduce}. In order to compensate for input text files that are too large to be held in RAM all at once, the input text files are mapped to memory. They can thus be read in when needed, in chunks that can be held in RAM. Since the memory map maps the data directly back to the text file, in order to edit the data, the file is also edited. To avoid altering the input text file, two copies of each file are made - one used for isolating the key, and one for the value. Thus, four input files are mapped to memory. This presents a tradeoff in the design, which is discussed in detail in \secref{sec:tradeoffs}.
+
+After mapping the data to memory, the data is divided into chunks to be sent to the map processes. Checks are performed to ensure that each chunk only contains full lines of the text file. This is essential in ensuring that none of the (key, value) pairs are missed.
+
+Within the mapper, the key value pairs from the text file need to be isolated and emitted. In order to isolate the values, the file is iterated through until an end of line character is encountered. This end of line character is set to be the integer \texttt{0}, which is the integer value of the null terminator, and indicates where a string ends \cite{phoenix}. This string represents the value.
+
+To isolate the keys, the column that contains the keys must be known. This information is obtained from the program's run-time arguments. When iterating through the text files, a check is done to determine whether each character is a delimiter or a normal text character. If the character is a delimiter, a counter of delimiters is incremented. When the delimiter counter is equal to the number of the column containing the keys, the start of the key is recorded as the following character. The string is then iterated through to find the next delimiter which marks the end of the key. This character is then set to \texttt{0}. The key and the value are then emitted to the reducer. In order to identify which (key, value) pair originated from which input file, the pair is also emitted with an identifier (\texttt{0} for file 1 and \texttt{1} for file 2).
+
+Once the mapping process is completed, the keys are hashed and the data is sorted. These processes were however not overwritten to implement the join and as such, the in-built Phoenix++ functionality was used.
+
+Each key, and all of its corresponding values, is then sent to the reducer. Within the reducer, the values are split into two vectors based on their identifiers. Thereafter, for each combination of the two vectors, a string is created which contains the two values appended together. The process of appending the two values is the joining of the row of the two tables. Together with the key, the joined value is emitted from the reducer, and written to a text file.
+
+Finally, to complete the program, the files are unmapped from memory and the four copies input files are deleted.
+
+Phoenix++ inherently makes use of PThreads and as such, the equi-join is performed in parallel.
+
+%\subsection{File System Design}
+%
+%\subsection{Code Framework}
+%
+%The algorithm was constructed using C++ and Message Passing Interface library (MPI). MPI libraries consist of message-passing functionality which was used for distributed and parallel algorithms. Message passing function is simply a func- tion that explicitly transmits data from one process to another. By using MPI library each process that is running on an individual workstation is assigned a unique number called process rank. The root process will coordinate most of the operation for the parallel data joining implementation. The equi-join employed the data parallelism paradigm. Data is partitioned to different process for local processing. The main MPI library functions used in our implementation are Send, Receive, Broadcast, Gather, and All-to-All communication
+%
+%\subsection{Join Algorithm}
+%
+%Parallel collection equi-join can be divided into two main phases. The first phase is data partitioning based on disjoint partition, and the second phase is per- forming the join algorithm(i.e. sort-merge or hash join). The hash join algorithm was chosen for this.
+%
+%\subsection{Multi-threading Environment}
+%
+%OpenMP. Each node has 4 cores, 8 threads. 
+%
+%
+%Compared to using pthreads and working with mutex and
+%condition variables, OpenMP is much easier to use because
+%the compiler takes care of transforming the sequential code
+%into parallel code according to the directives [12]. Hence
+%the programmers can write multithreaded programs without
+%serious understanding of multithreading mechanism. Its
+%runtime maintains the thread pool and provides a set of
+%libraries [7].
+%It uses a block-structured approach to switch between
+%sequential and parallel sections, which follows the fork/join
+%model. At the entry of a parallel block, a single thread of
+%control is split into some number of threads, and a new
+%sequential thread is started when all the split threads have
+%finished. Its directives allow the fine-grained control over
+%the threads. It is supported on various platforms like UNIX,
+%LINUX, and Windows and various languages like C, C++,
+%and Fortran [12].
+%
+%
+%In OODB, collection equi-join is based on ’total’ equality. That is, for list/array each collection type element (OID) must be equal in the same order. Whereas for set/bag two objects are equal if all collection type element object of class A exist in object of class B in any order. Before the joining can take place, the local objects for class A and B needs to be sorted. We used quick sort with algorithm in Figure 3 as the comparison function. The algorithm performs element-by-element comparison between two collec- tion attributes until one of the OIDs is not equal or it reaches the end of one of the collection attributes. For this comparison to perform correctly, collection attributes of type set or bag must be pre-sorted
+
+\section{Results}
+
+\begin{table} [h]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join for the two solutions over various file sizes}
+	\label{tab:results}
+
+\begin{tabular}{|c|c|c|c|}
+	\hline 
+	File size & 100 000 & 1 000 000 & 10 000 000 \\ 
+	\hline
+	\hline 
+	Hybid Solution &  &  &  \\ 
+	\hline 
+	MapReduce Solution &  & 2.421755 s &  \\ 
+	\hline 
+\end{tabular} 
+\end{table}
+
+or graphs will probably be better? Maybe we need both
+
+\section{Critical Analysis}
+A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
+
+\subsection{Limitations}
+
+\subsection{Tradeoffs} \label{sec:tradeoffs}
+The use of memory mapping to store the input text files for the MapReduce solution is a large tradeoff of the system. While this usage means that larger input files can be processed, it also lead to the need to duplicate each input text file twice, and allocate memory for each of the four text files. This creates a large inefficiency within the system.
+
+\section{Future Recommendations}
+For future recommendations, a hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability \cite{evaluating4JoinAlgorithms}.
+
+\section{Conclusion}
+
+\bibliographystyle{witseie}
+\bibliography{bigData}
+
+\end{document}

@@ -208,7 +208,7 @@ The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and a
 \subsection{Serial Equi-Join}
 An object-oriented solution was implemented for the serial equi-join. Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
 
-Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files \cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using \ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the the key of interest is hashed, and then only the corresponding index in the table is searched for the required key.
+Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files \cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using \ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the the key of interest is hashed, and then only the bucket at the corresponding index in the table is searched for the required key.
 
 \begin{equation}
  writeEqnHereOrRatherUseAlgorithm\\
@@ -284,6 +284,8 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 %In OODB, collection equi-join is based on ’total’ equality. That is, for list/array each collection type element (OID) must be equal in the same order. Whereas for set/bag two objects are equal if all collection type element object of class A exist in object of class B in any order. Before the joining can take place, the local objects for class A and B needs to be sorted. We used quick sort with algorithm in Figure 3 as the comparison function. The algorithm performs element-by-element comparison between two collec- tion attributes until one of the OIDs is not equal or it reaches the end of one of the collection attributes. For this comparison to perform correctly, collection attributes of type set or bag must be pre-sorted
 
 \section{Results}
+To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid Solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
+
 
 \begin{table} [h]
 	\centering
@@ -302,9 +304,54 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 \end{tabular} 
 \end{table}
 
-or graphs will probably be better? Maybe we need both
+In table \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB. The input files were created such that each key in file 1 had a match in file 2.
+
+\begin{table} [h]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 1~GB files over various numbers of threads}
+	\label{tab:results2}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline 
+		Number of threads & 1 & 4 & 8 &16\\ 
+		\hline
+		\hline
+		Time For Map Reduce (s) & 44.206261 & 14.993695 & 14.163257 &20.268396\\ 
+		\hline 
+		Time For File Write (s) & 13.972962 & 15.215831 & 13.157052 &16.377010\\ 
+		\hline 
+		Total Time (s) & 58.179223 & 30.209526 & 27.320309 &  36.645406\\ 
+		\hline 
+	\end{tabular} 
+\end{table}
+
+In table \tabref{tab:results3}, each input file had 24~137~569  lines with a size of 2.00~GB. 
+
+\begin{table} [h]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2~GB files over various numbers of threads}
+	\label{tab:results3}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline 
+		Number of threads & 1 & 4 & 8 &16\\ 
+		\hline
+		\hline
+		Time For Map Reduce (s) & 93.469804 & 31.426143 & 30.058178 & 41.858639\\ 
+		\hline 
+		Time For File Write (s) & 28.433646 & 32.931398& 24.158987 & 24.892521\\ 
+		\hline 
+		Total Time (s) & 121.903450 & 64.357541 & 54.217165 & 66.751160 \\ 
+		\hline 
+	\end{tabular} 
+\end{table}
+
 
 \section{Critical Analysis}
+
+*****Put speed up and scalability graphs here!******
+
+
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
 \subsection{Limitations}

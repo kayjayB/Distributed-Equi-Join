@@ -186,17 +186,14 @@ The use of main memory in this way means the algorithm requires less I/O operati
 
 \subsection{OpenMP}
 
-The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs\cite{comparingMPIMapReduce}. The library allows the same code base to be run identically across a range of different operating systems. It takes the form of a set of compiler directives (pragmas) which are used for thread creation, synchronization of operations and allow the management of shared memory when implementing pthreads. 
+The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs \cite{comparingMPIMapReduce}. The library allows the same parallel code base to be run identically across a range of different operating systems \cite{comparingMPIMapReduce}. OpenMP takes the form of a set of compiler directives (pragmas) which are used for thread creation and synchronization of operations \cite{comparingMPIMapReduce}. 
 
-The pragmas allow a program to be compiled into a multi-threaded program. It makes use of a block-structured design in order to shift between the parallel and sequential components. At the entry of a parallel block, a single thread of
-control is split into some number of threads, and a new sequential thread is started when all the split threads have finished. The threads embedded within the program share a memory address space allowing for efficient communication between the threads. OpenMP also makes the implementation of mulithreaded programs much simpler as the compiler is entrusted with providing parallelised functionality while maintaining its serial structure(ie: the transformation from serial to parallel code requires little to input from the programmer). 
-
+The pragmas allow for a program to be compiled into a multi-threaded program \cite{kuhn2000openmp}. The OpenMP API makes use of the fork-join parallel design pattern, whereby in the parallel regions, threads are created to perform work concurrently \cite{openMP}. Once the work has been completed, the threads join together to create a single result and to recreate the single control thread \cite{openMP}. All of the threads within a program share a memory address space, thus allowing for efficient communication between the threads \cite{comparingMPIMapReduce}. 
 
 \subsection{Message-Passing Interface}
-
 Message passing is a form of communication between two separate processes \cite{IBM, equijoinWithMPI}. By using this model, processes can send and receive resources \cite{IBM}. If data is transferred, the data must be moved from the local memory of the sending process to that of the receiving process \cite{IBM}.
 
-The Message-Passing Interface (MPI) is a library specification for message passing in parallel and distributed environments \cite{comparingMPIMapReduce}. It is widely used in high-performance computing systems \cite{equijoinWithMPI}. The MPI library offers point-to-point communications, broadcast messages and parallel IO \cite{comparingMPIMapReduce}.
+The Message-Passing Interface (MPI) is a library specification for message passing in parallel and distributed environments \cite{comparingMPIMapReduce}. It is widely used in high-performance computing systems \cite{equijoinWithMPI, joinOnCluster}. The MPI library offers point-to-point communications, broadcast messages and parallel IO \cite{comparingMPIMapReduce}.
 
 MPI can be used for a variety of parallel computing models \cite{comparingMPIMapReduce}. One such model is Single Instruction Multiple Data (SIMD) in which the same instruction is carried out simultaneously on multiple data sets \cite{comparingMPIMapReduce}. Another model is Multiple Instruction Multiple Data (MIMD) in which different instructions are performed on separate sections of data (MIMD)\cite{comparingMPIMapReduce}. The advantages of MPI is that it is a powerful, efficient method of executing parallel programs \cite{IBM}. It is also portable, as message passing is implemented on most parallel platforms \cite{IBM}.
 
@@ -229,6 +226,8 @@ Finally, the \texttt{joinManager} class handles the joining of the two tables. I
 
 \subsection{Hybrid Equi-Join}
 The first implemented method utilises the MPI communications framework in conjunction with the OpenMP API. The MPI framework is used to create a scalable solution which can run on clusters of any size, allowing each node within the cluster to contribute to the computational capability of executing the program \cite{mpi-scale}. The mpic++ compiler is utilised which provides a wrapper that interfaces with the g++ compiler \cite{mpic++-wrapper}. A 64~bit version of the g++ compiler is utilised thus inferring that file buffer pointers are now 64~bit pointers \cite{pointer-size}. By considering that the file buffer is a \texttt{signed long int} data type, this translates to the ability to parse files up to 8.5~EB in size. Thus the memory bottleneck will most likely be enforced by the amount of RAM and page memory available within the cluster. This allows the file content to be read in completely, minimising data access overhead that could be incurred by reading in data chunks through the program execution.
+
+OpenMP was selected for the hybrid model since it makes the implementation of mulithreaded programs much simpler, since the complier transforms the serial code into parallel according to the directives \cite{comparingMPIMapReduce}.
 
 A \texttt{FileManager} object is utilised by the master node to read in the two data files that are required to be joined. The contents of the smaller file is sent to each slave node and a hash table is created on each slave node. When performing the has, the value at the specified column index is set as the key and the line from which it was extracted is set as the value.
 

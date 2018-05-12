@@ -32,9 +32,18 @@
 \usepackage{algorithmicx}
 \usepackage{multirow}
 \usepackage{algpseudocode}
+\usepackage{pdfpages}
+\usepackage{etoolbox}
+\usepackage[super]{nth}
 \usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
 \definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
 \definecolor{mylilas}{RGB}{170,55,241}
+
+\makeatletter
+\patchcmd\@combinedblfloats{\box\@outputbox}{\unvbox\@outputbox}{}{%
+	\errmessage{\noexpand\@combinedblfloats could not be patched}%
+}%
+\makeatother
 %\usepackage{flafter}
 
 %\newlength\myindent
@@ -183,13 +192,13 @@ The pragmas allow a program to be compiled into a multi-threaded program. It mak
 control is split into some number of threads, and a new sequential thread is started when all the split threads have finished. The threads embedded within the program share a memory address space allowing for efficient communication between the threads. OpenMP also makes the implementation of mulithreaded programs much simpler as the compiler is entrusted with providing parallelised functionality while maintaining its serial structure(ie: the transformation from serial to parallel code requires little to input from the programmer). 
 
 
-\subsection{MPI}
+\subsection{Message-Passing Interface}
 
-Message passing is a form of communication between two separate processes in parallel or object-orientated programming. By using this model, objects can send and receive a number of resources between each other\cite{IBM}. The passing of the messages or resources can be synchronous or asynchronous. Synchronous systems incur a waiting period while the sender and receiver wait for the message to be transferred where as asynchronous can carry on with other computations while the message is passed.  
+Message passing is a form of communication between two separate processes \cite{IBM, equijoinWithMPI}. By using this model, processes can send and receive resources \cite{IBM}. If data is transferred, the data must be moved from the local memory of the sending process to that of the receiving process \cite{IBM}.
 
-The Message-Passing Interface (MPI) is a widely used interface in high-performance computing systems. MPI is used mainly for parallel computers or clusters. 
+The Message-Passing Interface (MPI) is a library specification for message passing in parallel and distributed environments \cite{comparingMPIMapReduce}. It is widely used in high-performance computing systems \cite{equijoinWithMPI}. The MPI library offers point-to-point communications, broadcast messages and parallel IO \cite{comparingMPIMapReduce}.
 
-MPI can be used for a variety of parallel computing models. These models can either perform the parallelization of data where the same instructions are carried out simultaneously on multiple data items (SIMD) or task parallelization where different instructions are performed on separate sections of data (MIMD)\cite{comparingMPIMapReduce}. The interface is able to provide a powerful, efficient method of executing parallel programs in a portable manner. This means that the program can be run on a variety of different computers or devices with a variety of operating systems and protocols.
+MPI can be used for a variety of parallel computing models \cite{comparingMPIMapReduce}. One such model is Single Instruction Multiple Data (SIMD) in which the same instruction is carried out simultaneously on multiple data sets \cite{comparingMPIMapReduce}. Another model is Multiple Instruction Multiple Data (MIMD) in which different instructions are performed on separate sections of data (MIMD)\cite{comparingMPIMapReduce}. The advantages of MPI is that it is a powerful, efficient method of executing parallel programs \cite{IBM}. It is also portable, as message passing is implemented on most parallel platforms \cite{IBM}.
 
 \subsection{MapReduce}
 
@@ -232,7 +241,9 @@ Each slave node utilises the OpenMP API to parallelise the hashing of the two re
 Once each slave node has completed its required hashing computations the resulting joined data is sent back to the master node. The order of received data is not important and thus the transmitted results from slave nodes can be received as it is completed. The master then proceeds to write the resultant data to an output file as each resultant data chunk is received. This write process occurs on a single thread to prevent data corruption due to simultaneous writes to a single output file.
 
 \subsection{MapReduce Equi-Join}
-The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data \cite{comparingMPIMapReduce}. In order to compensate for input text files that are too large to be held in RAM all at once, the input text files are mapped to memory. They can thus be read in when needed, in chunks that can be held in RAM. Since the memory map maps the data directly back to the text file, in order to edit the data, the file is also edited. To avoid altering the input text file, two copies of each file are made - one used for isolating the key, and one for the value. Thus, four input files are mapped to memory. This presents a tradeoff in the design, which is discussed in detail in \ref{sec:tradeoffs}.
+The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data \cite{comparingMPIMapReduce}. The implemented algorithm is a general reducer-side join \cite{mapReduceJoin}. Within this algorithm, a single map and reduce stage is used. Within the map stage, an identifier corresponding to each file is attached to the value \cite{mapReduceJoin}. The (key, value) pair is then emitted. Within the reduce stage, data with the same key and a different tag are joined together \cite{mapReduceJoin}.
+
+In order to compensate for input text files that are too large to be held in RAM all at once, the input text files are mapped to memory. They can thus be read in when needed, in chunks that can be held in RAM. Since the memory map maps the data directly back to the text file, in order to edit the data, the file is also edited. To avoid altering the input text file, two copies of each file are made - one used for isolating the key, and one for the value. Thus, four input files are mapped to memory. This presents a tradeoff in the design, which is discussed in detail in \ref{sec:tradeoffs}.
 
 After mapping the data to memory, the data is divided into chunks to be sent to the map processes. Checks are performed to ensure that each chunk only contains full lines of the text file. This is essential in ensuring that none of the (key, value) pairs are missed.
 
@@ -285,7 +296,7 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 %In OODB, collection equi-join is based on ’total’ equality. That is, for list/array each collection type element (OID) must be equal in the same order. Whereas for set/bag two objects are equal if all collection type element object of class A exist in object of class B in any order. Before the joining can take place, the local objects for class A and B needs to be sorted. We used quick sort with algorithm in Figure 3 as the comparison function. The algorithm performs element-by-element comparison between two collec- tion attributes until one of the OIDs is not equal or it reaches the end of one of the collection attributes. For this comparison to perform correctly, collection attributes of type set or bag must be pre-sorted
 
 \section{Results}
-To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid Solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
+To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
 
 
 \begin{table} [h]
@@ -356,6 +367,7 @@ In table \tabref{tab:results3}, each input file had 24~137~569  lines with a siz
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
 \subsection{Limitations}
+A limitation of the implemented MapReduce model is that an assumption is made that the reducer has sufficient memory to hold all of the values with the same key \cite{mapReduceJoin}. If the reducer does not have sufficient memory, the performance of the algorithm is greatly affected.
 
 \subsection{Tradeoffs} \label{sec:tradeoffs}
 The use of a STL \texttt{std::vector} to store the hash join results is a large tradeoff of the system. While this usage allows for reduced computational complexity and improved platform compatibility, it creates redundancies in the efforts to parallelise all possible components of the hybrid equi-join algorithm. Therefore this design choice creates a large inefficiency within the system.

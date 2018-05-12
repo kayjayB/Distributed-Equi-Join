@@ -139,7 +139,8 @@
 This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and MapReduce, for computing a parallel Equi-Join of two very large tables on their common join attributes. Each model will be described in terms of its design, implementation, strengths and weaknesses. The performance benchmarks for each of the algorithms will be discussed along with the results if of each benchmark. These results will be comparatively analyzed with future recommendations given.
 
 \section{Project Background}
-
+In order to process large amounts of data, join operations are often needed \cite{mapReduceJoin}. There is a great need for efficient join operations since the operation is very expensive in terms of both CPU usage and I/O costs \cite{mapReduceJoin}.
+ 
 \subsection{Parallel Join Algorithms}
 
 A join algorithm performs a comparison between two or more relational databases in order to find sets of tuples for a given join predicate. The algorithm returns a join table containing the tuples as a result. An equi-join query performs a standard comparison. In order to perform the comparison, the join predicate takes the form of an equals operand (= operator) in order to return tuples that have a collection type attribute\cite{joinalg}.
@@ -176,7 +177,7 @@ The use of main memory in this way means the algorithm requires less I/O operati
 
 \subsection{OpenMP}
 
-The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs\cite{PerformComp}. The library allows the same code base to be run identically across a range of different operating systems. It takes the form of a set of compiler directives (pragmas) which are used for thread creation, synchronization of operations and allow the management of shared memory when implementing pthreads. 
+The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs\cite{comparingMPIMapReduce}. The library allows the same code base to be run identically across a range of different operating systems. It takes the form of a set of compiler directives (pragmas) which are used for thread creation, synchronization of operations and allow the management of shared memory when implementing pthreads. 
 
 The pragmas allow a program to be compiled into a multi-threaded program. It makes use of a block-structured design in order to shift between the parallel and sequential components. At the entry of a parallel block, a single thread of
 control is split into some number of threads, and a new sequential thread is started when all the split threads have finished. The threads embedded within the program share a memory address space allowing for efficient communication between the threads. OpenMP also makes the implementation of mulithreaded programs much simpler as the compiler is entrusted with providing parallelised functionality while maintaining its serial structure(ie: the transformation from serial to parallel code requires little to input from the programmer). 
@@ -188,19 +189,17 @@ Message passing is a form of communication between two separate processes in par
 
 The Message-Passing Interface (MPI) is a widely used interface in high-performance computing systems. MPI is used mainly for parallel computers or clusters. 
 
-MPI can be used for a variety of parallel computing models. These models can either perform the parallelization of data where the same instructions are carried out simultaneously on multiple data items (SIMD) or task parallelization where different instructions are performed on separate sections of data (MIMD)\cite{PerformComp}. The interface is able to provide a powerful, efficient method of executing parallel programs in a portable manner. This means that the program can be run on a variety of different computers or devices with a variety of operating systems and protocols.
+MPI can be used for a variety of parallel computing models. These models can either perform the parallelization of data where the same instructions are carried out simultaneously on multiple data items (SIMD) or task parallelization where different instructions are performed on separate sections of data (MIMD)\cite{comparingMPIMapReduce}. The interface is able to provide a powerful, efficient method of executing parallel programs in a portable manner. This means that the program can be run on a variety of different computers or devices with a variety of operating systems and protocols.
 
 \subsection{MapReduce}
 
-MapReduce is a functional language-inspired parallel programing paradigm for large-scale processing frameworks\cite{comparingMPIMapReduce}. The model has been adopted across a number of platforms due to it's simplicity and suitability in solving to practical problems. The algorithm consists of two distinct parts, namely the mapper function and reducer function. 
+MapReduce is a programming paradigm for processing big data \cite{comparingMPIMapReduce}. The model has been widely adopted for the processing of big data due to it's simplicity and ease of use \cite{comparingMPIMapReduce}. It is thus suitable for solving practical problems \cite{comparingMPIMapReduce, mapReduceJoin}. The algorithm consists of two distinct parts, namely the map function and reduce function \cite{phoenix}. 
 
-The mapper function takes as an input a key and a value and emits a set of intermediate key-value pairs. A number of map processes can be implemented according to the needs of the programmer in order to partition and process input data. These processes exist independently of one another meaning no collaboration is required when executed in parallel. The resultant process groups together all values associated with a given key in order to generate key-value pairs. These pairs are then passed to the reducer function accordingly.
+The map function takes as an input a line (or chunk) of data, and emits a set of key-value pairs \cite{phoenix}. The map stage can be executed in parallel without any collaboration being required from threads, since each chunk of data is processed independently \cite{comparingMPIMapReduce}. Once the key value pairs have been emitted, the resultant keys are hashed and sorted, and then all values associated with a given key are grouped together \cite{phoenix}. The reduce function then aggregates all the values associated with a key and performs a function that is selected by the programmer \cite{comparingMPIMapReduce}.
 
-The reducer function then makes use of the output from the mapper function. It takes as inputs a key and a list of values associated with the key. The reduce process is the responsible for aggregating values associated with the same key in order to produce a data set which is inherently smaller than the original. 
+The MapReduce model is well suited for data intensive processing for a number of reasons. Firstly, the model is able to sequentially work through the records in a data set without loading the entire set into memory \cite{comparingMPIMapReduce}. The program is also convenient to use as the MapReduce model performs the hashing of the keys and the sorting of the (key,value) pairs inherently \cite{phoenix}. The programmer is able to override these if they wish, but they are not required to, thus enhancing the ease of using the paradigm. Furthermore, the parallel elements are also inherently included in the paradigm, which allows for the programmer to create easily scalable code \cite{comparingMPIMapReduce}. 
 
-The MapReduce model is well suited for data intensive processing for a number of reasons. Firstly, the model is able to sequentially work through each record one at a time set without needing to have the entire data set loaded into memory. The program is also conveniet to use as the MapReduce model performs the data partitioning as well as process creation and synchronization\cite{PerformComp}. This means that the distributed and parallel processing is all performed behind the scene without needing input from the programmer.
-
-The Phoenix project allows the implementation of the Mapreduce paradigm on a platform with multiple cores.
+Phoenix++ is a C++ based MapReduce implementation that makes use of PThreads to allow for scalability and efficient data processing \cite{phoenix}.
 
 \section{System Design and Implementation}
 The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.
@@ -306,7 +305,7 @@ To test the performance of the two solutions, the solutions were run with differ
 
 In table \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB. The input files were created such that each key in file 1 had a match in file 2.
 
-\begin{table} [h]
+\begin{table*} [t]
 	\centering
 	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 1~GB files over various numbers of threads}
 	\label{tab:results2}
@@ -323,11 +322,11 @@ In table \tabref{tab:results2}, each input file had 11~881~376 lines with a size
 		Total Time (s) & 58.179223 & 30.209526 & 27.320309 &  36.645406\\ 
 		\hline 
 	\end{tabular} 
-\end{table}
+\end{table*}
 
 In table \tabref{tab:results3}, each input file had 24~137~569  lines with a size of 2.00~GB. 
 
-\begin{table} [h]
+\begin{table*} [t]
 	\centering
 	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2~GB files over various numbers of threads}
 	\label{tab:results3}
@@ -344,7 +343,7 @@ In table \tabref{tab:results3}, each input file had 24~137~569  lines with a siz
 		Total Time (s) & 121.903450 & 64.357541 & 54.217165 & 66.751160 \\ 
 		\hline 
 	\end{tabular} 
-\end{table}
+\end{table*}
 
 
 \section{Critical Analysis}

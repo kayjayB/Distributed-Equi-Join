@@ -214,18 +214,15 @@ Phoenix++ is a C++ based MapReduce implementation that makes use of PThreads to 
 
 \subsection{Requirements and Success Criteria}
 
-compare one hybrid programming model and a slightly different algorithmic approach to solving the same problem
-performance analysis should be illustrated with speed up and scalability plots
-develop and implement a parallel equi-join of two very large relational tables on their common join attributes
-output is written to file
+The project requires the development and implementation of a hybrid programming model to compute a parallel equi-join of two very large relational tables. Additionally, a slightly different algorithmic approach to solve the same problem must be developed and a performance comparison between the two implementations must be undertaken. The performance analysis should be illustrated using speed-up and scalability plots. The joined relation should be written to file for the result to be corroborated.
+
+The project will be considered a success if the developed MPI-OpenMP hybrid performs better than the Phoenix++ MapReduce implementation over a range of very large relational tables. 
 
 \subsection{Assumptions}
 
-During the design and implementation of the hybrid join algorithm the following assumptions were made. 
+During the design and implementation of the hybrid join algorithm the following assumptions were made.  
 
-Performing an equi-join when the join attribute is a non-primary key, and where the chosen attribute is duplicated in one or both of the input relations, results in an output relation containing all possible permutations of tuples in the input for that join attribute. 
-
-Big data constitutes a file size of 1GB or larger. 
+Performing an equi-join when the join attribute is a non-primary key, and where the chosen attribute is duplicated in one or both of the input relations, results in an output relation containing all possible permutations of the tuples in the input for that join attribute. A further assumption is made that big data constitutes a file size of 1GB or larger. 
 
 \section{System Design and Implementation}
 The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.

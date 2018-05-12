@@ -137,20 +137,19 @@
 		
 	\end{titlepage}
 
-
 \pagestyle{plain}
 \setcounter{page}{1}
 \twocolumn
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+
 \section{Introduction}
 
+A relational \textit{join} describes the concatenation of tuples from two relations to form a new relation~\cite{stanczyk2001theory}. Along with both the \textit{select} and \textit{project} operations, these form a base for normalisation which is critical for designing database relations~\cite{stanczyk2001theory}. The join is essentially a product of relations followed by a restriction clause. An equi-join follows this structure where the restriction clause is specified as an equality~\cite{stanczyk2001theory}. For large datasets, this product is a computationally costly operation and as such must be optimized for efficient use.
 
-This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and MapReduce, for computing a parallel Equi-Join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is completed. Future recommendations are given based on this discussion.
-
-%Each model will be discussed in terms of its design and implementation; followed by a critical analysis. The performance benchmarks for each of the algorithms will be discussed along with the results if of each benchmark. These results will be comparatively analyzed with future recommendations given.
+This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and MapReduce, for computing a parallel equi-join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is completed. Future recommendations are given based on this discussion.
 
 \section{Project Background}
+In order to process large amounts of data, join operations are often needed \cite{mapReduceJoin}. There is a great need for efficient join operations since the operation is very expensive in terms of both CPU usage and I/O costs \cite{mapReduceJoin}.
 
 \subsection{Join Algorithms}
 

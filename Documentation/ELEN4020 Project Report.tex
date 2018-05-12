@@ -137,29 +137,28 @@
 		
 	\end{titlepage}
 
-
 \pagestyle{plain}
 \setcounter{page}{1}
 \twocolumn
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+
 \section{Introduction}
 
+A relational \textit{join} describes the concatenation of tuples from two relations to form a new relation~\cite{stanczyk2001theory}. Along with both the \textit{select} and \textit{project} operations, these form a base for normalisation which is critical for designing database relations~\cite{stanczyk2001theory}. The join is essentially a product of relations followed by a restriction clause. An equi-join follows this structure where the restriction clause is specified as an equality~\cite{stanczyk2001theory}. For large datasets, this product is a computationally costly operation and as such must be optimized for efficient use.
 
-This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and MapReduce, for computing a parallel Equi-Join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is completed. Future recommendations are given based on this discussion.
-
-%Each model will be discussed in terms of its design and implementation; followed by a critical analysis. The performance benchmarks for each of the algorithms will be discussed along with the results if of each benchmark. These results will be comparatively analyzed with future recommendations given.
+This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and Phoenix++ MapReduce, for computing a parallel equi-join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is completed. Future recommendations are given based on this discussion.
 
 \section{Project Background}
-In order to process large amounts of data, join operations are often needed \cite{mapReduceJoin}. There is a great need for efficient join operations since the operation is very expensive in terms of both CPU usage and I/O costs~\cite{mapReduceJoin}.
+In order to process large amounts of data, join operations are often needed~\cite{mapReduceJoin}. There is a great need for efficient join operations since the operation is very expensive in terms of both CPU usage and I/O costs~\cite{mapReduceJoin}.
 
 \subsection{Join Algorithms}
 
-A join operation performs a comparison between two or more relational tables in order to find sets of tuples based on common information ~\cite{thomas_zurek_optimisation_1997}. These tuples are then concatenated to form a resultant relation~\cite{thomas_zurek_optimisation_1997}.  An equi-join query performs a standard comparison, with the join predicate taking the form of an equals operand, in order to return tuples based on equality between the two tables \cite{joinalg, thomas_zurek_optimisation_1997}. 
+A relational join is a costly operation. In an equi join, two relational tables $R_1(A,B)$ and $R_2(A,C)$ are joined on their common attribute $A$ to produce a relation $R_3(A,B,C)$~\cite{thomas_zurek_optimisation_1997}.
+
 
 To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors. This is achieved by implementing a parallel, distributed join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
 
-The join operation can be performed in a variety of ways. Two different join algorithms are described, namely the sort-merge join and the hash join.
+The equi-join operation can be performed in a variety of ways. Two different join algorithms are described, namely the sort-merge join and the hash join.
 
 \subsubsection{Sort-Merge Join}\label{sortmerge}$   $
 

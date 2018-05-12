@@ -170,10 +170,10 @@ After a node has sorted its input data, it waits until it has received all the s
 
 The costs identified with visualizing the output of the sort-merge join depends on the level of differentiation within the input and the transmitted data that needs to be sent across the network\cite{dist}.
 
-
 \subsubsection{Hash Join}
 
-Hash joins require an equijoin predicate comparing values from one table with values from the other table using the equals operand. These joins differ from a sort-merge join in the fact that they contain no initial sorting. Instead, the algorithm has a build phase and a probe phase\cite{equijoin}. 
+
+These joins differ from a sort-merge join in the fact that they contain no initial sorting. Instead, the algorithm has a build phase and a probe phase\cite{equijoin}. 
 
 At the start of the build phase, the algorithm generates a hash table using the smaller relation as the inner join. The hash table contains the join predicate, upon which the hash function is applied, and it's corresponding tuples containing a row of information. The build phase is completed when all the tuples of the initial relation have been stored in the hash table. 
 
@@ -316,24 +316,6 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 
 \section{Results}
 To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
-
-
-\begin{table} [h]
-	\centering
-	\caption{Comparison of time taken to compute the equi-join for the two solutions over various file sizes}
-	\label{tab:results}
-
-\begin{tabular}{|c|c|c|c|}
-	\hline 
-	File size & 100 000 & 1 000 000 & 10 000 000 \\ 
-	\hline
-	\hline 
-	Hybid Solution &  &  &  \\ 
-	\hline 
-	MapReduce Solution &  & 2.421755 s &  \\ 
-	\hline 
-\end{tabular} 
-\end{table}
 
 In table \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB. The input files were created such that each key in file 1 had a match in file 2.
 

@@ -153,7 +153,7 @@ In order to process large amounts of data, join operations are often needed~\cit
 
 \subsection{Join Algorithms}
 
-A relational join is a costly operation. In an equi join, two relational tables $R_1(A,B)$ and $R_2(A,C)$ are joined on their common attribute $A$ to produce a relation $R_3(A,B,C)$~\cite{thomas_zurek_optimisation_1997}.
+In an equi join, two relational tables $R_1(A,B)$ and $R_2(A,C)$ are joined on their common attribute $A$ to produce a relation $R_3(A,B,C)$~\cite{thomas_zurek_optimisation_1997}.
 
 To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors. This is achieved by implementing a parallel, distributed join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
 
@@ -163,7 +163,7 @@ The equi-join operation can be performed in a variety of ways. Two different joi
 
 The sort-merge join algorithm is based on the principle of sorting both relations according to their join attributes~\cite{thomas_zurek_optimisation_1997}. This is done in order to ensure that, when scanning through both relations, related sets are encountered at similar times~\cite{thomas_zurek_optimisation_1997}. The algorithm consists of two phases, namely the sorting phase and merging phase. For datasets being processed in parallel, the sorting phase occurs by making use of data partitioning~\cite{dist}.
 
-In the first step, each thread partitions the input data. The partitioning makes use of range based partitions to ensure that matching elements in both of the input relations are processed by the same node \cite{dist}. Within each range, the data is sorted and asynchronously sent to it's target node for processing \cite{dist}. While the data transfer is taking place, the thread continues to sort the next chunk of input data~\cite{dist}. The performance of this sort algorithm is thus limited by two factors, the rate at which each chunk can be sorted and the network bandwidth available to each process at the given node~\cite{dist}.
+In the first step, each thread partitions the input data. The partitioning makes use of range based partitions to ensure that matching elements in both of the input relations are processed by the same node \cite{dist}. Within each range, the data is sorted and asynchronously sent to its target node for processing \cite{dist}. While the data transfer is taking place, the thread continues to sort the next chunk of input data~\cite{dist}. The performance of this sort algorithm is thus limited by two factors, the rate at which each chunk can be sorted and the network bandwidth available to each process at the given node~\cite{dist}.
 
 After a node has sorted its input data, it waits until it has received all the sorted data pertaining to its range from all of the other nodes~\cite{dist}. The algorithm then merges the sorted chunks into a sorted join result. Multiple iterations over the input data may be needed until both relations are fully sorted~\cite{dist}. After both relations have been sorted, they are partitioned among all the nodes for merging. Merging constitutes computing the join result between the corresponding tuples~\cite{dist}.
 
@@ -171,7 +171,7 @@ The costs associated with the sort-merge join algorithm depend on the level of d
 
 \subsubsection{Hash Join}$    $
 
-In a hash join, rather than sorting the data, a hash table is created containing the (key,value) pairs \cite{thomas_zurek_optimisation_1997}. The hash join algorithm has a build phase and a probe phase\cite{equijoin}. 
+In a hash join, rather than sorting the data, a hash table is created containing the (key,value) pairs \cite{thomas_zurek_optimisation_1997}. The hash join algorithm has a build phase and a probe phase~\cite{equijoin}. 
 
 In the build phase, the algorithm generates a hash table using the smaller relation \cite{evaluating4JoinAlgorithms}. The hash table contains the join predicate, upon which the hash function is applied, and it's corresponding tuples of information \cite{thomas_zurek_optimisation_1997, evaluating4JoinAlgorithms}. The build phase is completed when all the tuples of the initial relation have been stored in the hash table \cite{thomas_zurek_optimisation_1997}. 
 
@@ -355,7 +355,7 @@ In \tabref{tab:results3}, each input file had 24~137~569  lines with a size of 2
 \end{table*}
 
 
-In \tabref{tab:results3}, each input file had 34~012~224   lines with a total size of 2.8~GB. 
+In \tabref{tab:results4}, each input file had 34~012~224   lines with a total size of 2.8~GB. 
 
 \begin{table*} [t]
 	\centering
@@ -397,6 +397,7 @@ For future recommendations, a hybrid hash-join algorithm should be implemented r
 Furthermore, the performance of the hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector} \cite{tbb}~\cite{mutex}.
 
 \section{Conclusion}
+The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that ?????????????. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.
 
 \bibliographystyle{witseie}
 \bibliography{bigData}

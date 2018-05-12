@@ -151,16 +151,17 @@ This paper compares the performance of two programming models, namely an MPI-Ope
 %Each model will be discussed in terms of its design and implementation; followed by a critical analysis. The performance benchmarks for each of the algorithms will be discussed along with the results if of each benchmark. These results will be comparatively analyzed with future recommendations given.
 
 \section{Project Background}
+In order to process large amounts of data, join operations are often needed \cite{mapReduceJoin}. There is a great need for efficient join operations since the operation is very expensive in terms of both CPU usage and I/O costs~\cite{mapReduceJoin}.
 
 \subsection{Join Algorithms}
 
-A join operation performs a comparison between two or more relational tables in order to find sets of tuples based on common information, which are concatenated to form a resultant relation~\cite{thomas_zurek_optimisation_1997}.  An equi-join query performs a standard comparison, with the join predicate taking the form of an equals operand (= operator), in order to return tuples which are based on equality between the two tables\cite{joinalg, thomas_zurek_optimisation_1997}. 
+A join operation performs a comparison between two or more relational tables in order to find sets of tuples based on common information ~\cite{thomas_zurek_optimisation_1997}. These tuples are then concatenated to form a resultant relation~\cite{thomas_zurek_optimisation_1997}.  An equi-join query performs a standard comparison, with the join predicate taking the form of an equals operand, in order to return tuples based on equality between the two tables \cite{joinalg, thomas_zurek_optimisation_1997}. 
 
-To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors. This is achieved by implementing a parallel join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
+To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors. This is achieved by implementing a parallel, distributed join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
 
-The join operation can be performed in a variety of ways. Two parallel join algorithms are described, namely the sort-merge join and the hash join. %Hashing is used to implement Simple, Grace and Hybrid hash methods where the sort-merge algorithm makes use of sorting and merging. Additionally, the Grace and Hybrid join algorithms first partition the two relations being joined into additional fragments when the inner relation is larger than the amount of available main memory.
+The join operation can be performed in a variety of ways. Two different join algorithms are described, namely the sort-merge join and the hash join.
 
-\subsubsection{Sort-Merge Join}\label{sortmerge}
+\subsubsection{Sort-Merge Join}\label{sortmerge}$   $
 
 The sort-merge join algorithm is based on the principle of sorting both relations according to their join attributes~\cite{thomas_zurek_optimisation_1997}. This is done in order to ensure that, when scanning through both relations, related sets are encountered at similar times. The algorithm consists of two phases, namely the sorting phase and merging phase. For datasets being processed in parallel, the sorting phase occurs by making use of data partitioning~\cite{dist}.
 
@@ -170,22 +171,19 @@ After a node has sorted its input data, it waits until it has received all the s
 
 The costs identified with visualizing the output of the sort-merge join depends on the level of differentiation within the input and the transmitted data that needs to be sent across the network\cite{dist}.
 
-\subsubsection{Hash Join}
+\subsubsection{Hash Join}$    $
 
+In a hash join, rather than sorting the data, a hash table is created containing the (key,value) pairs \cite{thomas_zurek_optimisation_1997}. The hash join algorithm has a build phase and a probe phase\cite{equijoin}. 
 
-These joins differ from a sort-merge join in the fact that they contain no initial sorting. Instead, the algorithm has a build phase and a probe phase\cite{equijoin}. 
+In the build phase, the algorithm generates a hash table using the smaller relation \cite{evaluating4JoinAlgorithms}. The hash table contains the join predicate, upon which the hash function is applied, and it's corresponding tuples of information \cite{thomas_zurek_optimisation_1997, evaluating4JoinAlgorithms}. The build phase is completed when all the tuples of the initial relation have been stored in the hash table \cite{thomas_zurek_optimisation_1997}. 
 
-At the start of the build phase, the algorithm generates a hash table using the smaller relation as the inner join. The hash table contains the join predicate, upon which the hash function is applied, and it's corresponding tuples containing a row of information. The build phase is completed when all the tuples of the initial relation have been stored in the hash table. 
+Once the table is created, the larger relation is read in and its tuples probe the hash table for a corresponding match \cite{thomas_zurek_optimisation_1997}. This action forms the probe stage \cite{evaluating4JoinAlgorithms}. A hash join is used over a sort-merge join because searching the hash table for the join predicates is much more efficient than simply scanning through the original relation \cite{evaluating4JoinAlgorithms}. The entire process makes up a Simple Hash Join \cite{evaluating4JoinAlgorithms}. 
 
-Once the table is created, the larger relation is read in with it's relatives tuples probing the hash table for a corresponding match. This instruction fulfills the probe phase. Searching the hash table for the join predicates is much more efficient than simply scanning through the original relation. 
+The Grace join algorithm differs from a simple hash join as it partitions both relations instead of scanning through the second, larger relation \cite{graceHash}. This is achieved by adding a third phase to the algorithm's make up. In the first phase, the algorithm partitions the smaller relation into a hash table \cite{graceHash}. In phase 2, the larger relation is also partitioned into a table using the same hash function \cite{evaluating4JoinAlgorithms}. In the final phase, the algorithm joins the matching (key,value) pairs from both hash tables \cite{evaluating4JoinAlgorithms}.
 
-In order to implement this algorithm in parallel, all threads available are allocated memory at the start of the build phase. The has table is then constructed by creating a join of each thread's piece of memory.The algorithm makes use of whatever memory is available to it and writes the rest to the disk.
-
-The Grace join algorithm differs from that of a simple hash join as it partitions both relations instead of scanning through the second, larger partition. This is achieved by adding a third phase to the algorithm's make up. In the first phase, the algorithm partitions the smaller relation into disk buckets\cite{evaluating4JoinAlgorithms} As is done in the simple hash join, this is achieved by hashing on the join attributes of each tuple within the relation. In phase 2, the larger relation is also partitioned into buckets using the same hash function. In the final phase, the algorithm joins the matching hash table buckets from both relations. This is achieved through using the same hash function on both tables.
-
-The Hybrid has join algorithm exists as an improved method of implementing the Grace join described above. The algorithm is optimized to ensure that it makes use of all available memory on offer from the system. Similar to the Grace algorithm, the Hybrid hash join algorithm also consists of three phases. The hash function used in the first phase to partition the smaller relation ensures that the number of tuples produced for each bucket is small enough to fit within the systems main memory\cite{evaluating4JoinAlgorithms}. The first bucket is then used to create an in-memory hash table while the other buckets produced are temporarily stored in files. The same is done for the larger relation in phase 2, using the same hash function as phase 1. The first bucket of tuples is immediately used to probe the initial in-memory hash table generated in phase 1. It is important to note that the larger relation is divided into the same number of buckets as defined by the small relation. This allows the third phase to the join each bucket in the first relation with it's corresponding bucket in the second. 
-
-The use of main memory in this way means the algorithm requires less I/O operations in comparison to that of a grace join. The joins are also segmented into smaller joins which are implemented for each iteration in the joining phase reducing computation time. When implemented in parallel, the algorithm computation times is decreased as the partitioning of both relations is overlapped with joining of the first buckets from both relations\cite{evaluating4JoinAlgorithms}.
+%The Hybrid hash join algorithm is an improvement on the Grace join algorithm \cite{evaluating4JoinAlgorithms}. The algorithm is optimized to ensure that it makes use of all available memory on offer from the system. Similar to the Grace algorithm, the Hybrid hash join algorithm also consists of three phases. The hash function used in the first phase to partition the smaller relation ensures that the number of tuples produced for each bucket is small enough to fit within the systems main memory\cite{evaluating4JoinAlgorithms}. The first bucket is then used to create an in-memory hash table while the other buckets produced are temporarily stored in files. The same is done for the larger relation in phase 2, using the same hash function as phase 1. The first bucket of tuples is immediately used to probe the initial in-memory hash table generated in phase 1. It is important to note that the larger relation is divided into the same number of buckets as defined by the small relation. This allows the third phase to the join each bucket in the first relation with it's corresponding bucket in the second. 
+%
+%The use of main memory in this way means the algorithm requires less I/O operations in comparison to that of a grace join. The joins are also segmented into smaller joins which are implemented for each iteration in the joining phase reducing computation time. When implemented in parallel, the algorithm computation times is decreased as the partitioning of both relations is overlapped with joining of the first buckets from both relations\cite{evaluating4JoinAlgorithms}.
 
 \subsection{OpenMP}
 
@@ -228,7 +226,7 @@ Performing an equi-join when the join attribute is a non-primary key, and where 
 The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.
 
 \subsection{Serial Equi-Join}
-An object-oriented solution was implemented for the serial equi-join. Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
+An object-oriented solution was implemented for the serial equi-join, which makes use of a simple hash join algorithm. This algorithm was selected as it offers superior performance to the sort-merge join, and still allows for ease of programming (as opposed to the Grace hash-join). Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
 
 Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files \cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using \ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the the key of interest is hashed, and then only the bucket at the corresponding index in the table is searched for the required key.
 
@@ -356,6 +354,27 @@ In table \tabref{tab:results3}, each input file had 24~137~569  lines with a siz
 	\end{tabular} 
 \end{table*}
 
+
+In table \tabref{tab:results3}, each input file had 34~012~224   lines with a total size of 2.8~GB. 
+
+\begin{table*} [t]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2.8~GB files over various numbers of threads}
+	\label{tab:results4}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline 
+		Number of threads & 1 & 4 & 8 &16\\ 
+		\hline
+		\hline
+		Time For Map Reduce (s) &  &  & 4120.272176 & \\ 
+		\hline 
+		Time For File Write (s) &  & & 4466.227346 & \\ 
+		\hline 
+		Total Time (s) &  &  & 8586.499522 &  \\ 
+		\hline 
+	\end{tabular} 
+\end{table*}
 
 \section{Critical Analysis}
 

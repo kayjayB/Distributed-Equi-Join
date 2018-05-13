@@ -29,7 +29,7 @@ public:
 	
 private:
 
-	static const int _tableSize= 10;
+	static const int _tableSize= 10000;
 	
 	struct item{
 		string key;

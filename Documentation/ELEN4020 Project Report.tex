@@ -6,8 +6,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[12pt,twocolumn]{witseiepaper}
-\renewcommand{\baselinestretch}{1.25}
+\documentclass[11pt,twocolumn]{witseiepaper}
+\renewcommand{\baselinestretch}{1.5}
 %
 % All KJN's macros and goodies (some shameless borrowing from SPL)
 \usepackage{KJN}
@@ -86,7 +86,7 @@
 		%----------------------------------------------------------------------------------------
 		\textsc{\LARGE University of the Witwatersrand } \\[0.1cm] % Name of your university/college
 		\textsc{\LARGE School of Electrical and Information Engineering }\\[1cm] % Major heading such as course name
-		\textsc{\Large ELEN4020: Data Intensive Computing}\\[1.2cm] % Minor heading such as course title
+		\textsc{\Large ELEN4020: Data Intensive Computing}\\[1cm] % Minor heading such as course title
 		
 		%----------------------------------------------------------------------------------------
 		%	TITLE SECTION
@@ -94,7 +94,7 @@
 		
 		\HRule \\[0.4cm]
 		{ \huge \bfseries Project Report} \\[0.4cm] % Title of your document
-		\HRule \\[1.2cm]
+		\HRule \\[1cm]
 		
 		%----------------------------------------------------------------------------------------
 		%	AUTHOR SECTION
@@ -114,7 +114,7 @@
 				%	\emph{Author:}\\
 				Jared Ping \\ 704447
 			\end{flushright}
-		\end{minipage}\\[1cm]
+		\end{minipage}\\[0.8cm]
 		
 		\begin{minipage}{0.4\textwidth}
 			\begin{flushleft} \large
@@ -128,7 +128,7 @@
 				%		\emph{Author:} \\
 				Matthew van Rooyen \\ 706692
 			\end{flushright}
-		\end{minipage}\\[1cm]
+		\end{minipage}\\[0.8cm]
 		{\large Date Handed In: \nth{14} May, 2018}\\[1cm] 
 \vfill	
 \justify
@@ -313,6 +313,10 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 \section{Results}
 To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
 
+The MapReduce solution was run on a single node, consisting of four Intel i7 cores, each with two threads. The node had 24GB of RAM.
+
+********** Write about MPI hardware setup *************
+
 In \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB. The input files were created such that each key in file 1 had a match in file 2.
 
 \begin{table*} [t]
@@ -379,23 +383,26 @@ In \tabref{tab:results4}, each input file had 34~012~224   lines with a total si
 
 \section{Critical Analysis}
 
-*****Put speed up and scalability graphs here!******
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=1\columnwidth]{mapReduceTimevsThreads.png}
-	\caption{Time taken for the equi-join vs number of threads for the MapReduce Solution for various file sizes}
+	\caption{Time taken for the equi-join vs number of threads for the MapReduce solution for various file sizes}
 	\raggedright
 	\label{fig:resultsMR}	
 \end{figure}
 
+\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight threads, it is expected that running the program with eight threads will give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8GB input file, all of the RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph \cite{ram}.
+
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=1\columnwidth]{mapReduceSpeedup.png}
-	\caption{Speedup plot for the MapReduce implementation}
+	\caption{Speedup plot for the MapReduce solution}
 	\raggedright
 	\label{fig:speedUpMR}	
 \end{figure}
+
+\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. Speedup is defined as the ratio of the execution time for one thread to that of N threads \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of threads per core is exceeded. Thereafter, performance decreases.
 
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
@@ -411,6 +418,8 @@ The use of memory mapping to store the input text files for the MapReduce soluti
 For future recommendations, a hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability~\cite{evaluating4JoinAlgorithms}.
 
 Furthermore, the performance of the hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector}~\cite{tbb,mutex}.
+
+For future, each of the benchmarks run above should be repeated multiple times and the results averaged. This will allow for  accurate benchmarks to be acquired and will remove the effect of outliers in the results.
 
 \section{Conclusion}
 The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that ?????????????. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.

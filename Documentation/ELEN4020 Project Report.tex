@@ -7,7 +7,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass[12pt,twocolumn]{witseiepaper}
-\usepackage{setspace}
 \renewcommand{\baselinestretch}{1.25}
 %
 % All KJN's macros and goodies (some shameless borrowing from SPL)
@@ -223,7 +222,7 @@ During the design and implementation of the hybrid join algorithm the following 
 Performing an equi-join when the join attribute is a non-primary key, and where the chosen attribute is duplicated in one or both of the input relations, results in an output relation containing all possible permutations of the tuples in the input for that join attribute. A further assumption is made that big data constitutes a file size of 1GB or larger. 
 
 \section{System Design and Implementation}
-The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP.
+The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP. Both solutions were created using C++, as C++ allows for the low level memory management of C, but still allows for the use of advanced variable types, such as vectors.
 
 \subsection{Serial Equi-Join}
 An object-oriented solution was implemented for the serial equi-join, which makes use of a simple hash join algorithm. This algorithm was selected as it offers superior performance to the sort-merge join, and still allows for ease of programming (as opposed to the Grace hash-join). Within this solution, three classes were created, namely, \texttt{hashFunction}, \texttt{joinManager} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.

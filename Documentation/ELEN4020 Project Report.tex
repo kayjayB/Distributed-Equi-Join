@@ -29,12 +29,17 @@
 \usepackage{balance}
 \usepackage{pdfpages}
 \usepackage{ragged2e}
+\usepackage{lmodern}
+\newcommand*{\escape}[1]{\texttt{\textbackslash#1}}
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 \usepackage{multirow}
 \usepackage{algpseudocode}
 \usepackage{pdfpages}
 \usepackage{etoolbox}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-}
+\usepackage{breakurl}
 \usepackage[super]{nth}
 \usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
 \definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
@@ -316,9 +321,9 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 \section{Results}
 To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
 
-The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
+The Hybrid solution was run on two to eight nodes, in which one was a master node, and the remainder were compute nodes. Eight threads were used per node as this minimises caching load.
 
-********** Write about MPI hardware setup *************
+The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
 
 In \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB. The input files were created such that each key in file 1 had a match in file 2.
 
@@ -394,7 +399,7 @@ In \tabref{tab:results4}, each input file had 34~012~224   lines with a total si
 	\label{fig:resultsMR}	
 \end{figure}
 
-\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight threads, it is expected that running the program with eight threads will give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8GB input file, all of the RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph \cite{ram}.
+\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads will give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8GB input file, all of the RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph \cite{ram}.
 
 
 \begin{figure}[h]

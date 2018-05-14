@@ -247,13 +247,16 @@ OpenMP was selected for the hybrid model since it makes the implementation of mu
 
 A \texttt{FileManager} object is utilised by the master node to read in the two data files that are required to be joined. The contents of the smaller file is sent to each slave node and a hash table is created on each slave node. When performing the has, the value at the specified column index is set as the key and the line from which it was extracted is set as the value.
 
-The larger file is divided up into chunks, whereby the size of each chunk is determined by the number of slave nodes available for computation within the cluster. The divided chunks are then distributed between the slave nodes to allow them to perform the equi-join on the data segments they have access to.
+%The larger file is divided up into chunks, whereby the size of each chunk is determined by the number of slave nodes available for computation within the cluster. The divided chunks are then distributed between the slave nodes to allow them to perform the equi-join on the data segments they have access to.
 
-Node communication is made possible through the use of the \texttt{MPI\_send} and \texttt{MPI\_recv} functions~\cite{mpi-send}. The \texttt{MPI\_send} function specifies the slave node which data is being sent to. The number of expected incoming variables must be sent before the variable(s) itself is sent. The data chunk intended for each slave node is sent in the order of their node ranks. Each corresponding pair of sent data is then received by the slave nodes as each process iterates through the program and executes the corresponding \texttt{MPI\_recv} function pairs. The order of these receives must correspond to the order of the sends initiated by the master node~\cite{mpi-send}. Failure to implement this execution flow correctly will lead to slave nodes receiving incorrect or incomplete data segments.
+In order to reduce the overhead involved with the use of \texttt{MPI\_send}, the parallel architecture is exploited in reading in the input text files. As such, each process reads in the size of the input files, and calculates the chunk sizes by dividing the size of the file by the number of processes. Each process then reads in the chunk number relating to their rank. This process is repeated for both input text files.
 
-Each slave node utilises the OpenMP API to parallelise the hashing of the two received data segments. Computation on a single thread is required when the \texttt{join} function of the \texttt{hashFunction} object is run. This is incurred due to the function utilising a \texttt{std::vector} container from the C++ Standard Template Library (STL) which does not allow concurrent modification operations~\cite{stl-vector}. This presents a tradeoff in the design, which is discussed in detail in~\secref{sec:tradeoffs}.
+Each slave node utilises the OpenMP API to parallelise the hashing of the first data segment. ******* Needs to be fixed *******
 
-Once each slave node has completed its required hashing computations the resulting joined data is sent back to the master node. The order of received data is not important and thus the transmitted results from slave nodes can be received as it is completed. The master then proceeds to write the resultant data to an output file as each resultant data chunk is received. This write process occurs on a single thread to prevent data corruption due to simultaneous writes to a single output file.
+
+Computation on a single thread is required when the \texttt{join} function of the \texttt{hashFunction} object is run. This is incurred due to the function utilising a \texttt{std::vector} container from the C++ Standard Template Library (STL) which does not allow concurrent modification operations~\cite{stl-vector}. This presents a tradeoff in the design, which is discussed in detail in~\secref{sec:tradeoffs}.
+
+Once each slave node has completed its required hashing computations the resulting joined data is sent back to the master node using \texttt{MPI\_recv}. The order of received data is not important and thus the transmitted results from slave nodes can be received as it is completed. The master then proceeds to write the resultant data to an output file as each resultant data chunk is received. This write process occurs on a single thread to prevent data corruption due to simultaneous writes to a single output file.
 
 \subsection{MapReduce Equi-Join}
 The second method implemented makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data~\cite{comparingMPIMapReduce}. The implemented algorithm is a general reducer-side join~\cite{mapReduceJoin}. Within this algorithm, a single map and reduce stage is used. Within the map stage, an identifier corresponding to each file is attached to the value~\cite{mapReduceJoin}. The (key, value) pair is then emitted. Within the reduce stage, data with the same key and a different tag are joined together~\cite{mapReduceJoin}.
@@ -313,7 +316,7 @@ Phoenix++ inherently makes use of PThreads and as such, the equi-join is perform
 \section{Results}
 To test the performance of the two solutions, the solutions were run with different sized files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
 
-The MapReduce solution was run on a single node, consisting of four Intel i7 cores, each with two threads. The node had 24GB of RAM.
+The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
 
 ********** Write about MPI hardware setup *************
 

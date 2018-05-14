@@ -9,7 +9,7 @@
             "command": "mpic++",
             "args": [
                 "--std=gnu++14","-fopenmp", "-lgomp", "-lm", "-Wall", "-g",
-                "main.cpp", "fileManager.cpp", "hashFunction.cpp", "joinManager.cpp","-o", "Project",
+                "main.cpp", "fileManager.cpp", "hashFunction.cpp", "-o", "Project",
             ],
             "group": {
                 "kind": "build",

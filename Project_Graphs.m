@@ -24,10 +24,11 @@ hold on
 loglog(threadNum, gb2, 'k')
 hold on 
 loglog(threadNum1, gb2_8, 'b')
-xlim([0 16])
+xlim([1 16])
 xlabel('Number of Threads')
 ylabel('Time (s)')
 legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+set(gca,'XScale','linear','YScale','log')
 
 % For this, once the graph has been made, change the x-axis to a linear
 % scale
@@ -45,5 +46,52 @@ hold on
 plot(threadNum1, speedupFile3, 'b')
 xlim([2 16])
 xlabel('Number of Threads')
+ylabel('Speedup (T_1/T_N)')
+legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+
+%% Hybrid times per file size
+gb1 = [44699.273660 33726.023210 25900.586940 22358.448720 16967.617330 15804.263070 14879.622630];
+%           2      3         4           5         6           7        8
+gb2 = [86398.547330 65452.046420 50801.173890 42716.897430 32935.234660 30108.526410 29821.245250];
+
+gb2_8 = [120157.96630 91432.864980 70521.64344 55603.656410 45509.328520 42251.936590 40248.743350];
+node_num = [2 3 4 5 6 7 8];
+plot(node_num, gb1, node_num, gb2, node_num, gb2_8)
+xlabel('Number of Nodes')
+ylabel('Time (s)')
+legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+
+%% Hybrid times per file size in a Log scale 
+gb1Log = log10(gb1);
+gb2Log = log10(gb2);
+gb2_8Log = log10(gb2_8);
+node_num1 = [2 3 4 5 6 7 8];
+loglog(node_num, gb1, 'r')
+hold on 
+loglog(node_num, gb2, 'k')
+hold on 
+loglog(node_num1, gb2_8, 'b')
+xlim([2 8])
+xlabel('Number of Nodes')
+ylabel('Time (s)')
+legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+set(gca,'XScale','linear','YScale','log')
+
+% For this, once the graph has been made, change the x-axis to a linear
+% scale
+%% Hybrid Speedup graphs
+
+speedupFile1 = gb1(1) ./ gb1;
+speedupFile2 = gb2(1) ./ gb2;
+speedupFile3 = gb2_8(1) ./ gb2_8;
+
+node_num1 = [2 3 4 5 6 7 8];
+plot(node_num, speedupFile1, 'r')
+hold on 
+plot(node_num, speedupFile2, 'k')
+hold on 
+plot(node_num1, speedupFile3, 'b')
+xlim([2 8])
+xlabel('Number of Nodes')
 ylabel('Speedup (T_1/T_N)')
 legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')

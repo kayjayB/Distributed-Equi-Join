@@ -6,8 +6,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[11pt,twocolumn]{witseiepaper}
-\renewcommand{\baselinestretch}{1.5}
+\documentclass[12pt,twocolumn]{witseiepaper}
+\renewcommand{\baselinestretch}{1.7}
 %
 % All KJN's macros and goodies (some shameless borrowing from SPL)
 \usepackage{KJN}
@@ -15,6 +15,7 @@
 \usepackage{subcaption}
 \usepackage{caption}
 \usepackage{listings}
+\usepackage{setspace}
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{epstopdf}
 \usepackage{xcolor}
@@ -40,7 +41,6 @@
 \usepackage{url}
 \def\UrlBreaks{\do\/\do-}
 \usepackage{breakurl}
-\usepackage{chngpage}
 \usepackage[super]{nth}
 \usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
 \definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
@@ -194,9 +194,7 @@ In order to process large amounts of data, join operations are often needed~\cit
 
 \subsection{Join Algorithms}
 
-In an equi-join operation, two relational tables $R_1(A,B)$ and $R_2(A,C)$ are joined on their common attribute $A$ to produce a relation $R_3(A,B,C)$~\cite{thomas_zurek_optimisation_1997}.
-
-To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors~\cite{thomas_zurek_optimisation_1997}. This is achieved by implementing a parallel, distributed join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
+In an equi-join operation, two relational tables $R_1(A,B)$ and $R_2(A,C)$ are joined on their common attribute $A$ to produce a relation $R_3(A,B,C)$~\cite{thomas_zurek_optimisation_1997}. To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors~\cite{thomas_zurek_optimisation_1997}. This is achieved by implementing a parallel, distributed join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
 
 The equi-join operation can be performed in a variety of ways. Two different join algorithms are described, namely a sort-merge join and a hash join.
 
@@ -256,11 +254,25 @@ An object-oriented solution was implemented for the serial equi-join, which make
 Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files~\cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using Equation~\ref{eqn:hash}. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. 
 
 In order to avoid the need for contiguous memory to store the hash table, the table was created as a series of pointers which each point to the next value in the table. If multiple keys are hashed to produce the same index, buckets are created which hold all of the (key,value) pairs with the same hash. The implication of using a hash table is that when searching for a key, the entire table does not need to be searched. Rather, the key of interest is hashed, and then only the bucket at the corresponding index in the table is searched for the required key.
+{\setstretch{1.0}
+\begin{algorithm}[htbp]
+	\begin{algorithmic}
+		%\Procedure{arrayContainer}{}\Comment{}
+		\Function{hashFunction}{key}
+		\State hashVal $\leftarrow$ arrayInfo.\textunderscore array\textunderscore 0
+		\For{i = 0 to length(key)} 
+		\State hashVal $\leftarrow$ hashVal + int(key[i])
+		\EndFor
+		\State index $\leftarrow$ hashVal \% tableSize
+		\State \Return index \\
+		\EndFunction
+		%\EndProcedure \\
+		\caption{Hash Function}
+		\label{alg:2}
+	\end{algorithmic}
+\end{algorithm}
+}
 
-\begin{equation}
- writeEqnHereOrRatherUseAlgorithm\\
-\label{eqn:hash}
-\end{equation}
 
 Once the first file has been hashed, the hash table must be probed by the tuples in the second file. To do this, the key is hashed to find its corresponding index in the hash table. Thereafter, each key in the hash table is checked for equality with the probing key. If they are found to be equal (thus satisfying the conditions of an equi-join), the (key,value) pair in the hash table is added to a vector of results. Once the whole bucket has been probed, the vector contains all of the (key, value) pairs that must be joined to the probing key, and it is returned.
 
@@ -269,7 +281,7 @@ Two functions were created to handle the joining of the two tables. In these fun
 \subsection{Hybrid Equi-Join}
 The first implemented solution utilises the MPI communications framework in conjunction with the OpenMP API. The MPI framework is used to create a scalable solution which can run on clusters of any size, allowing each node within the cluster to contribute to the computational load of the program~\cite{mpi-scale}. The mpic++ compiler is utilised as it provides a wrapper that interfaces with the g++ compiler~\cite{mpic++-wrapper}. A 64~bit version of the g++ compiler is utilised, and as such the file buffer pointers used were 64~bit pointers \cite{pointer-size}. By considering that the file buffer is a \texttt{signed long int} data type, this translates to the ability to parse files up to 8.5~EB in size \cite{pointer-size}. Thus the memory bottleneck will most likely be enforced by the amount of RAM and page memory available within the cluster. This allows the file content to be read in completely, minimising data access overhead that would be incurred by reading in data chunks through the program execution.
 
-OpenMP was selected for the hybrid model since it makes the implementation of multithreaded programs much simpler. This is because the complier transforms the serial code into parallel according to the directives~\cite{comparingMPIMapReduce}.
+OpenMP was selected for the hybrid model since it makes the implementation of multi-threaded programs much simpler. This is because the complier transforms the serial code into parallel according to the directives~\cite{comparingMPIMapReduce}.
 
 A \texttt{FileManager} object is utilised by the master node to read in the two data files that are required to be joined. In order to reduce the overhead involved with the use of \texttt{MPI\_send}, the parallel architecture is exploited in reading in the input text files. For the smaller input text file, the entire file in read in by each process and saved in a vector. For the larger input file, each process reads in the size of the input files, and calculates the chunk sizes by dividing the size of the file by the number of processes. Each process then reads in the chunk number relating to their rank.
 
@@ -307,94 +319,55 @@ The Hybrid solution was run on two to eight nodes, in which one was a master nod
 
 The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
 
+The benchmarks were run using three sets of input files of various sizes. Firstly, the implementations were run using input files with 11~881~376 lines and a size of 1.01~GB. Then files with 24~137~569 lines with a size of 2.00~GB were used. Finally, files containing 34~012~224 lines with a total size of 2.8~GB were used. 
+
 \tabref{tab:results1} provides the results of the Hybrid solution benchmarks using a range of input file sizes.
 
 \begin{table*}[!htbp]
-	\caption{Comparison of time taken to compute the equi-join using Hybrid solution with various files over scaled numbers of nodes}
-	\begin{adjustwidth}{-.5in}{-.5in} 
+	\caption{Comparison of time taken (in seconds) to compute the equi-join using Hybrid solution with various input files over scaled numbers of nodes}
 	\centering
 	\label{tab:results1}
-	
+	\resizebox{1\textwidth}{!}{%
 	\begin{tabular}{|c|l|l|l|l|l|l|l|}
 		\hline
-		\multirow{2}{1.65cm}{\centering{\textbf{File Size (GB)}}} & \multicolumn{7}{|c|}{\textbf{Numbers of Nodes}} \\\cline{2-8}
+		\multirow{2}{2cm}{\centering{\textbf{File Size (GB)}}} & \multicolumn{7}{|c|}{\textbf{Numbers of Nodes}} \\\cline{2-8}
 		& 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
 		\hline 
-		1 & 44699.2736 & 33726.0232 & 25900.5869 & 22358.4487 & 16967.6173 & 15804.2630 & 14879.6226 \\ 
 		\hline 
-		2 & 86398.5473 & 65452.0464 & 50801.1738 & 42716.8974 & 32935.2346 & 30108.5264 & 29821.2452 \\ 
+		1 & 44699.2736 s & 33726.0232 s & 25900.5869 s & 22358.4487 s & 16967.6173 s & 15804.2630 s & 14879.6226 s \\ 
 		\hline 
-		2.8 & 120157.9663 & 91432.8649 & 70521.6434 & 55603.6564 & 45509.3285 & 42251.9365 & 40248.7433 \\ 
+		2 & 86398.5473 s & 65452.0464 s & 50801.1738 s & 42716.8974 s & 32935.2346 s & 30108.5264 s & 29821.2452 s \\ 
+		\hline 
+		2.8 & 120157.9663 s & 91432.8649 s & 70521.6434 s & 55603.6564 s & 45509.3285 s & 42251.9365 s & 40248.7433 s \\ 
 		\hline
 	\end{tabular} 
-	\end{adjustwidth}
+}
 \end{table*}
 
-In \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB.
-
-\begin{table*} [t]
+\begin{table*}[!htbp]
 	\centering
-	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 1~GB files over various numbers of threads}
-	\label{tab:results2}
-	
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline 
-		Number of threads & 1 & 4 & 8 &16\\ 
+	\caption{Comparison of time taken (in seconds) to compute the equi-join using MapReduce with different input files sizes over various numbers of threads}
+	\label{tab:mapreduceresults}
+	\resizebox{0.7\textwidth}{!}{%
+	\begin{tabular}{|c|l|l|l|l|}
 		\hline
+		\multirow{2}{2cm}{\centering{\textbf{File Size (GB)}}} & \multicolumn{4}{c|}{\textbf{Number of Threads}} \\\cline{2-5}
+		& 1 & 4 & 8 & 16 \\ 
+		\hline 
 		\hline
-		Time For Map Reduce (s) & 44.206261 & 14.993695 & 14.163257 &20.268396\\ 
+		1 & 58.179223~s & 30.209526~s & 27.320309~s & 36.645406~s \\ 
 		\hline 
-		Time For File Write (s) & 13.972962 & 15.215831 & 13.157052 &16.377010\\ 
+		2 & 121.903450~s & 64.357541~s & 54.217165~s & 66.751160~s\\ 
 		\hline 
-		Total Time (s) & 58.179223 & 30.209526 & 27.320309 &  36.645406\\ 
-		\hline 
+		2.8 & 12731.958691~s & 6686.974704~s & 8586.499522~s &  10489.991414~s \\ 
+		\hline
 	\end{tabular} 
-\end{table*}
-
-In \tabref{tab:results3}, each input file had 24~137~569 lines with a size of 2.00~GB. 
-
-\begin{table*} [t]
-	\centering
-	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2~GB files over various numbers of threads}
-	\label{tab:results3}
-	
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline 
-		Number of threads & 1 & 4 & 8 &16\\ 
-		\hline
-		\hline
-		Time For Map Reduce (s) & 93.469804 & 31.426143 & 30.058178 & 41.858639\\ 
-		\hline 
-		Time For File Write (s) & 28.433646 & 32.931398& 24.158987 & 24.892521\\ 
-		\hline 
-		Total Time (s) & 121.903450 & 64.357541 & 54.217165 & 66.751160 \\ 
-		\hline 
-	\end{tabular} 
-\end{table*}
-
-
-\tabref{tab:results4} provides the results of the benchmarks using input files containing 34~012~224 lines with a total size of 2.8~GB. 
-
-\begin{table*} [t]
-	\centering
-	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2.8~GB files over various numbers of threads}
-	\label{tab:results4}
-	
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline 
-		Number of threads & 1 & 4 & 8 &16\\ 
-		\hline
-		\hline
-		Time For Map Reduce (s) & 8234.864934 & 2106.017669 & 4120.272176 & 5987.084951 \\ 
-		\hline 
-		Time For File Write (s) & 4497.093757 & 4580.957035 & 4466.227346 & 4502.906463 \\ 
-		\hline 
-		Total Time (s) & 12731.958691 & 6686.974704 & 8586.499522 &  10489.991414\\ 
-		\hline 
-	\end{tabular} 
+}
 \end{table*}
 
 \section{CRITICAL ANALYSIS}
+
+\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8~GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph~\cite{ram}.
 
 \begin{figure}[h]
 	\centering
@@ -424,8 +397,7 @@ In \tabref{tab:results3}, each input file had 24~137~569 lines with a size of 2.
 	\label{fig:resultsMR}	
 \end{figure}
 
-\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph \cite{ram}.
-
+\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. Speedup is defined as the ratio of the execution time for one thread to that of N threads \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of threads per core is exceeded. Thereafter, performance decreases.
 
 \begin{figure}[h]
 	\centering
@@ -434,8 +406,6 @@ In \tabref{tab:results3}, each input file had 24~137~569 lines with a size of 2.
 	\raggedright
 	\label{fig:speedUpMR}	
 \end{figure}
-
-\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. Speedup is defined as the ratio of the execution time for one thread to that of N threads \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of threads per core is exceeded. Thereafter, performance decreases.
 
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
@@ -458,6 +428,73 @@ For future, each of the benchmarks run above should be repeated multiple times a
 The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that ?????????????. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.
 
 \bibliographystyle{witseie}
+{\setstretch{1.3}
+	{\small
 \bibliography{bigData}
+}
+}
+
+\newpage
+
+\begin{appendix}
+	\begin{table*}[h]
+		\centering
+		\caption{Comparison of time taken to compute the equi-join using MapReduce with two 1~GB files over various numbers of threads}
+		\label{tab:results5}
+		
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline 
+			Number of threads & 1 & 4 & 8 &16\\ 
+			\hline
+			\hline
+			Time For Map Reduce (s) & 44.206261 & 14.993695 & 14.163257 &20.268396\\ 
+			\hline 
+			Time For File Write (s) & 13.972962 & 15.215831 & 13.157052 &16.377010\\ 
+			\hline 
+			Total Time (s) & 58.179223 & 30.209526 & 27.320309 &  36.645406\\ 
+			\hline 
+		\end{tabular} 
+	\end{table*}
+
+\begin{table*}[h]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2~GB files over various numbers of threads}
+	\label{tab:results3}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline 
+		Number of threads & 1 & 4 & 8 &16\\ 
+		\hline
+		\hline
+		Time For Map Reduce (s) & 93.469804 & 31.426143 & 30.058178 & 41.858639\\ 
+		\hline 
+		Time For File Write (s) & 28.433646 & 32.931398& 24.158987 & 24.892521\\ 
+		\hline 
+		Total Time (s) & 121.903450 & 64.357541 & 54.217165 & 66.751160 \\ 
+		\hline 
+	\end{tabular} 
+\end{table*}
+
+
+\begin{table*}[h]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2.8~GB files over various numbers of threads}
+	\label{tab:results4}
+	
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline 
+		Number of threads & 1 & 4 & 8 &16\\ 
+		\hline
+		\hline
+		Time For Map Reduce (s) & 8234.864934 & 2106.017669 & 4120.272176 & 5987.084951 \\ 
+		\hline 
+		Time For File Write (s) & 4497.093757 & 4580.957035 & 4466.227346 & 4502.906463 \\ 
+		\hline 
+		Total Time (s) & 12731.958691 & 6686.974704 & 8586.499522 &  10489.991414\\ 
+		\hline 
+	\end{tabular} 
+\end{table*}
+\end{appendix}
+
 
 \end{document}

@@ -306,6 +306,27 @@ The Hybrid solution was run on two to eight nodes, in which one was a master nod
 
 The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
 
+\tabref{tab:results1} provides the results of the Hybrid solution benchmarks using a range of file sizes.
+
+\begin{table*}[!htbp]
+	\centering
+	\caption{Comparison of time taken to compute the equi-join using Hybrid solution with various files over scaled numbers of nodes}
+	\label{tab:results1}
+	
+	\begin{tabular}{|c|l|l|l|l|l|l|l|}
+		\hline
+		\multirow{2}{2cm}{\centering{\textbf{File Size (GB)}}} & \multicolumn{7}{|c|}{\textbf{Numbers of Nodes}} \\\cline{2-8}
+		& 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
+		\hline 
+		1 & 0 & 4 & 0 & 0 & 4 & 0 & 8 \\ 
+		\hline 
+		2 & 0 & 13 & 2 & 0 & 13 & 2 & 8 \\ 
+		\hline 
+		2.8 & 2 & 5 & 0 & 2 & 5 & 0 & 8 \\ 
+		\hline
+	\end{tabular} 
+\end{table*}
+
 In \tabref{tab:results2}, each input file had 11~881~376 lines with a size of 1.01~GB.
 
 \begin{table*} [t]

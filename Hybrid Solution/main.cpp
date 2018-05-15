@@ -45,10 +45,13 @@ vector<string> query(shared_ptr<hashFunction> hasher, string key, string lineFro
 
 int main(int argc, char *argv[])
 {
-	//Bomp_set_num_threads(8);
+
 	int numprocs, rank, namelen;
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 	int iam = 0, np = 1;
+	string fname_A = argv[1];
+    string fname_B = argv[2];
+	int column = atoi(argv[3]);
 
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
@@ -94,10 +97,12 @@ int main(int argc, char *argv[])
 		vector<vector<string>> vec_results_final;
 		fileManager fileHandler;
 
-		linesOfFile1 = fileHandler.readFile("100thou1.txt",1);
+		linesOfFile1 = fileHandler.readFile(fname_A, column);
 		length_file_1 = linesOfFile1.size();
-		linesOfFile2 = fileHandler.readFile("100thou2.txt",1);
+
+		linesOfFile2 = fileHandler.readFile(fname_B, column);
 		length_file_2 = linesOfFile2.size();
+
 
 		process_length_file_2 = (length_file_2 / (numprocs - 1.0));
 		

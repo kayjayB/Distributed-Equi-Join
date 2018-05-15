@@ -3,6 +3,9 @@
 This repository contains two solutions for implementing an equi-join for processing big data. Both solutions were written in C++. 
 The Hybrid solution makes use of MPI and OpenMP. The MapReduce Solution uses Phoenix++ to implement the solution. The peformance of the two solutions were benchmarked and compared in the Group 11 ELEN4020 Project Report pdf document.
 
+## Comparison of the two solutions over various file sizes
+![Performance Comparison](Documentation/comparison.png)
+
 ## Branches:
 ### Documentation:    Contains the .tex and .pdf files of our report for our project.
 

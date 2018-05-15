@@ -22,6 +22,7 @@ loglog(threadNum, gb2, 'k')
 hold on 
 loglog(threadNum1, gb2_8, 'b')
 xlim([1 16])
+ylim([10 100000])
 xlabel('Number of Threads')
 ylabel('Time (s)')
 legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
@@ -88,7 +89,7 @@ plot(node_num1, speedupFile3, 'b')
 xlim([2 8])
 xlabel('Number of Nodes')
 ylabel('Speedup (T_1/T_N)')
-legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files', 'Location','southeast')
 
 %% Comparison
 Hybrid = [14879.622630 29821.245250 40248.743350 52541.56599 66237.22636];
@@ -98,9 +99,10 @@ MapReduce = [27.320309 54.217165 6686.974704 25786.847294 60487.95392];
 fileSize = [1 2 2.8 3.8 4.7];
 
 plot(fileSize, Hybrid, fileSize, MapReduce)
+xlim([1 4.7])
 xlabel('File size (GB)')
 ylabel('Time (s)')
-legend('Hybrid Solution', 'MapReduce Solution')
+legend('Hybrid Solution', 'MapReduce Solution', 'Location','southeast')
 
 %% Scalability plot
 
@@ -120,4 +122,4 @@ node_num1 = [2 3 4 5 6 7 8];
 plot(node_num1, scalability1, node_num1, scalability2,node_num1, scalability2_8)
 xlabel('Number of Nodes')
 ylabel('Scalability (T_s/T_N)')
-legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files', 'Location','southeast')

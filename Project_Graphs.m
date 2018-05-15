@@ -15,9 +15,6 @@ ylabel('Time (s)')
 legend('1 GB Input Files', '2 GB Input Files')
 
 %% Map Reduce times per file size in a Log scale 
-gb1Log = log10(gb1);
-gb2Log = log10(gb2);
-gb2_8Log = log10(gb2_8);
 threadNum1 = [1 4 8 16];
 loglog(threadNum, gb1, 'r')
 hold on 
@@ -62,9 +59,6 @@ ylabel('Time (s)')
 legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
 
 %% Hybrid times per file size in a Log scale 
-gb1Log = log10(gb1);
-gb2Log = log10(gb2);
-gb2_8Log = log10(gb2_8);
 node_num1 = [2 3 4 5 6 7 8];
 loglog(node_num, gb1, 'r')
 hold on 
@@ -94,4 +88,36 @@ plot(node_num1, speedupFile3, 'b')
 xlim([2 8])
 xlabel('Number of Nodes')
 ylabel('Speedup (T_1/T_N)')
+legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')
+
+%% Comparison
+Hybrid = [14879.622630 29821.245250 40248.743350 52541.56599 66237.22636];
+
+MapReduce = [27.320309 54.217165 6686.974704 25786.847294 60487.95392];
+
+fileSize = [1 2 2.8 3.8 4.7];
+
+plot(fileSize, Hybrid, fileSize, MapReduce)
+xlabel('File size (GB)')
+ylabel('Time (s)')
+legend('Hybrid Solution', 'MapReduce Solution')
+
+%% Scalability plot
+
+serialTime1 = 387594.1888;
+serialTime2 = 712188.3784;
+serialTime2_8 = 991263.7304;
+gb1 = [44699.273660 33726.023210 25900.586940 22358.448720 16967.617330 15804.263070 14879.622630];
+%           2      3         4           5         6           7        8
+gb2 = [86398.547330 65452.046420 50801.173890 42716.897430 32935.234660 30108.526410 29821.245250];
+
+gb2_8 = [120157.96630 91432.864980 70521.64344 55603.656410 45509.328520 42251.936590 40248.743350];
+
+scalability1 = serialTime1 ./ gb1;
+scalability2 = serialTime2 ./ gb2;
+scalability2_8 = serialTime2_8 ./ gb2_8;
+node_num1 = [2 3 4 5 6 7 8];
+plot(node_num1, scalability1, node_num1, scalability2,node_num1, scalability2_8)
+xlabel('Number of Nodes')
+ylabel('Scalability (T_s/T_N)')
 legend('1 GB Input Files', '2 GB Input Files', '2.8 GB Input Files')

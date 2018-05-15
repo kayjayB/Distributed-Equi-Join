@@ -104,17 +104,17 @@
 
 \section{INTRODUCTION}
 
-A relational \textit{join} operation describes the concatenation of tuples from two relations to form a new relation~\cite{stanczyk2001theory}. Along with the \textit{select} and \textit{project} operations, these form a base for normalisation which is critical for designing database relations~\cite{stanczyk2001theory}. A join is a product of relations followed by a restriction clause~\cite{stanczyk2001theory}. An equi-join follows this structure where the restriction clause is specified as an equality operator~\cite{stanczyk2001theory}. For large datasets, this product is a computationally costly operation and as such, it must be optimized for efficient use.
+A relational \textit{join} operation describes the concatenation of tuples from two relations to form a new relation~\cite{stanczyk2001theory}. Along with the \textit{select} and \textit{project} operations, these form a base for normalisation which is critical for designing database relations~\cite{stanczyk2001theory}. A join is a product of relations followed by a restriction clause~\cite{stanczyk2001theory}. An equi-join follows this structure where the restriction clause set to be an equality operator~\cite{stanczyk2001theory}. For large datasets, this product is a computationally costly operation and as such, it must be optimized for efficient use.
 
-This paper compares the performance of two programming models, namely an MPI-OpenMP Hybrid and Phoenix++ MapReduce, for computing a parallel equi-join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is given. Finally, future recommendations are given based on this discussion.
+This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and Phoenix++ MapReduce, for computing a parallel equi-join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is given. Finally, future recommendations are given based on this discussion.
 
 \section{PROBLEM DESCRIPTION}
 
 \subsection{Requirements and Success Criteria}
 
-The project requires the development and implementation of a Hybrid programming model to compute a parallel equi-join of two very large relational tables. Additionally, a different algorithmic approach to solve the same problem must be developed and a performance comparison between the two implementations must be undertaken. The joined relation must be written to a file for the result to be corroborated.
+The project requires the development and implementation of a hybrid programming model to compute a parallel equi-join of two very large relational tables. Additionally, a different algorithmic approach to solve the same problem must be developed and a performance comparison between the two implementations must be undertaken. The joined relation must be written to a file for the result to be corroborated.
 
-The project will be considered a success if the developed MPI-OpenMP Hybrid is able to compute the equi-join of two relational tables of approximately 1~GB, or larger, in size.
+The project will be considered a success if the developed MPI-OpenMP Hybrid algorithm is able to compute the equi-join of two relational tables of approximately 1~GB, or larger, in size.
 
 \subsection{Assumptions}
 
@@ -127,13 +127,13 @@ In order to process large amounts of data, join operations are often needed~\cit
 
 In an equi-join operation, two relational tables $R_1(A,B)$ and $R_2(A,C)$ are joined on their common attribute $A$ to produce a relation $R_3(A,B,C)$~\cite{thomas_zurek_optimisation_1997}. To improve the performance and reduce the cost of implementing a relational join on large databases, the computational load can be shared across multiple processors~\cite{thomas_zurek_optimisation_1997}. This is achieved by implementing a parallel, distributed join algorithm which reduces the processing time and increases the efficiency of the algorithm for computations on a large scale~\cite{thomas_zurek_optimisation_1997}.
 
-The equi-join operation can be performed in a variety of ways. Two different join algorithms are described, namely a sort-merge join and a hash join.
+The equi-join operation can be performed in a variety of ways. Two of these methods are a sort-merge join and a hash join.
 
 \subsubsection{Sort-Merge Join}\label{sortmerge}$   $
 
 The sort-merge join algorithm is based on the principle of sorting both relations according to their join attributes~\cite{thomas_zurek_optimisation_1997}. This is done in order to ensure that when scanning through both relations, related sets are encountered at similar times~\cite{thomas_zurek_optimisation_1997}. The algorithm consists of two phases, namely the sorting phase and the merging phase. For datasets being processed in parallel, the sorting phase occurs by making use of data partitioning~\cite{dist}.
 
-In the first step, each thread partitions the input data. The partitioning makes use of range based partitions to ensure that matching elements in both of the input relations are processed by the same node \cite{dist}. Within each range, the data is sorted and asynchronously sent to its target node for processing \cite{dist}. While the data transfer is taking place, the thread continues to sort the next chunk of input data~\cite{dist}. The performance of the sort algorithm is thus limited by two factors, the rate at which each chunk can be sorted and the network bandwidth available to each process at the given node~\cite{dist}.
+In the first step, each thread partitions the input data~\cite{dist}. The partitioning makes use of range based partitions to ensure that matching elements in both of the input relations are processed by the same node \cite{dist}. Within each range, the data is sorted and asynchronously sent to its target node for processing \cite{dist}. While the data transfer is taking place, the thread continues to sort the next chunk of input data~\cite{dist}. The performance of the sort algorithm is thus limited by two factors, the rate at which each chunk can be sorted and the network bandwidth available to each process at the given node~\cite{dist}.
 
 After a node has sorted its input data, it waits until it has received all of the sorted data belonging to its range from all of the other nodes~\cite{dist}. The algorithm then merges the sorted chunks into a sorted join result. Multiple iterations over the input data may be needed until both relations are fully sorted~\cite{dist}. After both relations have been sorted, they are partitioned among all the nodes for merging. Merging constitutes computing the join result between the corresponding tuples~\cite{dist}.
 
@@ -154,29 +154,29 @@ Message passing is a form of communication between two separate processes~\cite{
 
 The Message-Passing Interface (MPI) is a library specification for message passing in parallel and distributed environments~\cite{comparingMPIMapReduce}. It is widely used in high-performance computing systems~\cite{equijoinWithMPI, joinOnCluster}. The MPI library offers point-to-point communications, broadcast messages and parallel I/O~\cite{comparingMPIMapReduce}.
 
-MPI can be used for a variety of parallel computing models~\cite{comparingMPIMapReduce}. One such model is Single Instruction Multiple Data (SIMD) in which the same instruction is carried out simultaneously on multiple data sets~\cite{comparingMPIMapReduce}. Another model is Multiple Instruction Multiple Data (MIMD) in which different instructions are performed on separate sections of data (MIMD)~\cite{comparingMPIMapReduce}. The advantages of MPI is that it is a powerful, efficient method of executing parallel programs~\cite{IBM}. It is also portable, as message passing is implemented on most parallel platforms~\cite{IBM}.
+MPI can be used for a variety of parallel computing models~\cite{comparingMPIMapReduce}. One such model is Single Instruction Multiple Data (SIMD) in which the same instruction is carried out simultaneously on multiple data sets~\cite{comparingMPIMapReduce}. Another model is Multiple Instruction Multiple Data (MIMD) in which different instructions are performed on separate sections of data~\cite{comparingMPIMapReduce}. The advantages of MPI is that it is a powerful, efficient method of executing parallel programs~\cite{IBM}. It is also portable, as message passing is implemented on most parallel platforms~\cite{IBM}.
 
 \subsection{OpenMP}
 
 The OpenMP library is a multiprocessing application program inference (API) used to develop shared-memory parallel programs~\cite{comparingMPIMapReduce}. The library allows the same parallel code base to be run identically across a range of different operating systems~\cite{comparingMPIMapReduce}. OpenMP takes the form of a set of compiler directives (pragmas) which are used for thread creation and synchronization of operations~\cite{comparingMPIMapReduce}. 
 
-The pragmas allow for a serial program to be compiled into a multi-threaded program~\cite{kuhn2000openmp}. The OpenMP API makes use of the fork-join parallel design pattern, whereby in the parallel regions, threads are created to perform work concurrently~\cite{openMP}. Once the work has been completed, the threads join together to create a single result and to recreate the single control thread~\cite{openMP}. All of the threads within a program share a memory address space, thus allowing for efficient communication between the threads~\cite{comparingMPIMapReduce}. 
+The compiler directives allow for a serial program to be compiled into a multi-threaded program~\cite{kuhn2000openmp}. The OpenMP API makes use of the fork-join parallel design pattern, whereby in the parallel regions, threads are created to perform work concurrently~\cite{openMP}. Once the work has been completed, the threads join together to create a single result and to recreate the single control thread~\cite{openMP}. All of the threads within a program share a memory address space, thus allowing for efficient communication between the threads~\cite{comparingMPIMapReduce}. 
 
 \subsection{MapReduce}
 
-MapReduce is a programming paradigm for processing big data~\cite{comparingMPIMapReduce}. The model has been widely adopted for the processing of big data due to it's simplicity and ease of use~\cite{comparingMPIMapReduce}. It is thus suitable for solving practical problems~\cite{comparingMPIMapReduce, mapReduceJoin}. The algorithm consists of two distinct parts, namely the map function and reduce function~\cite{phoenix}. 
+MapReduce is a programming paradigm for processing big data~\cite{comparingMPIMapReduce}. The model has been widely adopted for data processing, for the solving of practical problems, due to it's simplicity and ease of use~\cite{comparingMPIMapReduce, mapReduceJoin}. The algorithm consists of two distinct parts, namely the map function and reduce function~\cite{phoenix}. 
 
-The map function takes as an input a line (or chunk) of data, and emits a set of key-value pairs~\cite{phoenix}. The map stage can be executed in parallel without any collaboration being required from threads, since each chunk of data is processed independently~\cite{comparingMPIMapReduce}. Once the key value pairs have been emitted, the resultant keys are hashed and sorted, and then all values associated with a given key are grouped together~\cite{phoenix}. The reduce function then aggregates all the values associated with a key and performs a function that is selected by the programmer~\cite{comparingMPIMapReduce}.
+The map function takes as an input a line (or chunk) of data, and emits a set of (key,value) pairs~\cite{phoenix}. The map stage can be executed in parallel without any collaboration being required from threads, since each chunk of data is processed independently~\cite{comparingMPIMapReduce}. Once the key value pairs have been emitted, the resultant keys are hashed and sorted, and then all values associated with a given key are grouped together~\cite{phoenix}. The reduce function then aggregates all the values associated with a key and performs a function that is selected by the programmer~\cite{comparingMPIMapReduce}.
 
 The MapReduce model is well suited for data intensive processing for a number of reasons. Firstly, the model is able to sequentially work through the records in a data set without loading the entire set into memory~\cite{comparingMPIMapReduce}. The program is also convenient to use as the MapReduce model performs the hashing of the keys and the sorting of the (key,value) pairs inherently~\cite{phoenix}. The programmer is able to override these if they wish, but they are not required to, thus enhancing the ease of using the paradigm. Furthermore, the parallel elements are also inherently included in the paradigm, which allows for the programmer to create easily scalable code~\cite{comparingMPIMapReduce}. 
 
 Phoenix++ is a C++ based MapReduce implementation that makes use of PThreads to allow for scalability and efficient data processing~\cite{phoenix}.
 
 \section{SYSTEM DESIGN AND IMPLEMENTATION}
-The two implemented solutions are a Hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The Hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP. Both solutions were created using C++, as C++ allows for the low level memory management of C, but still allows for the use of advanced variable types, such as vectors.
+The two implemented solutions are a Hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The Hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP. Both solutions were created using C++, as this allows for the low level memory management of C, but still allows for the use of advanced variable types, such as vectors.
 
 \subsection{Serial Equi-Join}
-An object-oriented solution was implemented for the serial equi-join, which makes use of a simple hash join algorithm. This algorithm was selected as it offers superior performance to the sort-merge join, and still allows for ease of programming (as opposed to the Grace hash-join). Within this solution, two classes were created, namely, \texttt{hashFunction} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
+An object-oriented solution was implemented for the serial equi-join, which makes use of a simple hash join algorithm. This algorithm was selected as it offers superior performance to the sort-merge join, and still allows for ease of programming (as opposed to the Grace hash-join). Within this solution, two classes were created, namely, \texttt{hashFunction} and \texttt{fileManager}. The \texttt{fileManager} class was responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data was returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
 
 Once the two input files have been read in and mapped to two vectors, an instance of the the \texttt{hashFunction} class is used to created a hash table. Since a simple hash-join algorithm was implemented, a hash table was only created for one of the input text files~\cite{evaluating4JoinAlgorithms}. In creating the table, each key was hashed using Algorithm~1. By creating a hash of the key, a corresponding (index,(key, value)) pair is created, where the index refers to the location of the value in the hash table. 
 
@@ -199,8 +199,6 @@ In order to avoid the need for contiguous memory to store the hash table, the ta
 	\end{algorithmic}
 \end{algorithm}
 }
-
-
 Once the first file has been hashed, the hash table must be probed by the tuples in the second file. To do this, the key is hashed to find its corresponding index in the hash table. Thereafter, each key in the hash table is checked for equality with the probing key. If they are found to be equal (thus satisfying the conditions of an equi-join), the (key,value) pair in the hash table is added to a vector of results. Once the whole bucket has been probed, the vector contains all of the (key, value) pairs that must be joined to the probing key, and it is returned.
 
 Two functions were created to handle the joining of the two tables. In these functions, the value from each resulting (key, value) pair is appended onto the probing (key, value) pair in order to join the tables. To reduce repetition of the key in the joined table, the key is extracted from the resulting value prior to appending the strings. The joined strings are then appended to a vector. This process occurs for each (key,value) pair in the second file. Finally, the vector containing the joined table is returned and written to an output text file.
@@ -214,11 +212,11 @@ A \texttt{FileManager} object is utilised by the compute nodes to read in the tw
 
 Using the contents of the file chunk, a hash table is created on each compute node. When performing the hash, the value at the specified column index is set as the key and the line from which it was extracted is set as the value.
 
-Each compute node utilises the OpenMP API to parallelise the hashing of the data segment. This allows the adding of keys to the hash table to be done in a parallel manner. The entire smaller file is used, by each node, to query the hash table. In order to parallelise the query and join components of the hash-join, vectors of join results are pushed back to a results vector. This allows for concurrent operations to occur. Thereafter, the vector of vectors is iterated through and a resultant vector is generated to allow improved access time.
+Each compute node utilises the OpenMP API to parallelise the hashing of the data segment. This allows the adding of keys to the hash table to be done in a parallel manner. The entire smaller file is used, by each node, to query the hash table. In order to parallelise the query and join components of the hash-join, vectors containing join results (corresponding to each unique key) are pushed back to a results vector. This allows for concurrent operations to occur. Thereafter, the vector of vectors is iterated through and a resultant vector is generated.
 
-The use of a 2D vector to facilitate parallel operations becomes time expensive for large datasets. This design was selected since a \texttt{std::vector} container from the C++ Standard Template Library (STL) does not allow concurrent modification operations~\cite{stl-vector}. This presents a tradeoff in the design, which is discussed in detail in~\secref{sec:tradeoffs}.
+The use of a 2D vector to facilitate parallel operations is time expensive for large datasets. This design was selected since a \texttt{std::vector} container from the C++ Standard Template Library (STL) does not allow concurrent modification operations~\cite{stl-vector}. This presents a tradeoff in the design, which is discussed in detail in~\secref{sec:tradeoffs}.
 
-Once each compute node has completed its required hashing computations, the resulting joined data is sent back to the master node using \texttt{MPI\_recv}. The order of received data is not important and thus the transmitted results from compute nodes can be received as they are completed. The master then proceeds to write the resultant data to an output file as each resultant data chunk is received. This write process occurs on a single thread to prevent data corruption due to simultaneous writes to a single output file.
+Once each compute node has completed its required hashing computations, the resulting joined data is sent back to the master node using \texttt{MPI\_recv}. The order of received data is not important and thus the transmitted results from compute nodes can be received as they are completed. The master then proceeds to write the resultant data to an output file, as soon as each resultant data chunk is received. This write process occurs on a single thread to prevent data corruption due to simultaneous writes to a single output file.
 
 \subsection{MapReduce Equi-Join}
 The second implemented method makes use of the Phoenix++ MapReduce framework. MapReduce was selected since it is the industry standard for the processing of large amounts of data~\cite{comparingMPIMapReduce}. The implemented algorithm is a general reducer-side join~\cite{mapReduceJoin}. Within this algorithm, a single map and reduce stage is used. Within the map stage, an identifier corresponding to each file is attached to the value~\cite{mapReduceJoin}. The (key, value) pair is then emitted. Within the reduce stage, data with the same key and a different tag are joined together~\cite{mapReduceJoin}.
@@ -227,7 +225,7 @@ In order to compensate for input text files that are too large to be held in RAM
 
 After mapping the data to memory, the data is divided into chunks to be sent to the map processes. Checks are performed to ensure that each chunk only contains full lines of the text file. This is essential in ensuring that none of the (key, value) pairs are missed.
 
-Within the mapper, the key value pairs from the text file need to be isolated and emitted. In order to isolate the values, the file is iterated through until an end of line character is encountered. This end of line character is set to be the integer \texttt{0}, which is the integer value of the null terminator, and indicates where a string ends~\cite{phoenix}. This string represents the value.
+Within the mapper, the (key, value) pairs from the text file need to be isolated and emitted. In order to isolate the values, the file is iterated through until an end of line character is encountered. This end of line character is set to be the integer \texttt{0}, which is the integer value of the null terminator, and indicates where a string ends~\cite{phoenix}. This string represents the value.
 
 To isolate the keys, the column that contains the keys must be known. This information is obtained from the program's run-time arguments. When iterating through the text files, a check is done to determine whether each character is a delimiter or a normal text character. If the character is a delimiter, a counter of delimiters is incremented. When the delimiter counter is equal to the number of the column containing the keys, the start of the key is recorded as the following character. The string is then iterated through to find the next delimiter which marks the end of the key. This character is then set to \texttt{0}. The key and the value are then emitted to the reducer. In order to identify which (key, value) pair originated from which input file, the pair is also emitted with an identifier (\texttt{0} for file 1 and \texttt{1} for file 2).
 
@@ -235,23 +233,21 @@ Once the mapping process is completed, the keys are hashed and the data is sorte
 
 Each key, and all of its corresponding values, are then sent to the reducer. Within the reducer, the values are split into two vectors based on their identifiers. Thereafter, for each combination of the two vectors, a string is created which contains the two values appended together. The process of appending the two values represents the joining of the row from the two tables. Together with the key, the joined value is then emitted from the reducer, and written to a text file.
 
-Finally, to complete the program, the files are unmapped from memory and the four copies input files are deleted.
+Finally, to complete the program, the files are unmapped from memory and the four copied input files are deleted.
 
 Phoenix++ inherently makes use of PThreads and as such, the equi-join is performed in parallel.
 
 \section{RESULTS}
 To test the performance of the two solutions, the solutions were benchmarked with different sized input files. These files were generated such that each file contained the same keys. As such, each line of the two input files was joined in the output file. For the Hybrid solution, the number of nodes was altered, and for the MapReduce solution, the number of threads was altered.
 
-The Hybrid solution was run on two to eight nodes, in which one was a master node, and the remainder were compute nodes. Eight threads were used per node as this minimises caching load.
-
-The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
+The Hybrid solution was run on two to eight nodes, in which one was a master node, and the remainder were compute nodes. Eight threads were used per node as this minimises caching load. The MapReduce solution was run on a single node, consisting of eight Intel i7 CPUs, each with two threads. The node had 24GB of RAM.
 
 The benchmarks were run using three sets of input files of various sizes. Firstly, the implementations were run using input files with 11~881~376 lines and a size of 1.01~GB. Then files with 24~137~569 lines with a size of 2.00~GB were used. Finally, files containing 34~012~224 lines with a total size of 2.8~GB were used. 
 
 \tabref{tab:results1} provides the results of the Hybrid solution benchmarks using a range of input file sizes.
 
 \begin{table*}[!htbp]
-	\caption{Comparison of time taken (in seconds) to compute the equi-join using Hybrid solution with various input files over scaled numbers of nodes}
+	\caption{Comparison of time taken (in seconds) to compute the equi-join using the Hybrid solution with various input files over scaled numbers of nodes}
 	\centering
 	\label{tab:results1}
 	\resizebox{1\textwidth}{!}{%
@@ -294,7 +290,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 
 \section{CRITICAL ANALYSIS}
 
-\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8~GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that performance improves as the number of nodes increases.
+\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8~GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance gain of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that performance improves as the number of nodes increases.
 
 \begin{figure}[h]
 	\centering
@@ -304,7 +300,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:resultsH}	
 \end{figure}
 
-\figref{fig:speedUpH} is a speedup plot for the Hybrid equi-join. Speedup is defined as the ratio of the execution time for one node to that of N nodes \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsH}, being that as the number of nodes increases, performance increases.
+\figref{fig:speedUpH} is a speedup plot for the Hybrid equi-join. Speedup is defined as the ratio of the execution time for one node to that of N nodes \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsH}, being that as the number of nodes increases, performance increases. The performance increase occurs linearly as the number of nodes increases.
 
 \begin{figure}[h]
 	\centering
@@ -314,7 +310,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:speedUpH}	
 \end{figure}
 
-A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing. This may also be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
+A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. Scalability is defined as the ratio of the serial execution time to that of N nodes \cite{speedup}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing. This may also be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
 
 \begin{figure}[h]
 	\centering
@@ -374,8 +370,6 @@ For future recommendations, a Hybrid hash-join algorithm should be implemented r
 Furthermore, the performance of the Hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector}~\cite{tbb,mutex}.
 
 For future, each of the benchmarks run above should be repeated multiple times and the results should be averaged. This will allow for more accurate benchmarks to be acquired as it will minimise the effect of outliers in the results.
-
-In order to full examine the scalability of the Hybrid solution, the solution should be run on more than eight nodes.
 
 \section{CONCLUSION}
 The design and implementation of two different equi-join algorithms were presented. The first was a Hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that for input text files with sizes less than 5~GB, the MapReduce solution had superior performance. However, for larger file sizes, the Hybrid solution performs better. The Hybrid Solution was also found to be scalable over increasing node counts. For future work, a concurrent vector should be used in the Hybrid model to allow for parallel querying, thus drastically improving performance.

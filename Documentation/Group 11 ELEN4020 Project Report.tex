@@ -93,7 +93,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\abstract{This paper presents the design and implementation of a hybrid equi-join using MPI and OpenMP, and an equi-join using Phoenix++ MapReduce. The two solutions were implemented C++ to allow for low level memory management. After running benchmarks for the two implementations, it was discovered that the Hybrid solution has superior performance for input files larger than 5~GB. For future recommendations, a concurrent vector should be used to improve the performance of the hybrid solution.}
+\abstract{This paper presents the design and implementation of a Hybrid equi-join using MPI and OpenMP, and an equi-join using Phoenix++ MapReduce. The two solutions were implemented in C++ to allow for low level memory management. After running benchmarks for the two implementations, it was discovered that the Hybrid solution has superior performance for input files larger than 5~GB. For future recommendations, a concurrent vector should be used to improve the performance of the Hybrid solution.}
 
 \keywords{Equi-Join, Hash, MapReduce, Message Passing Interface }
 
@@ -106,19 +106,19 @@
 
 A relational \textit{join} operation describes the concatenation of tuples from two relations to form a new relation~\cite{stanczyk2001theory}. Along with the \textit{select} and \textit{project} operations, these form a base for normalisation which is critical for designing database relations~\cite{stanczyk2001theory}. A join is a product of relations followed by a restriction clause~\cite{stanczyk2001theory}. An equi-join follows this structure where the restriction clause is specified as an equality operator~\cite{stanczyk2001theory}. For large datasets, this product is a computationally costly operation and as such, it must be optimized for efficient use.
 
-This paper compares the performance of two programming models, namely an MPI-OpenMP hybrid and Phoenix++ MapReduce, for computing a parallel equi-join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is given. Finally, future recommendations are given based on this discussion.
+This paper compares the performance of two programming models, namely an MPI-OpenMP Hybrid and Phoenix++ MapReduce, for computing a parallel equi-join of two very large tables on their common join attributes. The design and implementation of each model is discussed and a comparative performance analysis between the models is given. Finally, future recommendations are given based on this discussion.
 
 \section{PROBLEM DESCRIPTION}
 
 \subsection{Requirements and Success Criteria}
 
-The project requires the development and implementation of a hybrid programming model to compute a parallel equi-join of two very large relational tables. Additionally, a different algorithmic approach to solve the same problem must be developed and a performance comparison between the two implementations must be undertaken. The joined relation must be written to a file for the result to be corroborated.
+The project requires the development and implementation of a Hybrid programming model to compute a parallel equi-join of two very large relational tables. Additionally, a different algorithmic approach to solve the same problem must be developed and a performance comparison between the two implementations must be undertaken. The joined relation must be written to a file for the result to be corroborated.
 
-The project will be considered a success if the developed MPI-OpenMP hybrid is able to compute the equi-join of two relational tables of approximately 1~GB, or larger, in size.
+The project will be considered a success if the developed MPI-OpenMP Hybrid is able to compute the equi-join of two relational tables of approximately 1~GB, or larger, in size.
 
 \subsection{Assumptions}
 
-During the design and implementation of the hybrid join algorithm, a number of assumptions were made. Firstly, performing an equi-join when the join attribute is a non-primary key, and where the chosen attribute is duplicated in one or both of the input relations, results in an output relation containing all possible permutations of the tuples in the input for that join attribute. A further assumption is made that big data constitutes a file size of 1~GB or larger. 
+During the design and implementation of the Hybrid join algorithm, a number of assumptions were made. Firstly, performing an equi-join when the join attribute is a non-primary key, and where the chosen attribute is duplicated in one or both of the input relations, results in an output relation containing all possible permutations of the tuples in the input for that join attribute. A further assumption is made that big data constitutes a file size of 1~GB or larger. 
 
 \section{PROJECT BACKGROUND}
 In order to process large amounts of data, join operations are often needed~\cite{mapReduceJoin}. There is a great need for efficient join operations since the operation is very expensive in terms of both CPU usage and I/O costs~\cite{mapReduceJoin}.
@@ -173,7 +173,7 @@ The MapReduce model is well suited for data intensive processing for a number of
 Phoenix++ is a C++ based MapReduce implementation that makes use of PThreads to allow for scalability and efficient data processing~\cite{phoenix}.
 
 \section{SYSTEM DESIGN AND IMPLEMENTATION}
-The two implemented solutions are a hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP. Both solutions were created using C++, as C++ allows for the low level memory management of C, but still allows for the use of advanced variable types, such as vectors.
+The two implemented solutions are a Hybrid equi-join using MPI and OpenMP, and an equi-join implemented using MapReduce. The Hybrid solution makes use of the framework set out by the serial solution, but extends it using MPI and OpenMP. Both solutions were created using C++, as C++ allows for the low level memory management of C, but still allows for the use of advanced variable types, such as vectors.
 
 \subsection{Serial Equi-Join}
 An object-oriented solution was implemented for the serial equi-join, which makes use of a simple hash join algorithm. This algorithm was selected as it offers superior performance to the sort-merge join, and still allows for ease of programming (as opposed to the Grace hash-join). Within this solution, two classes were created, namely, \texttt{hashFunction} and \texttt{fileManager}. The \texttt{fileManager} class is responsible for any functionality relating to the management of files. Within the \texttt{fileManager} class, the input text files are read in and split by delimiter and by end of line character. The data is returned in the form of a vector which contains a key in every even index and the original line from the text file in every odd index.
@@ -208,7 +208,7 @@ Two functions were created to handle the joining of the two tables. In these fun
 \subsection{Hybrid Equi-Join}
 The first implemented solution utilises the MPI communications framework in conjunction with the OpenMP API. The MPI framework is used to create a scalable solution which can run on clusters of any size, allowing each node within the cluster to contribute to the computational load of the program~\cite{mpi-scale}. The mpic++ compiler is utilised as it provides a wrapper that interfaces with the g++ compiler~\cite{mpic++-wrapper}. A 64~bit version of the g++ compiler is utilised, and as such the file buffer pointers used were 64~bit pointers \cite{pointer-size}. By considering that the file buffer is a \texttt{signed long int} data type, this translates to the ability to parse files up to 8.5~EB in size \cite{pointer-size}. Thus the memory bottleneck will most likely be enforced by the amount of RAM and page memory available within the cluster. This allows the file content to be read in completely, minimising data access overhead that would be incurred by reading in data chunks through the program execution.
 
-OpenMP was selected for the hybrid model since it makes the implementation of multi-threaded programs much simpler. This is because the complier transforms the serial code into parallel according to the directives~\cite{comparingMPIMapReduce}.
+OpenMP was selected for the Hybrid model since it makes the implementation of multi-threaded programs much simpler. This is because the complier transforms the serial code into parallel according to the directives~\cite{comparingMPIMapReduce}.
 
 A \texttt{FileManager} object is utilised by the compute nodes to read in the two data files that are required to be joined. In order to reduce the overhead involved with the use of \texttt{MPI\_send} with a master node \texttt{FileManager} object, the parallel architecture is exploited in reading in the input text files on each compute node. For the smaller input text file, the entire file is read in by each process and saved in a vector. For the larger input file, each process reads in the size of the input file, and calculates the chunk sizes by dividing the size of the file by the number of processes. Each process then reads in the file chunk relating to their rank.
 
@@ -294,7 +294,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 
 \section{CRITICAL ANALYSIS}
 
-\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that performance improves as the number of nodes increases.
+\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8~GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that performance improves as the number of nodes increases.
 
 \begin{figure}[h]
 	\centering
@@ -324,7 +324,7 @@ A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. 
 	\label{fig:scalabilty}	
 \end{figure}
 
-\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8~GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph~\cite{ram}.
+\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8~GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8~GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8~GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph~\cite{ram}.
 
 \begin{figure}[h]
 	\centering
@@ -344,7 +344,7 @@ A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. 
 	\label{fig:speedUpMR}	
 \end{figure}
 
-By examining \figref{fig:comparison}, it is clear that for file sizes up to approximately 5~GB the MapReduce solution out performs the Hybrid solution. However, thereafter the Hybrid solution has superior performance. The Hybrid solution also boasts linearity over increasing file sizes, making it a more adaptable solution.
+In order to obtain an accurate comparison additional benchmarks, above those previously mentioned, were run. By examining \figref{fig:comparison}, it is clear that for file sizes up to approximately 5~GB the MapReduce solution out performs the Hybrid solution. However, thereafter the Hybrid solution has superior performance. The Hybrid solution also boasts linearity over increasing file sizes, making it a more adaptable solution.
 
 \begin{figure}[h]
 	\centering
@@ -356,7 +356,7 @@ By examining \figref{fig:comparison}, it is clear that for file sizes up to appr
 
 A major strength of the Hybrid solution is that it is both scalable over a large number of nodes and also adaptable to increasing file sizes. On the other hand, the MapReduce solution can only be scaled up to the maximum number of hardware threads, and thereafter performance declines. It is also not able to handle large file sizes with linearly increasing execution times. This presents a weakness of the MapReduce solution.
 
-A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
+A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the Hybrid solution is able to handle any type of delimiter within a file.
 
 \subsection{Limitations}
 A limitation exists with regards to the network bandwidth of the cluster. This translates to incurred overhead when node communication commands, such as \texttt{MPI\_send} and \texttt{MPI\_recv}, are extensively used.
@@ -364,21 +364,21 @@ A limitation exists with regards to the network bandwidth of the cluster. This t
 A limitation of the implemented MapReduce model is that an assumption is made that the reducer has sufficient memory to hold all of the values with the same key~\cite{mapReduceJoin}. If the reducer does not have sufficient memory, the performance of the algorithm is greatly affected.
 
 \subsection{Tradeoffs} \label{sec:tradeoffs}
-The use of a STL \texttt{std::vector} to store the hash join results is a large tradeoff of the system. While this usage allows for reduced computational complexity and improved platform compatibility, it creates redundancies in the efforts to parallelise all possible components of the hybrid equi-join algorithm. Therefore this design choice creates a large inefficiency within the system.
+The use of a STL \texttt{std::vector} to store the hash join results is a large tradeoff of the system. While this usage allows for reduced computational complexity and improved platform compatibility, it creates redundancies in the efforts to parallelise all possible components of the Hybrid equi-join algorithm. Therefore this design choice creates a large inefficiency within the system.
 
 The use of memory mapping to store the input text files for the MapReduce solution is a large tradeoff of the system. While this usage means that larger input files can be processed, it also lead to the need to duplicate each input text file twice, and allocate memory for each of the four text files. This creates a large inefficiency within the system.
 
 \section{FUTURE RECOMMENDATIONS}
-For future recommendations, a hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability~\cite{evaluating4JoinAlgorithms}.
+For future recommendations, a Hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability~\cite{evaluating4JoinAlgorithms}.
 
-Furthermore, the performance of the hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector}~\cite{tbb,mutex}.
+Furthermore, the performance of the Hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector}~\cite{tbb,mutex}.
 
 For future, each of the benchmarks run above should be repeated multiple times and the results should be averaged. This will allow for more accurate benchmarks to be acquired as it will minimise the effect of outliers in the results.
 
 In order to full examine the scalability of the Hybrid solution, the solution should be run on more than eight nodes.
 
 \section{CONCLUSION}
-The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that for input text files with sizes less than 5~GB, the MapReduce solution had superior performance. However, for larger file sizes, the Hybrid solution performs better. The Hybrid Solution was also found to be scalable over increasing node counts. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.
+The design and implementation of two different equi-join algorithms were presented. The first was a Hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that for input text files with sizes less than 5~GB, the MapReduce solution had superior performance. However, for larger file sizes, the Hybrid solution performs better. The Hybrid Solution was also found to be scalable over increasing node counts. For future work, a concurrent vector should be used in the Hybrid model to allow for parallel querying, thus drastically improving performance.
 
 \bibliographystyle{witseie}
 {\setstretch{1.3}

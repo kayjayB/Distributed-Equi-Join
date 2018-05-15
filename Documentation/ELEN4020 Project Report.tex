@@ -81,76 +81,7 @@
 %\addtolength{\textheight}{0.1in}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-	
-%	\begin{titlepage}
-%		
-%		\newcommand{\HRule}{\rule{\linewidth}{0.3mm}} % Defines a new command for the horizontal lines, change thickness here
-%		
-%		\center % Center everything on the page
-%		
-%		%----------------------------------------------------------------------------------------
-%		%	HEADING SECTIONS
-%		%----------------------------------------------------------------------------------------
-%		\includegraphics[width=0.3\textwidth]{EIE.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
-%		
-%		%----------------------------------------------------------------------------------------
-%		\textsc{\LARGE University of the Witwatersrand } \\[0.1cm] % Name of your university/college
-%		\textsc{\LARGE School of Electrical and Information Engineering }\\[1cm] % Major heading such as course name
-%		\textsc{\Large ELEN4020: Data Intensive Computing}\\[1cm] % Minor heading such as course title
-%		
-%		%----------------------------------------------------------------------------------------
-%		%	TITLE SECTION
-%		%----------------------------------------------------------------------------------------
-%		
-%		\HRule \\[0.4cm]
-%		{ \huge \bfseries Design and Implementation of Two Equi-Join Algorithms for Processing Big Data} \\[0.4cm] % Title of your document
-%		\HRule \\[1cm]
-%		
-%		%----------------------------------------------------------------------------------------
-%		%	AUTHOR SECTION
-%		%----------------------------------------------------------------------------------------
-%		\textsc{\Large 	\emph{Authors:} } \\[0.1cm]	 
-%		
-%		
-%		\begin{minipage}{0.4\textwidth}
-%			\begin{flushleft} \large
-%				%			\emph{Author:} \\
-%				Kayla-Jade Butkow \\ 714227 % Your name
-%			\end{flushleft}
-%		\end{minipage}
-%		~
-%		\begin{minipage}{0.4\textwidth}
-%			\begin{flushright} \large
-%				%	\emph{Author:}\\
-%				Jared Ping \\ 704447
-%			\end{flushright}
-%		\end{minipage}\\[0.8cm]
-%		
-%		\begin{minipage}{0.4\textwidth}
-%			\begin{flushleft} \large
-%				%		\emph{Author:}\\
-%				Lara Timm \\ 704157
-%			\end{flushleft}
-%		\end{minipage}
-%		~
-%		\begin{minipage}{0.4\textwidth}
-%			\begin{flushright} \large
-%				%		\emph{Author:} \\
-%				Matthew van Rooyen \\ 706692
-%			\end{flushright}
-%		\end{minipage}\\[0.8cm]
-%		{\large Date Handed In: \nth{14} May, 2018}\\[1cm] 
-%\vfill	
-%\justify
-%\textbf{Abstract:} This paper presents the design and implementation of a hybrid equi-join using MPI and OpenMP, and an equi-join using Phoenix++ MapReduce. The two solutions were implemented C++ to allow for low level memory management. After running benchmarks for the two implementations, it was discovered that ???????????????. For future recommendations, a concurrent vector should be used to improve the performance of the hybrid solution.
-%
-%\textbf{Key words:} Equi-Join, Hash, MapReduce, Message Passing Interface 
-%		
-%	\end{titlepage}
-%
-%\pagestyle{plain}
-%\setcounter{page}{1}
-%\twocolumn
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{A PERFORMANCE EVALUATION OF TWO EQUI-JOIN MODELS FOR PROCESSING BIG DATA}
@@ -162,7 +93,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\abstract{This paper presents the design and implementation of a hybrid equi-join using MPI and OpenMP, and an equi-join using Phoenix++ MapReduce. The two solutions were implemented C++ to allow for low level memory management. After running benchmarks for the two implementations, it was discovered that ???????????????. For future recommendations, a concurrent vector should be used to improve the performance of the hybrid solution.}
+\abstract{This paper presents the design and implementation of a hybrid equi-join using MPI and OpenMP, and an equi-join using Phoenix++ MapReduce. The two solutions were implemented C++ to allow for low level memory management. After running benchmarks for the two implementations, it was discovered that the Hybrid solution has superior performance for input files larger than 5~GB. For future recommendations, a concurrent vector should be used to improve the performance of the hybrid solution.}
 
 \keywords{Equi-Join, Hash, MapReduce, Message Passing Interface }
 
@@ -279,13 +210,13 @@ The first implemented solution utilises the MPI communications framework in conj
 
 OpenMP was selected for the hybrid model since it makes the implementation of multi-threaded programs much simpler. This is because the complier transforms the serial code into parallel according to the directives~\cite{comparingMPIMapReduce}.
 
-A \texttt{FileManager} object is utilised by the compute nodes to read in the two data files that are required to be joined. In order to reduce the overhead involved with the use of \texttt{MPI\_send} with a master node \texttt{FileManager} object, the parallel architecture is exploited in reading in the input text files on each compute node. For the smaller input text file, the entire file in read in by each process and saved in a vector. For the larger input file, each process reads in the size of the input files, and calculates the chunk sizes by dividing the size of the file by the number of processes. Each process then reads in the file chunk relating to their rank.
+A \texttt{FileManager} object is utilised by the compute nodes to read in the two data files that are required to be joined. In order to reduce the overhead involved with the use of \texttt{MPI\_send} with a master node \texttt{FileManager} object, the parallel architecture is exploited in reading in the input text files on each compute node. For the smaller input text file, the entire file is read in by each process and saved in a vector. For the larger input file, each process reads in the size of the input file, and calculates the chunk sizes by dividing the size of the file by the number of processes. Each process then reads in the file chunk relating to their rank.
 
-Using the contents of the smaller file, a hash table is created on each compute node. When performing the hash, the value at the specified column index is set as the key and the line from which it was extracted is set as the value.
+Using the contents of the file chunk, a hash table is created on each compute node. When performing the hash, the value at the specified column index is set as the key and the line from which it was extracted is set as the value.
 
-Each compute node utilises the OpenMP API to parallelise the hashing of the first data segment. This allows the adding of keys to the hash table to be done in a parallel manner. In order to parallelise the query and join components of the hash-join, vectors of join results are pushed back to a results vector. This allows for concurrent operations to occur. Thereafter, the vector of vectors is iterated through and a resultant vector is generated to allow improved access time.
+Each compute node utilises the OpenMP API to parallelise the hashing of the data segment. This allows the adding of keys to the hash table to be done in a parallel manner. The entire smaller file is used, by each node, to query the hash table. In order to parallelise the query and join components of the hash-join, vectors of join results are pushed back to a results vector. This allows for concurrent operations to occur. Thereafter, the vector of vectors is iterated through and a resultant vector is generated to allow improved access time.
 
-The use of a 2D vector to facilitate parallel operations becomes time expensive for large datasets. This design is incurred due to a \texttt{std::vector} container from the C++ Standard Template Library (STL) not allowing concurrent modification operations~\cite{stl-vector}. This presents a tradeoff in the design, which is discussed in detail in~\secref{sec:tradeoffs}.
+The use of a 2D vector to facilitate parallel operations becomes time expensive for large datasets. This design was selected since a \texttt{std::vector} container from the C++ Standard Template Library (STL) does not allow concurrent modification operations~\cite{stl-vector}. This presents a tradeoff in the design, which is discussed in detail in~\secref{sec:tradeoffs}.
 
 Once each compute node has completed its required hashing computations, the resulting joined data is sent back to the master node using \texttt{MPI\_recv}. The order of received data is not important and thus the transmitted results from compute nodes can be received as they are completed. The master then proceeds to write the resultant data to an output file as each resultant data chunk is received. This write process occurs on a single thread to prevent data corruption due to simultaneous writes to a single output file.
 
@@ -383,7 +314,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:speedUpH}	
 \end{figure}
 
-A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing.
+A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the amount of scalability is smaller. This is on account of the additional overhead for the MPI message passing.
 
 \begin{figure}[h]
 	\centering
@@ -443,7 +374,7 @@ For future, each of the benchmarks run above should be repeated multiple times a
 In order to full examine the scalability of the Hybrid solution, the solution should be run on more than eight nodes.
 
 \section{CONCLUSION}
-The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that ?????????????. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.
+The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that for input text files with sizes less than 5~GB, the MapReduce solution had superior performance. However, for larger file sizes, the Hybrid solution performs better. The Hybrid Solution was also found to be scalable over increasing node counts. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.
 
 \bibliographystyle{witseie}
 {\setstretch{1.3}

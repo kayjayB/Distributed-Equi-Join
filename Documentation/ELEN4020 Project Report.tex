@@ -153,7 +153,7 @@
 %\twocolumn
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{A PERFORMANCE EVALUATION OF TWO EQUI-JOIN ALGORITHMS FOR PROCESSING BIG DATA}
+\title{A PERFORMANCE EVALUATION OF TWO EQUI-JOIN MODELS FOR PROCESSING BIG DATA}
 
 \author{Kayla-Jade Butkow (714227), Jared Ping (704447), Lara Timm (704157) and Matthew van Rooyen (706692)
 	\thanks{School of Electrical \& Information Engineering, University of the
@@ -218,10 +218,6 @@ Once the table is created, the larger relation is read in and its tuples probe t
 
 The Grace join algorithm differs from a simple hash join as it partitions both relations instead of scanning through the second, larger relation \cite{graceHash}. This is achieved by adding a third phase to the algorithm's make up. In the first phase, the algorithm partitions the smaller relation into a hash table \cite{graceHash}. In phase two, the larger relation is also partitioned into a table using the same hash function \cite{evaluating4JoinAlgorithms}. In the final phase, the algorithm joins the matching (key,value) pairs from both hash tables \cite{evaluating4JoinAlgorithms}.
 
-
-%The Hybrid hash join algorithm is an improvement on the Grace join algorithm \cite{evaluating4JoinAlgorithms}. The algorithm is optimized to ensure that it makes use of all available memory on offer from the system. Similar to the Grace algorithm, the Hybrid hash join algorithm also consists of three phases. The hash function used in the first phase to partition the smaller relation ensures that the number of tuples produced for each bucket is small enough to fit within the systems main memory\cite{evaluating4JoinAlgorithms}. The first bucket is then used to create an in-memory hash table while the other buckets produced are temporarily stored in files. The same is done for the larger relation in phase 2, using the same hash function as phase 1. The first bucket of tuples is immediately used to probe the initial in-memory hash table generated in phase 1. It is important to note that the larger relation is divided into the same number of buckets as defined by the small relation. This allows the third phase to the join each bucket in the first relation with it's corresponding bucket in the second. 
-%
-%The use of main memory in this way means the algorithm requires less I/O operations in comparison to that of a grace join. The joins are also segmented into smaller joins which are implemented for each iteration in the joining phase reducing computation time. When implemented in parallel, the algorithm computation times is decreased as the partitioning of both relations is overlapped with joining of the first buckets from both relations\cite{evaluating4JoinAlgorithms}.
 \subsection{Message-Passing Interface}
 Message passing is a form of communication between two separate processes~\cite{IBM, equijoinWithMPI}. By using message passing, processes can send and receive resources~\cite{IBM}. If data is transferred, the data must be moved from the local memory of the sending process to that of the receiving process~\cite{IBM}.
 
@@ -330,7 +326,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\resizebox{1\textwidth}{!}{%
 	\begin{tabular}{|c|l|l|l|l|l|l|l|}
 		\hline
-		\multirow{2}{2cm}{\centering{\textbf{File Size (GB)}}} & \multicolumn{7}{|c|}{\textbf{Numbers of Nodes}} \\\cline{2-8}
+		\multirow{2}{2cm}{\centering{\textbf{File Size (GB)}}} & \multicolumn{7}{c|}{\textbf{Numbers of Nodes}} \\\cline{2-8}
 		& 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ 
 		\hline 
 		\hline 
@@ -367,7 +363,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 
 \section{CRITICAL ANALYSIS}
 
-\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8~GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph~\cite{ram}.
+\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that a marginal performance gain was achieved in certain benchmarks when using 8 nodes compared to 7. This may be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
 
 \begin{figure}[h]
 	\centering
@@ -377,7 +373,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:resultsH}	
 \end{figure}
 
-\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that marginal time gain was achieved in certain benchmarks when using 8 nodes compared to 7. This may be attributed to other benchmarks being concurrently run on the additional node. This would correspond to shared node resources being utilised and thus true performance is not measured.
+\figref{fig:speedUpH} is a speedup plot for the Hybrid equi-join. Speedup is defined as the ratio of the execution time for one node to that of N nodes \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsH}, being that as the number of nodes increases, performance increases.
 
 \begin{figure}[h]
 	\centering
@@ -387,7 +383,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:speedUpH}	
 \end{figure}
 
-\figref{fig:speedUpH} is a speedup plot for the Hybrid equi-join. Speedup is defined as the ratio of the execution time for one node to that of N nodes \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsH}, being that as the number of nodes increases, performance increases.
+\figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8~GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph~\cite{ram}.
 
 \begin{figure}[h]
 	\centering
@@ -405,6 +401,16 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\caption{Speedup plot for the MapReduce solution}
 	\raggedright
 	\label{fig:speedUpMR}	
+\end{figure}
+
+By examining \figref{fig:comparison}, it is clear that for file sizes up to approximately 5~GB the MapReduce solution out performs the Hybrid solution. However, thereafter the Hybrid solution has superior performance. The Hybrid solution also boasts linearity over increasing file sizes, making it a more adaptable solution.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1\columnwidth]{comparison.png}
+	\caption{A comparison of the times taken for the two solutions over various file sizes}
+	\raggedright
+	\label{fig:comparison}	
 \end{figure}
 
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
@@ -434,67 +440,6 @@ The design and implementation of two different equi-join algorithms were present
 }
 }
 
-\newpage
-
-\begin{appendix}
-	\begin{table*}[h]
-		\centering
-		\caption{Comparison of time taken to compute the equi-join using MapReduce with two 1~GB files over various numbers of threads}
-		\label{tab:results5}
-		
-		\begin{tabular}{|c|c|c|c|c|}
-			\hline 
-			Number of threads & 1 & 4 & 8 &16\\ 
-			\hline
-			\hline
-			Time For Map Reduce (s) & 44.206261 & 14.993695 & 14.163257 &20.268396\\ 
-			\hline 
-			Time For File Write (s) & 13.972962 & 15.215831 & 13.157052 &16.377010\\ 
-			\hline 
-			Total Time (s) & 58.179223 & 30.209526 & 27.320309 &  36.645406\\ 
-			\hline 
-		\end{tabular} 
-	\end{table*}
-
-\begin{table*}[h]
-	\centering
-	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2~GB files over various numbers of threads}
-	\label{tab:results3}
-	
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline 
-		Number of threads & 1 & 4 & 8 &16\\ 
-		\hline
-		\hline
-		Time For Map Reduce (s) & 93.469804 & 31.426143 & 30.058178 & 41.858639\\ 
-		\hline 
-		Time For File Write (s) & 28.433646 & 32.931398& 24.158987 & 24.892521\\ 
-		\hline 
-		Total Time (s) & 121.903450 & 64.357541 & 54.217165 & 66.751160 \\ 
-		\hline 
-	\end{tabular} 
-\end{table*}
-
-
-\begin{table*}[h]
-	\centering
-	\caption{Comparison of time taken to compute the equi-join using MapReduce with two 2.8~GB files over various numbers of threads}
-	\label{tab:results4}
-	
-	\begin{tabular}{|c|c|c|c|c|}
-		\hline 
-		Number of threads & 1 & 4 & 8 &16\\ 
-		\hline
-		\hline
-		Time For Map Reduce (s) & 8234.864934 & 2106.017669 & 4120.272176 & 5987.084951 \\ 
-		\hline 
-		Time For File Write (s) & 4497.093757 & 4580.957035 & 4466.227346 & 4502.906463 \\ 
-		\hline 
-		Total Time (s) & 12731.958691 & 6686.974704 & 8586.499522 &  10489.991414\\ 
-		\hline 
-	\end{tabular} 
-\end{table*}
-\end{appendix}
 
 
 \end{document}

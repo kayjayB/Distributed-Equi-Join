@@ -357,6 +357,8 @@ By examining \figref{fig:comparison}, it is clear that for file sizes up to appr
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 
 \subsection{Limitations}
+A limitation exists with regards to the network bandwidth of the cluster. This translates to incurred overhead when node communication commands, such as \texttt{MPI\_send} and \texttt{MPI\_recv}, are extensively used.
+
 A limitation of the implemented MapReduce model is that an assumption is made that the reducer has sufficient memory to hold all of the values with the same key~\cite{mapReduceJoin}. If the reducer does not have sufficient memory, the performance of the algorithm is greatly affected.
 
 \subsection{Tradeoffs} \label{sec:tradeoffs}

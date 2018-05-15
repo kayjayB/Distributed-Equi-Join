@@ -294,7 +294,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 
 \section{CRITICAL ANALYSIS}
 
-\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that a marginal performance gain was achieved in certain benchmarks when using 8 nodes compared to 7. This may be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
+\figref{fig:resultsH} provides a graph of the time taken for the Hybrid equi-join per number of nodes for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that the performance of the algorithm is proportional to the number of nodes utilised for computation as the workload is shared between them. From the figure, it can be seen that performance improves as the number of nodes increases.
 
 \begin{figure}[h]
 	\centering
@@ -314,7 +314,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:speedUpH}	
 \end{figure}
 
-A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the amount of scalability is smaller. This is on account of the additional overhead for the MPI message passing.
+A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing. This may also be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
 
 \begin{figure}[h]
 	\centering
@@ -334,7 +334,7 @@ A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. 
 	\label{fig:resultsMR}	
 \end{figure}
 
-\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. Speedup is defined as the ratio of the execution time for one thread to that of N threads \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of threads per core is exceeded. Thereafter, performance decreases.
+\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. Speedup is defined as the ratio of the execution time for one thread to that of N threads \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of hardware threads per core is exceeded. Thereafter, performance decreases.
 
 \begin{figure}[h]
 	\centering
@@ -349,10 +349,12 @@ By examining \figref{fig:comparison}, it is clear that for file sizes up to appr
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=1\columnwidth]{comparison.png}
-	\caption{A comparison of the times taken for the two solutions over various file sizes}
+	\caption{A comparison of the time taken for the two solutions over various file sizes}
 	\raggedright
 	\label{fig:comparison}	
 \end{figure}
+
+A major strength of the Hybrid solution is that it is both scalable over a large number of nodes and also adaptable to increasing file sizes. On the other hand, the MapReduce solution can only be scaled up to the maximum number of hardware threads, and thereafter performance declines. It is also not able to handle large file sizes with linearly increasing execution times. This presents a weakness of the MapReduce solution.
 
 A strength of the designed solutions is that both solutions are able to perform equi-join operations on any column of a table. Furthermore, the hybrid solution is able to handle any type of delimiter within a file.
 

@@ -135,18 +135,18 @@ int main(int argc, char *argv[])
 			printf("Working on thread %d out of %d from process %d out of %d on %s\n", iam, np, rank, numprocs, processor_name);
 
 			#pragma omp for
-			for (auto i = 0; i < length_file_1; i = i + 2)
+			for (auto i = 0; i < length_file_2; i = i + 2)
 			{
-				string key = linesOfFile1[i];
-				string value = linesOfFile1[i+1];
+				string key = linesOfFile2_node[i];
+				string value = linesOfFile2_node[i+1];
 				hasher -> AddItem(key,value);
 			}
 
 			vector<vector<string>> vec_results;
 			
 			#pragma omp for nowait schedule(static)
-			for (auto i = 0; i < length_file_2; i = i + 2) { 
-				vec_results.push_back(query(hasher, linesOfFile2_node[i], linesOfFile2_node[i+1]));
+			for (auto i = 0; i < length_file_1; i = i + 2) { 
+				vec_results.push_back(query(hasher, linesOfFile1[i], linesOfFile1[i+1]));
 			}
 			
 			#pragma omp for schedule(static) ordered

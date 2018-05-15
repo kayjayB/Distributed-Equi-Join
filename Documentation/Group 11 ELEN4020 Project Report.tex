@@ -330,7 +330,7 @@ A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. 
 	\label{fig:resultsMR}	
 \end{figure}
 
-\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. Speedup is defined as the ratio of the execution time for one thread to that of N threads \cite{speedup}. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of hardware threads per core is exceeded. Thereafter, performance decreases.
+\figref{fig:speedUpMR} is a speedup plot for the MapReduce equi-join. The graph emphasises the conclusions made from \figref{fig:resultsMR}, being that as the number of threads increases, performance increases, until the maximum number of hardware threads per core is exceeded. Thereafter, performance decreases.
 
 \begin{figure}[h]
 	\centering
@@ -340,7 +340,7 @@ A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. 
 	\label{fig:speedUpMR}	
 \end{figure}
 
-In order to obtain an accurate comparison additional benchmarks, above those previously mentioned, were run. By examining \figref{fig:comparison}, it is clear that for file sizes up to approximately 5~GB the MapReduce solution out performs the Hybrid solution. However, thereafter the Hybrid solution has superior performance. The Hybrid solution also boasts linearity over increasing file sizes, making it a more adaptable solution.
+In order to obtain an accurate comparison additional benchmarks, above those previously mentioned, were run. By examining \figref{fig:comparison}, it is clear that for file sizes up to approximately 5~GB, the MapReduce solution out performs the Hybrid solution. However, thereafter the Hybrid solution has superior performance. The Hybrid solution also boasts linearity over increasing file sizes, making it a more adaptable solution.
 
 \begin{figure}[h]
 	\centering
@@ -365,11 +365,11 @@ The use of a STL \texttt{std::vector} to store the hash join results is a large 
 The use of memory mapping to store the input text files for the MapReduce solution is a large tradeoff of the system. While this usage means that larger input files can be processed, it also lead to the need to duplicate each input text file twice, and allocate memory for each of the four text files. This creates a large inefficiency within the system.
 
 \section{FUTURE RECOMMENDATIONS}
-For future recommendations, a Hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability~\cite{evaluating4JoinAlgorithms}.
+For future recommendations, a Grace or Hybrid hash-join algorithm should be implemented rather than a simple hash-join. This would improve performance at all levels of memory availability~\cite{evaluating4JoinAlgorithms}.
 
 Furthermore, the performance of the Hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector}~\cite{tbb,mutex}.
 
-For future, each of the benchmarks run above should be repeated multiple times and the results should be averaged. This will allow for more accurate benchmarks to be acquired as it will minimise the effect of outliers in the results.
+For future development, each of the benchmarks run above should be repeated multiple times and the results should be averaged. This will allow for more accurate benchmarks to be acquired as it will minimise the effect of outliers in the results.
 
 \section{CONCLUSION}
 The design and implementation of two different equi-join algorithms were presented. The first was a Hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that for input text files with sizes less than 5~GB, the MapReduce solution had superior performance. However, for larger file sizes, the Hybrid solution performs better. The Hybrid Solution was also found to be scalable over increasing node counts. For future work, a concurrent vector should be used in the Hybrid model to allow for parallel querying, thus drastically improving performance.

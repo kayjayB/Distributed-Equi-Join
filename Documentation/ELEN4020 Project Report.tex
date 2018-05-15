@@ -383,6 +383,16 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:speedUpH}	
 \end{figure}
 
+A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1\columnwidth]{scalability.png}
+	\caption{Scalability plot for the Hybrid solution}
+	\raggedright
+	\label{fig:scalabilty}	
+\end{figure}
+
 \figref{fig:resultsMR} provides a graph of the time taken for the MapReduce equi-join per number of threads for the 1, 2 and 2.8GB input files. From the graph, it is clear that as the file size increases, the time to perform the join increases. It also indicates that for the smaller input files, the optimal performance is achieved for eight threads. However, for the large input file, the best performance is achieved when four threads are used. Since the node used to run the benchmarks had eight hardware threads, it is expected that running the program with eight threads would give the best performance. It is thus an outlier that the best performance for the 2.8GB input files was achieved for four threads. From the figure, it can also be inferred that when running the 2.8~GB input file, all of the node's RAM was used, and as such, hard drive space was used for virtual memory \cite{ram}. Since hard drive I/O speed is much slower than RAM I/O speeds, the use of virtual memory results in the drastic speed decrease seen in the graph~\cite{ram}.
 
 \begin{figure}[h]
@@ -429,6 +439,8 @@ For future recommendations, a hybrid hash-join algorithm should be implemented r
 Furthermore, the performance of the hybrid equi-join algorithm could be greatly improved through the use of a concurrent vector, such as the Thread Building Blocks (TBB) \texttt{tbb::concurrent\_vector}, or by utilising the \texttt{std::mutex} class to manage thread synchronisation of modification operations to the STL \texttt{std::vector}~\cite{tbb,mutex}.
 
 For future, each of the benchmarks run above should be repeated multiple times and the results should be averaged. This will allow for more accurate benchmarks to be acquired as it will minimise the effect of outliers in the results.
+
+In order to full examine the scalability of the Hybrid solution, the solution should be run on more than eight nodes.
 
 \section{CONCLUSION}
 The design and implementation of two different equi-join algorithms were presented. The first was a hybrid model using MPI and OpenMP, that made use of a simple hash join to implement the equi-join. The second implemented the equi-join using the Phoenix++ MapReduce paradigm. Benchmarks were run by varying the input file size, along with the number of nodes and the number of threads being used by the two solutions. It was discovered that ?????????????. For future work, a concurrent vector should be used in the hybrid model to allow for parallel querying, thus drastically improving performance.

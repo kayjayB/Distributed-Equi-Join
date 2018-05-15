@@ -535,7 +535,7 @@ page \thepage \space undefined}}%
    \noindent{\itshape\small\vskip 7pt {\sl \@thanks}\par}
    \noindent{\small\vskip 5pt {\fontfamily{ptm}\fontseries{b}\fontsize{10pt}{\f@baselineskip}\selectfont Abstract:} \@abstract\par}
    \noindent{\small\vskip 5pt {\fontfamily{ptm}\fontseries{b}\fontsize{10pt}{\f@baselineskip}\selectfont Key words:} \@keywords\par}
-   \vskip 14pt}}
+   \vskip 30pt}}
 
 \def\maketitle{\par
    \begingroup

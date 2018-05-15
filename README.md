@@ -25,14 +25,14 @@ Test Input: Contains two test files for running the solutions
       
    To run: 
    
-   `mpirun --hostfile "name of hostfile" -np "number of processes" ./Project "input file 1" "input file 2" "column containing key"`
+   `mpirun --hostfile [name of hostfile] -np [number of processes] ./Project [input file 1] [input file 2] [column containing key]`
       
    OR
       
-   `mpiexec -n "number of processes" -f "name of hostfile" ./Project "input file 1" "input file 2" "column containing key"`
+   `mpiexec -n [number of processes] -f [name of hostfile] ./Project [input file 1] [input file 2] [column containing key]`
       
 #### MapReduce Solution:
    
    To compile and run: 
    
-   `./MapReduce.sh "input file 1" "input file 2" "column containing key"`    
+   `./MapReduce.sh [input file 1] [input file 2] [column containing key]`    

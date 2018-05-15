@@ -310,7 +310,7 @@ The benchmarks were run using three sets of input files of various sizes. Firstl
 	\label{fig:speedUpH}	
 \end{figure}
 
-A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. Scalability is defined as the ratio of the serial execution time to that of N nodes \cite{speedup}. From the figure it is clear that between 2 and 6 nodes, the scalability increases linearly. However, from 7 nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing. This may also be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
+A scalability plot for the Hybrid solution is given in \figref{fig:scalabilty}. Scalability is defined as the ratio of the serial execution time to that of N nodes \cite{speedup}. From the figure it is clear that between two and six nodes, the scalability increases linearly. However, from seven nodes onwards, the scalability seems to plateau. This is on account of the additional overhead for the MPI message passing. This may also be attributed to other benchmarks being run concurrently on the additional node. As such, node resources were shared and thus a true measure of the performance of the model was not obtained.
 
 \begin{figure}[h]
 	\centering
